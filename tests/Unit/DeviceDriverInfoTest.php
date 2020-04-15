@@ -25,7 +25,7 @@ use SuperTokens\Exceptions\SuperTokensUnauthorizedException;
 use SuperTokens\Helpers\Constants;
 use SuperTokens\Helpers\DeviceInfo;
 use SuperTokens\Helpers\Querier;
-use SuperTokens\SuperToken;
+use SuperTokens\SuperTokens;
 
 class DeviceDriverInfoTest extends TestCase
 {
@@ -80,7 +80,7 @@ class DeviceDriverInfoTest extends TestCase
     {
         Utils::startST();
         $response = new Response();
-        SuperToken::createNewSession($response, "testing", [], []);
+        SuperTokens::createNewSession($response, "testing", [], []);
         $responseInfo = Utils::extractInfoFromResponse($response);
         $request1 = new Request([], [], [], [
             'sAccessToken' => $responseInfo['accessToken'],
@@ -89,14 +89,14 @@ class DeviceDriverInfoTest extends TestCase
         $request1->headers->set("anti-csrf", $responseInfo['antiCsrf']);
         $request1->headers->set("supertokens-sdk-name", 'ios');
         $request1->headers->set("supertokens-sdk-version", '0.0.0');
-        SuperToken::getSession($request1, new Response(), true);
+        SuperTokens::getSession($request1, new Response(), true);
 
         $request2 = new Request([], [], [], [
             'sAccessToken' => $responseInfo['accessToken'],
             'sIdRefreshToken' => $responseInfo['idRefreshToken']
         ]);
         $request2->headers->set("anti-csrf", $responseInfo['antiCsrf']);
-        SuperToken::getSession($request2, new Response(), true);
+        SuperTokens::getSession($request2, new Response(), true);
 
         $request1 = new Request([], [], [], [
             'sAccessToken' => $responseInfo['accessToken'],
@@ -105,7 +105,7 @@ class DeviceDriverInfoTest extends TestCase
         $request1->headers->set("anti-csrf", $responseInfo['antiCsrf']);
         $request1->headers->set("supertokens-sdk-name", 'android');
         $request1->headers->set("supertokens-sdk-version", '0.0.1');
-        SuperToken::getSession($request1, new Response(), true);
+        SuperTokens::getSession($request1, new Response(), true);
 
         $frontendSDKs = DeviceInfo::getInstance()->getFrontendSDKs();
         $found = 0;

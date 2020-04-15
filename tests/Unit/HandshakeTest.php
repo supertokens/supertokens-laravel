@@ -20,7 +20,7 @@ use Illuminate\Http\Response;
 use SuperTokens\Exceptions\SuperTokensException;
 use SuperTokens\Exceptions\SuperTokensGeneralException;
 use SuperTokens\Helpers\HandshakeInfo;
-use SuperTokens\SuperToken;
+use SuperTokens\SuperTokens;
 
 class HandshakeTest extends TestCase
 {
@@ -53,7 +53,7 @@ class HandshakeTest extends TestCase
     public function testCoreNotAvailable(): void
     {
         try {
-            SuperToken::createNewSession(new Response(), "abc", [], []);
+            SuperTokens::createNewSession(new Response(), "abc", [], []);
             $this->assertTrue(false);
         } catch (SuperTokensException $e) {
             $this->assertTrue(true);

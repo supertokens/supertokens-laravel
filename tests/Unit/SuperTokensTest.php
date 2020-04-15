@@ -24,7 +24,7 @@ use SuperTokens\Exceptions\SuperTokensTokenTheftException;
 use SuperTokens\Exceptions\SuperTokensTryRefreshTokenException;
 use SuperTokens\Exceptions\SuperTokensUnauthorizedException;
 use SuperTokens\SessionHandlingFunctions;
-use SuperTokens\SuperToken;
+use SuperTokens\SuperTokens;
 
 // TODO: add tests for JWT and session data null, empty checks
 // TODO: add tests for cookie expiry checking
@@ -62,14 +62,14 @@ class SuperTokensTest extends TestCase
         Utils::startST();
 
         $response1 = new Response();
-        SuperToken::createNewSession($response1, "userId", [], []);
+        SuperTokens::createNewSession($response1, "userId", [], []);
         $responseData1 = Utils::extractInfoFromResponse($response1);
 
         $request2 = new Request([], [], [], [
             'sRefreshToken' => $responseData1['refreshToken']
         ]);
         $response2 = new Response();
-        SuperToken::refreshSession($request2, $response2);
+        SuperTokens::refreshSession($request2, $response2);
         $responseData2 = Utils::extractInfoFromResponse($response2);
 
         $request3 = new Request([], [], [], [
@@ -78,11 +78,11 @@ class SuperTokensTest extends TestCase
         ]);
         $request3->headers->set("anti-csrf", $responseData2['antiCsrf']);
         $response3 = new Response();
-        SuperToken::getSession($request3, $response3, true);
+        SuperTokens::getSession($request3, $response3, true);
 
         $response4 = new Response();
         try {
-            SuperToken::refreshSession($request2, $response4);
+            SuperTokens::refreshSession($request2, $response4);
             $this->assertTrue(false);
         } catch (SuperTokensTokenTheftException $e) {
             $responseData3 = Utils::extractInfoFromResponse($response4);
@@ -104,7 +104,7 @@ class SuperTokensTest extends TestCase
     {
         Utils::startST();
         $response1 = new Response();
-        SuperToken::createNewSession($response1, "userId", null, []);
+        SuperTokens::createNewSession($response1, "userId", null, []);
         $responseData1 = Utils::extractInfoFromResponse($response1);
         $this->assertNotNull($responseData1["idRefreshTokenFromHeader"]);
         $this->assertNotNull($responseData1["accessToken"]);
@@ -135,7 +135,7 @@ class SuperTokensTest extends TestCase
         ]);
         $request2->headers->set("anti-csrf", $responseData1['antiCsrf']);
         $response2 = new Response();
-        SuperToken::getSession($request2, $response2, true);
+        SuperTokens::getSession($request2, $response2, true);
         $emptyResponseData1 = Utils::extractInfoFromResponse($response2);
         $this->assertNull($emptyResponseData1["idRefreshTokenFromHeader"]);
         $this->assertNull($emptyResponseData1["accessToken"]);
@@ -149,7 +149,7 @@ class SuperTokensTest extends TestCase
             'sRefreshToken' => $responseData1['refreshToken']
         ]);
         $response3 = new Response();
-        SuperToken::refreshSession($request3, $response3);
+        SuperTokens::refreshSession($request3, $response3);
         $responseData2 = Utils::extractInfoFromResponse($response3);
         $this->assertNotNull($responseData2["idRefreshTokenFromHeader"]);
         $this->assertNotNull($responseData2["accessToken"]);
@@ -180,7 +180,7 @@ class SuperTokensTest extends TestCase
         ]);
         $request4->headers->set("anti-csrf", $responseData2['antiCsrf']);
         $response4 = new Response();
-        SuperToken::getSession($request4, $response4, true);
+        SuperTokens::getSession($request4, $response4, true);
         $responseData3 = Utils::extractInfoFromResponse($response4);
         $this->assertNotNull($responseData3["accessToken"]);
         $this->assertTrue($responseData3["accessTokenCookie"]->getPath() === "/");
@@ -201,7 +201,7 @@ class SuperTokensTest extends TestCase
         ]);
         $request5->headers->set("anti-csrf", $responseData2['antiCsrf']);
         $response5 = new Response();
-        $session = SuperToken::getSession($request5, $response5, true);
+        $session = SuperTokens::getSession($request5, $response5, true);
         self::assertFalse(SessionHandlingFunctions::$SERVICE_CALLED);
 
         $session->revokeSession();
@@ -224,7 +224,7 @@ class SuperTokensTest extends TestCase
         Utils::startST();
 
         $response1 = new Response();
-        SuperToken::createNewSession($response1, "userId", [], []);
+        SuperTokens::createNewSession($response1, "userId", [], []);
         $responseData1 = Utils::extractInfoFromResponse($response1);
 
         $request2 = new Request([], [], [], [
@@ -233,7 +233,7 @@ class SuperTokensTest extends TestCase
         ]);
         $request2->headers->set("anti-csrf", $responseData1['antiCsrf']);
         $response2 = new Response();
-        $session1 = SuperToken::getSession($request2, $response2, true);
+        $session1 = SuperTokens::getSession($request2, $response2, true);
         $this->assertEquals("userId", $session1->getUserId());
 
         $request3 = new Request([], [], [], [
@@ -242,7 +242,7 @@ class SuperTokensTest extends TestCase
         ]);
         $request3->headers->set("anti-csrf", $responseData1['antiCsrf']);
         $response3 = new Response();
-        $session2 = SuperToken::getSession($request3, $response3, false);
+        $session2 = SuperTokens::getSession($request3, $response3, false);
         $this->assertEquals("userId", $session2->getUserId());
     }
 
@@ -254,7 +254,7 @@ class SuperTokensTest extends TestCase
         Utils::startST();
 
         $response1 = new Response();
-        SuperToken::createNewSession($response1, "userId", [], []);
+        SuperTokens::createNewSession($response1, "userId", [], []);
         $responseData1 = Utils::extractInfoFromResponse($response1);
 
         $request2 = new Request([], [], [], [
@@ -262,7 +262,7 @@ class SuperTokensTest extends TestCase
             'sIdRefreshToken' => $responseData1['idRefreshToken']
         ]);
         $response2 = new Response();
-        $session1 = SuperToken::getSession($request2, $response2, false);
+        $session1 = SuperTokens::getSession($request2, $response2, false);
         $this->assertEquals("userId", $session1->getUserId());
 
         $request3 = new Request([], [], [], [
@@ -271,7 +271,7 @@ class SuperTokensTest extends TestCase
         ]);
         $response3 = new Response();
         try {
-            SuperToken::getSession($request3, $response3, true);
+            SuperTokens::getSession($request3, $response3, true);
             $this->assertTrue(false);
         } catch (SuperTokensTryRefreshTokenException $e) {
             $this->assertTrue(true);
@@ -288,7 +288,7 @@ class SuperTokensTest extends TestCase
         SessionHandlingFunctions::revokeAllSessionsForUser("userId");
         $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
         $response1 = new Response();
-        SuperToken::createNewSession($response1, "userId", [], []);
+        SuperTokens::createNewSession($response1, "userId", [], []);
         $responseData1 = Utils::extractInfoFromResponse($response1);
 
         $request2 = new Request([], [], [], [
@@ -297,7 +297,7 @@ class SuperTokensTest extends TestCase
         ]);
         $request2->headers->set("anti-csrf", $responseData1['antiCsrf']);
         $response2 = new Response();
-        $session1 = SuperToken::getSession($request2, $response2, true);
+        $session1 = SuperTokens::getSession($request2, $response2, true);
         $session1->revokeSession();
         $responseData2 = Utils::extractInfoFromResponse($response2);
         $this->assertNull($responseData2["antiCsrf"]);
@@ -309,9 +309,9 @@ class SuperTokensTest extends TestCase
         $this->assertEquals(0, $responseData2["refreshTokenExpiry"]);
         $this->assertEquals(0, $responseData2["idRefreshTokenExpiry"]);
 
-        SuperToken::createNewSession(new Response(), "userId", [], []);
+        SuperTokens::createNewSession(new Response(), "userId", [], []);
         $response3 = new Response();
-        SuperToken::createNewSession($response3, "userId", [], []);
+        SuperTokens::createNewSession($response3, "userId", [], []);
         $responseData3 = Utils::extractInfoFromResponse($response3);
 
         $request4 = new Request([], [], [], [
@@ -320,9 +320,9 @@ class SuperTokensTest extends TestCase
         ]);
         $request4->headers->set("anti-csrf", $responseData3['antiCsrf']);
         $response4 = new Response();
-        $session2 = SuperToken::getSession($request4, $response4, true);
-        SuperToken::revokeAllSessionsForUser($session2->getUserId());
-        $this->assertCount(0, SuperToken::getAllSessionHandlesForUser($session2->getUserId()));
+        $session2 = SuperTokens::getSession($request4, $response4, true);
+        SuperTokens::revokeAllSessionsForUser($session2->getUserId());
+        $this->assertCount(0, SuperTokens::getAllSessionHandlesForUser($session2->getUserId()));
     }
 
     /**
@@ -333,7 +333,7 @@ class SuperTokensTest extends TestCase
         Utils::startST();
 
         $response1 = new Response();
-        SuperToken::createNewSession($response1, "userId", [], []);
+        SuperTokens::createNewSession($response1, "userId", [], []);
         $responseData1 = Utils::extractInfoFromResponse($response1);
 
         $request2 = new Request([], [], [], [
@@ -342,7 +342,7 @@ class SuperTokensTest extends TestCase
         ]);
         $request2->headers->set("anti-csrf", $responseData1['antiCsrf']);
         $response2 = new Response();
-        $session1 = SuperToken::getSession($request2, $response2, true);
+        $session1 = SuperTokens::getSession($request2, $response2, true);
         $session1->updateSessionInfo(["key" => "value"]);
 
         $request3 = new Request([], [], [], [
@@ -351,7 +351,7 @@ class SuperTokensTest extends TestCase
         ]);
         $request3->headers->set("anti-csrf", $responseData1['antiCsrf']);
         $response3 = new Response();
-        $session2 = SuperToken::getSession($request3, $response3, true);
+        $session2 = SuperTokens::getSession($request3, $response3, true);
         $sessionData1 = $session2->getSessionData();
         $this->assertArrayHasKey("key", $sessionData1);
         $this->assertEquals("value", $sessionData1["key"]);
@@ -362,7 +362,7 @@ class SuperTokensTest extends TestCase
         ]);
         $request4->headers->set("anti-csrf", $responseData1['antiCsrf']);
         $response4 = new Response();
-        $session3 = SuperToken::getSession($request4, $response4, true);
+        $session3 = SuperTokens::getSession($request4, $response4, true);
         $session3->updateSessionInfo(["key" => "value2"]);
 
         $request5 = new Request([], [], [], [
@@ -371,13 +371,13 @@ class SuperTokensTest extends TestCase
         ]);
         $request5->headers->set("anti-csrf", $responseData1['antiCsrf']);
         $response5 = new Response();
-        $session4 = SuperToken::getSession($request5, $response5, true);
+        $session4 = SuperTokens::getSession($request5, $response5, true);
         $sessionData2 = $session4->getSessionData();
         $this->assertArrayHasKey("key", $sessionData2);
         $this->assertEquals("value2", $sessionData2["key"]);
 
         try {
-            SuperToken::updateSessionData("invalidSessionHandle", ["key" => "value"]);
+            SuperTokens::updateSessionData("invalidSessionHandle", ["key" => "value"]);
             $this->assertTrue(false);
         } catch (SuperTokensUnauthorizedException $e) {
             $this->assertTrue(true);
@@ -393,7 +393,7 @@ class SuperTokensTest extends TestCase
         Utils::startST();
 
         $response1 = new Response();
-        SuperToken::createNewSession($response1, "userId", [], []);
+        SuperTokens::createNewSession($response1, "userId", [], []);
         $responseData1 = Utils::extractInfoFromResponse($response1);
 
         $request2 = new Request([], [], [], [
@@ -401,7 +401,7 @@ class SuperTokensTest extends TestCase
             'sIdRefreshToken' => $responseData1['idRefreshToken']
         ]);
         $response2 = new Response();
-        $session1 = SuperToken::getSession($request2, $response2, true);
+        $session1 = SuperTokens::getSession($request2, $response2, true);
         $this->assertEquals("userId", $session1->getUserId());
 
         $request3 = new Request([], [], [], [
@@ -409,7 +409,7 @@ class SuperTokensTest extends TestCase
             'sIdRefreshToken' => $responseData1['idRefreshToken']
         ]);
         $response3 = new Response();
-        $session2 = SuperToken::getSession($request3, $response3, false);
+        $session2 = SuperTokens::getSession($request3, $response3, false);
         $this->assertEquals("userId", $session2->getUserId());
     }
 }

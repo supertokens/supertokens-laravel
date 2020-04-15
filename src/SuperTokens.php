@@ -27,7 +27,7 @@ use SuperTokens\Exceptions\SuperTokensUnauthorizedException;
 use SuperTokens\Exceptions\SuperTokensTryRefreshTokenException;
 use SuperTokens\Helpers\HandshakeInfo;
 
-class SuperToken
+class SuperTokens
 {
 
     /**

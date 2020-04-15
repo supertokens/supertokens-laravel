@@ -27,7 +27,7 @@ use SuperTokens\Helpers\Constants;
 use SuperTokens\Helpers\HandshakeInfo;
 use SuperTokens\Helpers\Querier;
 use SuperTokens\SessionHandlingFunctions;
-use SuperTokens\SuperToken;
+use SuperTokens\SuperTokens;
 
 class SessionTest extends TestCase
 {

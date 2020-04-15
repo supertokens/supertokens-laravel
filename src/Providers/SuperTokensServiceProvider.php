@@ -16,7 +16,7 @@
 namespace SuperTokens\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use SuperTokens\SuperToken;
+use SuperTokens\SuperTokens;
 
 class SuperTokensServiceProvider extends ServiceProvider
 {
@@ -55,7 +55,7 @@ class SuperTokensServiceProvider extends ServiceProvider
     private function registerSingleton()
     {
         $this->app->singleton("SuperTokens", function ($app) {
-            return new SuperToken();
+            return new SuperTokens();
         });
     }
 }
