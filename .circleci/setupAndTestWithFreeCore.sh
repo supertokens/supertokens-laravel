@@ -70,6 +70,6 @@ git checkout $pluginTag
 cd ../
 echo $SUPERTOKENS_API_KEY > apiPassword
 ./utils/setupTestEnvLocal
-ls
+ls && ls -l temp
 cd ../project/
 make test
