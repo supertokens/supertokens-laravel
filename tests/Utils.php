@@ -202,6 +202,9 @@ class Utils
         $accessTokenExpiry = null;
         $refreshTokenExpiry = null;
         $idRefreshTokenExpiry = null;
+        $accessTokenCookie = null;
+        $refreshTokenCookie = null;
+        $idRefreshTokenCookie = null;
 
         $cookies = $response->headers->getCookies();
 
@@ -214,12 +217,15 @@ class Utils
             if ($cookieName === "sAccessToken") {
                 $accessToken = $cookieValue;
                 $accessTokenExpiry = $cookieExpiry;
+                $accessTokenCookie = $cookie;
             } elseif ($cookieName === "sRefreshToken") {
                 $refreshToken = $cookieValue;
                 $refreshTokenExpiry = $cookieExpiry;
+                $refreshTokenCookie = $cookie;
             } elseif ($cookieName === "sIdRefreshToken") {
                 $idRefreshToken = $cookieValue;
                 $idRefreshTokenExpiry = $cookieExpiry;
+                $idRefreshTokenCookie = $cookie;
             }
         }
         return [
@@ -230,7 +236,11 @@ class Utils
             'idRefreshToken' => $idRefreshToken,
             'accessTokenExpiry' => $accessTokenExpiry,
             'refreshTokenExpiry' => $refreshTokenExpiry,
-            'idRefreshTokenExpiry' => $idRefreshTokenExpiry
+            'idRefreshTokenExpiry' => $idRefreshTokenExpiry,
+            'accessTokenCookie' => $accessTokenCookie,
+            'refreshTokenCookie' => $refreshTokenCookie,
+            'idRefreshTokenCookie' => $idRefreshTokenCookie
+
         ];
     }
 }
