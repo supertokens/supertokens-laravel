@@ -10,7 +10,7 @@
     "illuminate/http": "7.4.0",
     "ext-json": "^1.6",
     "ext-openssl": "^7.2",
-    "guzzlehttp/guzzle": "^7.0@dev"
+    "guzzlehttp/guzzle": "^6.5"
   },
   "autoload": {
     "psr-4": {
