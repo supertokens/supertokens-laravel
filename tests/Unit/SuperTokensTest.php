@@ -26,6 +26,9 @@ use SuperTokens\Session\Exceptions\SuperTokensUnauthorizedException;
 use SuperTokens\Session\SessionHandlingFunctions;
 use SuperTokens\Session\SuperToken;
 
+// TODO: add tests for JWT and session data null, empty checks
+// TODO: add tests for cookie expiry checking
+
 class SuperTokensTest extends TestCase
 {
     /**
@@ -101,13 +104,30 @@ class SuperTokensTest extends TestCase
     {
         Utils::startST();
         $response1 = new Response();
-        SuperToken::createNewSession($response1, "userId", [], []);
+        SuperToken::createNewSession($response1, "userId", null, []);
         $responseData1 = Utils::extractInfoFromResponse($response1);
         $this->assertNotNull($responseData1["idRefreshTokenFromHeader"]);
         $this->assertNotNull($responseData1["accessToken"]);
         $this->assertNotNull($responseData1["refreshToken"]);
         $this->assertNotNull($responseData1["idRefreshToken"]);
         $this->assertNotNull($responseData1["antiCsrf"]);
+        $this->assertTrue($responseData1["accessTokenCookie"]->getPath() === "/");
+        $this->assertTrue($responseData1["accessTokenCookie"]->getDomain() === "supertokens.io");
+        $this->assertTrue($responseData1["accessTokenCookie"]->getSameSite() === "none");
+        $this->assertTrue($responseData1["accessTokenCookie"]->isHttpOnly());
+        $this->assertTrue(!$responseData1["accessTokenCookie"]->isSecure());
+
+        $this->assertTrue($responseData1["refreshTokenCookie"]->getPath() === "/refresh");
+        $this->assertTrue($responseData1["refreshTokenCookie"]->getDomain() === "supertokens.io");
+        $this->assertTrue($responseData1["refreshTokenCookie"]->getSameSite() === "none");
+        $this->assertTrue($responseData1["refreshTokenCookie"]->isHttpOnly());
+        $this->assertTrue(!$responseData1["refreshTokenCookie"]->isSecure());
+
+        $this->assertTrue($responseData1["idRefreshTokenCookie"]->getPath() === "/");
+        $this->assertTrue($responseData1["idRefreshTokenCookie"]->getDomain() === "supertokens.io");
+        $this->assertTrue($responseData1["idRefreshTokenCookie"]->getSameSite() === "none");
+        $this->assertTrue($responseData1["idRefreshTokenCookie"]->isHttpOnly());
+        $this->assertTrue(!$responseData1["idRefreshTokenCookie"]->isSecure());
 
         $request2 = new Request([], [], [], [
             'sAccessToken' => $responseData1['accessToken'],
@@ -116,6 +136,13 @@ class SuperTokensTest extends TestCase
         $request2->headers->set("anti-csrf", $responseData1['antiCsrf']);
         $response2 = new Response();
         SuperToken::getSession($request2, $response2, true);
+        $emptyResponseData1 = Utils::extractInfoFromResponse($response2);
+        $this->assertNull($emptyResponseData1["idRefreshTokenFromHeader"]);
+        $this->assertNull($emptyResponseData1["accessToken"]);
+        $this->assertNull($emptyResponseData1["refreshToken"]);
+        $this->assertNull($emptyResponseData1["idRefreshToken"]);
+        $this->assertNull($emptyResponseData1["antiCsrf"]);
+
         self::assertFalse(SessionHandlingFunctions::$SERVICE_CALLED);
 
         $request3 = new Request([], [], [], [
@@ -129,6 +156,23 @@ class SuperTokensTest extends TestCase
         $this->assertNotNull($responseData2["refreshToken"]);
         $this->assertNotNull($responseData2["idRefreshToken"]);
         $this->assertNotNull($responseData2["antiCsrf"]);
+        $this->assertTrue($responseData2["accessTokenCookie"]->getPath() === "/");
+        $this->assertTrue($responseData2["accessTokenCookie"]->getDomain() === "supertokens.io");
+        $this->assertTrue($responseData2["accessTokenCookie"]->getSameSite() === "none");
+        $this->assertTrue($responseData2["accessTokenCookie"]->isHttpOnly());
+        $this->assertTrue(!$responseData2["accessTokenCookie"]->isSecure());
+
+        $this->assertTrue($responseData2["refreshTokenCookie"]->getPath() === "/refresh");
+        $this->assertTrue($responseData2["refreshTokenCookie"]->getDomain() === "supertokens.io");
+        $this->assertTrue($responseData2["refreshTokenCookie"]->getSameSite() === "none");
+        $this->assertTrue($responseData2["refreshTokenCookie"]->isHttpOnly());
+        $this->assertTrue(!$responseData2["refreshTokenCookie"]->isSecure());
+
+        $this->assertTrue($responseData2["idRefreshTokenCookie"]->getPath() === "/");
+        $this->assertTrue($responseData2["idRefreshTokenCookie"]->getDomain() === "supertokens.io");
+        $this->assertTrue($responseData2["idRefreshTokenCookie"]->getSameSite() === "none");
+        $this->assertTrue($responseData2["idRefreshTokenCookie"]->isHttpOnly());
+        $this->assertTrue(!$responseData2["idRefreshTokenCookie"]->isSecure());
 
         $request4 = new Request([], [], [], [
             'sAccessToken' => $responseData2['accessToken'],
@@ -138,6 +182,17 @@ class SuperTokensTest extends TestCase
         $response4 = new Response();
         SuperToken::getSession($request4, $response4, true);
         $responseData3 = Utils::extractInfoFromResponse($response4);
+        $this->assertNotNull($responseData3["accessToken"]);
+        $this->assertTrue($responseData3["accessTokenCookie"]->getPath() === "/");
+        $this->assertTrue($responseData3["accessTokenCookie"]->getDomain() === "supertokens.io");
+        $this->assertTrue($responseData3["accessTokenCookie"]->getSameSite() === "none");
+        $this->assertTrue($responseData3["accessTokenCookie"]->isHttpOnly());
+        $this->assertTrue(!$responseData3["accessTokenCookie"]->isSecure());
+
+        $this->assertNull($responseData3["idRefreshTokenFromHeader"]);
+        $this->assertNull($responseData3["refreshToken"]);
+        $this->assertNull($responseData3["idRefreshToken"]);
+        $this->assertNull($responseData3["antiCsrf"]);
         self::assertTrue(SessionHandlingFunctions::$SERVICE_CALLED);
 
         $request5 = new Request([], [], [], [

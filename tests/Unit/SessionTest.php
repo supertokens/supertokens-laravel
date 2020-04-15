@@ -67,6 +67,8 @@ class SessionTest extends TestCase
             SessionHandlingFunctions::refreshSession($session['refreshToken']['token']);
             $this->assertTrue(false);
         } catch (SuperTokensTokenTheftException $e) {
+            $this->assertTrue($e->getUserId() === "userId");
+            $this->assertTrue($e->getSessionHandle() === $session['session']['handle']);
             $this->assertTrue(true);
         }
     }
@@ -178,7 +180,11 @@ class SessionTest extends TestCase
     public function testManipulatingSessionData(): void
     {
         Utils::startST();
-        $session = SessionHandlingFunctions::createNewSession("userId", [], []);
+        $session = SessionHandlingFunctions::createNewSession("userId", null, null);
+
+        $sessionData0 = SessionHandlingFunctions::getSessionData($session['session']['handle']);
+        $this->assertTrue(count($sessionData0) === 0);
+        $this->assertTrue(count($session['session']['userDataInJWT']) === 0);
 
         SessionHandlingFunctions::updateSessionData($session['session']['handle'], ["key" => "value"]);
         $sessionData1 = SessionHandlingFunctions::getSessionData($session['session']['handle']);
