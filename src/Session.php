@@ -36,7 +36,7 @@ class Session
     private $userId;
 
     /**
-     * @var ArrayObject
+     * @var array | null
      */
     private $userDataInJWT;
 
@@ -49,7 +49,7 @@ class Session
      * SuperTokens constructor.
      * @param $sessionHandle
      * @param $userId
-     * @param $userDataInJWT
+     * @param array | null $userDataInJWT
      * @param $response
      */
     public function __construct($sessionHandle, $userId, $userDataInJWT, $response)
@@ -73,7 +73,7 @@ class Session
     }
 
     /**
-     * @return mixed
+     * @return array | null
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorizedException
@@ -90,7 +90,7 @@ class Session
     }
 
     /**
-     * @param $newSessionData
+     * @param array | null $newSessionData
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorizedException
      * @throws SuperTokensException
@@ -115,7 +115,7 @@ class Session
     }
 
     /**
-     * @return mixed
+     * @return array | null
      */
     public function getJWTPayload()
     {

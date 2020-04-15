@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\App;
 use SuperTokens\Session\Exceptions\SuperTokensException;
 use SuperTokens\Session\Exceptions\SuperTokensGeneralException;
 
+// TODO: CDI 2.0: cookieSameSite
 class HandshakeInfo
 {
     /**

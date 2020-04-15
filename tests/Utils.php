@@ -146,7 +146,7 @@ class Utils
             if (count($pIdsAfter) !== count($pIdsBefore)) {
                 break;
             }
-            usleep(250 * 1000);
+            usleep(500 * 1000);
         }
         if (count($pIdsAfter) === count($pIdsBefore)) {
             throw new Exception("could not start ST process");

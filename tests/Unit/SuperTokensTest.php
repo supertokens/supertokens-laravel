@@ -322,7 +322,7 @@ class SuperTokensTest extends TestCase
         $this->assertEquals("value2", $sessionData2["key"]);
 
         try {
-            SuperToken::updateSessionDataForSessionHandle("invalidSessionHandle", ["key" => "value"]);
+            SuperToken::updateSessionData("invalidSessionHandle", ["key" => "value"]);
             $this->assertTrue(false);
         } catch (SuperTokensUnauthorizedException $e) {
             $this->assertTrue(true);

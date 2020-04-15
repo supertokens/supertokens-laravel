@@ -26,12 +26,11 @@ class AccessToken
      * @param string $token
      * @param string $jwtSigningPublicKey
      * @param $doAntiCsrfCheck
-     * @param bool $retry
      * @return array
      * @throws SuperTokensException
      * @throws SuperTokensTryRefreshTokenException
      */
-    public static function getInfoFromAccessToken($token, $jwtSigningPublicKey, $doAntiCsrfCheck, $retry = true)
+    public static function getInfoFromAccessToken($token, $jwtSigningPublicKey, $doAntiCsrfCheck)
     {
         try {
             $payload = Jwt::verifyJWTAndGetPayload($token, $jwtSigningPublicKey);
