@@ -42,6 +42,6 @@ class SuperTokensServiceProvider extends ServiceProvider
 
         $this->publishes([
             __DIR__.'/../../config/supertokens.php' => config_path('supertokens.php')
-        ], 'config');
+        ], 'supertokens-config');
     }
 }
