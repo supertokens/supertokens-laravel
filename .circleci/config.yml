@@ -1,12 +1,5 @@
 version: 2
 jobs:
-  publish:
-    docker:
-#      - image: circleci/node:8.10.0
-#    steps:
-#      - checkout
-#      - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-#      - run: npm publish
   test:
     docker:
       - image: rishabhpoddar/supertokens_laravel_driver_testing
@@ -17,17 +10,10 @@ jobs:
       - checkout
       - run: composer install
       - run: (cd .circleci/ && ./doTests.sh)
-
 workflows:
   version: 2
   tagged-build:
     jobs:
-      - publish:
-          filters:
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*/
-            branches:
-              ignore: /.*/
       - test:
           filters:
             tags:
