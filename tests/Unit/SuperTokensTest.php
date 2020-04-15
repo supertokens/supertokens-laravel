@@ -13,18 +13,18 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-namespace SuperTokens\Session\Tests;
+namespace SuperTokens\Tests;
 
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use SuperTokens\Session\Exceptions\SuperTokensException;
-use SuperTokens\Session\Exceptions\SuperTokensGeneralException;
-use SuperTokens\Session\Exceptions\SuperTokensTokenTheftException;
-use SuperTokens\Session\Exceptions\SuperTokensTryRefreshTokenException;
-use SuperTokens\Session\Exceptions\SuperTokensUnauthorizedException;
-use SuperTokens\Session\SessionHandlingFunctions;
-use SuperTokens\Session\SuperToken;
+use SuperTokens\Exceptions\SuperTokensException;
+use SuperTokens\Exceptions\SuperTokensGeneralException;
+use SuperTokens\Exceptions\SuperTokensTokenTheftException;
+use SuperTokens\Exceptions\SuperTokensTryRefreshTokenException;
+use SuperTokens\Exceptions\SuperTokensUnauthorizedException;
+use SuperTokens\SessionHandlingFunctions;
+use SuperTokens\SuperToken;
 
 // TODO: add tests for JWT and session data null, empty checks
 // TODO: add tests for cookie expiry checking

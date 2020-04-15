@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-namespace SuperTokens\Session;
+namespace SuperTokens;
 
 use ArrayObject;
 use DateTime;
@@ -21,24 +21,24 @@ use Exception;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
-use SuperTokens\Session\Exceptions\SuperTokensException;
-use SuperTokens\Session\Exceptions\SuperTokensGeneralException;
-use SuperTokens\Session\Exceptions\SuperTokensTokenTheftException;
-use SuperTokens\Session\Exceptions\SuperTokensTryRefreshTokenException;
-use SuperTokens\Session\Exceptions\SuperTokensUnauthorizedException;
-use SuperTokens\Session\Helpers\Constants;
-use SuperTokens\Session\Helpers\HandshakeInfo;
-use SuperTokens\Session\Helpers\Querier;
-use SuperTokens\Session\Helpers\Utils;
-use SuperTokens\Session\Db\RefreshTokenDb;
-use SuperTokens\Session\Helpers\AccessTokenSigningKey;
-use SuperTokens\Session\Helpers\RefreshTokenSigningKey;
-use SuperTokens\Session\Helpers\AccessToken;
-use SuperTokens\Session\Helpers\RefreshToken;
+use SuperTokens\Exceptions\SuperTokensException;
+use SuperTokens\Exceptions\SuperTokensGeneralException;
+use SuperTokens\Exceptions\SuperTokensTokenTheftException;
+use SuperTokens\Exceptions\SuperTokensTryRefreshTokenException;
+use SuperTokens\Exceptions\SuperTokensUnauthorizedException;
+use SuperTokens\Helpers\Constants;
+use SuperTokens\Helpers\HandshakeInfo;
+use SuperTokens\Helpers\Querier;
+use SuperTokens\Helpers\Utils;
+use SuperTokens\Db\RefreshTokenDb;
+use SuperTokens\Helpers\AccessTokenSigningKey;
+use SuperTokens\Helpers\RefreshTokenSigningKey;
+use SuperTokens\Helpers\AccessToken;
+use SuperTokens\Helpers\RefreshToken;
 
 /**
  * Class SessionHandlingFunctions
- * @package SuperTokens\SessionHandlingFunctions
+ * @package SuperTokensHandlingFunctions
  */
 class SessionHandlingFunctions
 {

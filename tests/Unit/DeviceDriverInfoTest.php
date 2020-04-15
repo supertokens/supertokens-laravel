@@ -13,19 +13,19 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-namespace SuperTokens\Session\Tests;
+namespace SuperTokens\Tests;
 
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use SuperTokens\Session\Exceptions\SuperTokensException;
-use SuperTokens\Session\Exceptions\SuperTokensGeneralException;
-use SuperTokens\Session\Exceptions\SuperTokensTryRefreshTokenException;
-use SuperTokens\Session\Exceptions\SuperTokensUnauthorizedException;
-use SuperTokens\Session\Helpers\Constants;
-use SuperTokens\Session\Helpers\DeviceInfo;
-use SuperTokens\Session\Helpers\Querier;
-use SuperTokens\Session\SuperToken;
+use SuperTokens\Exceptions\SuperTokensException;
+use SuperTokens\Exceptions\SuperTokensGeneralException;
+use SuperTokens\Exceptions\SuperTokensTryRefreshTokenException;
+use SuperTokens\Exceptions\SuperTokensUnauthorizedException;
+use SuperTokens\Helpers\Constants;
+use SuperTokens\Helpers\DeviceInfo;
+use SuperTokens\Helpers\Querier;
+use SuperTokens\SuperToken;
 
 class DeviceDriverInfoTest extends TestCase
 {

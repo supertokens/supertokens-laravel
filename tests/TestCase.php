@@ -13,9 +13,9 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-namespace SuperTokens\Session\Tests;
+namespace SuperTokens\Tests;
 
-use SuperTokens\Session\Providers\SuperTokensServiceProvider;
+use SuperTokens\Providers\SuperTokensServiceProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -35,7 +35,7 @@ abstract class TestCase extends BaseTestCase
     protected function getPackageAliases($app)
     {
         return [
-            'SuperTokens' => 'SuperTokens\Session\Facades\SuperTokens'
+            'SuperTokens' => 'SuperTokens\Facades\SuperTokens'
         ];
     }
 

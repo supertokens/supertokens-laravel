@@ -13,21 +13,21 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-namespace SuperTokens\Session\Tests;
+namespace SuperTokens\Tests;
 
 use Exception;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Config;
-use SuperTokens\Session\Exceptions\SuperTokensException;
-use SuperTokens\Session\Exceptions\SuperTokensGeneralException;
-use SuperTokens\Session\Exceptions\SuperTokensTokenTheftException;
-use SuperTokens\Session\Exceptions\SuperTokensTryRefreshTokenException;
-use SuperTokens\Session\Exceptions\SuperTokensUnauthorizedException;
-use SuperTokens\Session\Helpers\Constants;
-use SuperTokens\Session\Helpers\HandshakeInfo;
-use SuperTokens\Session\Helpers\Querier;
-use SuperTokens\Session\SessionHandlingFunctions;
-use SuperTokens\Session\SuperToken;
+use SuperTokens\Exceptions\SuperTokensException;
+use SuperTokens\Exceptions\SuperTokensGeneralException;
+use SuperTokens\Exceptions\SuperTokensTokenTheftException;
+use SuperTokens\Exceptions\SuperTokensTryRefreshTokenException;
+use SuperTokens\Exceptions\SuperTokensUnauthorizedException;
+use SuperTokens\Helpers\Constants;
+use SuperTokens\Helpers\HandshakeInfo;
+use SuperTokens\Helpers\Querier;
+use SuperTokens\SessionHandlingFunctions;
+use SuperTokens\SuperToken;
 
 class SessionTest extends TestCase
 {

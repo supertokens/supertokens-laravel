@@ -13,10 +13,10 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-namespace SuperTokens\Session\Providers;
+namespace SuperTokens\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use SuperTokens\Session\SuperToken;
+use SuperTokens\SuperToken;
 
 class SuperTokensServiceProvider extends ServiceProvider
 {

@@ -14,18 +14,18 @@
   },
   "autoload": {
     "psr-4": {
-      "SuperTokens\\Session\\": "src"
+      "SuperTokens\\": "src"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "SuperTokens\\Session\\Tests\\": "tests"
+      "SuperTokens\\Tests\\": "tests"
     }
   },
   "extra": {
     "laravel": {
       "providers": [
-        "SuperTokens\\Session\\Providers\\SuperTokensServiceProvider"
+        "SuperTokens\\Providers\\SuperTokensServiceProvider"
       ]
     }
   },

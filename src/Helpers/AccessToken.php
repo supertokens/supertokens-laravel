@@ -13,11 +13,11 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-namespace SuperTokens\Session\Helpers;
+namespace SuperTokens\Helpers;
 
 use Exception;
-use SuperTokens\Session\Exceptions\SuperTokensException;
-use SuperTokens\Session\Exceptions\SuperTokensTryRefreshTokenException;
+use SuperTokens\Exceptions\SuperTokensException;
+use SuperTokens\Exceptions\SuperTokensTryRefreshTokenException;
 
 class AccessToken
 {

@@ -13,19 +13,19 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-namespace SuperTokens\Session;
+namespace SuperTokens;
 
 use ArrayObject;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use SuperTokens\Session\Exceptions\SuperTokensException;
-use SuperTokens\Session\Exceptions\SuperTokensTokenTheftException;
-use SuperTokens\Session\Helpers\CookieAndHeader;
-use SuperTokens\Session\Exceptions\SuperTokensGeneralException;
-use SuperTokens\Session\Exceptions\SuperTokensUnauthorizedException;
-use SuperTokens\Session\Exceptions\SuperTokensTryRefreshTokenException;
-use SuperTokens\Session\Helpers\HandshakeInfo;
+use SuperTokens\Exceptions\SuperTokensException;
+use SuperTokens\Exceptions\SuperTokensTokenTheftException;
+use SuperTokens\Helpers\CookieAndHeader;
+use SuperTokens\Exceptions\SuperTokensGeneralException;
+use SuperTokens\Exceptions\SuperTokensUnauthorizedException;
+use SuperTokens\Exceptions\SuperTokensTryRefreshTokenException;
+use SuperTokens\Helpers\HandshakeInfo;
 
 class SuperToken
 {

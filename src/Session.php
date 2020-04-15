@@ -13,15 +13,15 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-namespace SuperTokens\Session;
+namespace SuperTokens;
 
 use ArrayObject;
 use Illuminate\Http\Response;
-use SuperTokens\Session\Exceptions\SuperTokensException;
-use SuperTokens\Session\Exceptions\SuperTokensGeneralException;
-use SuperTokens\Session\Exceptions\SuperTokensUnauthorizedException;
-use SuperTokens\Session\Helpers\CookieAndHeader;
-use SuperTokens\Session\Helpers\HandshakeInfo;
+use SuperTokens\Exceptions\SuperTokensException;
+use SuperTokens\Exceptions\SuperTokensGeneralException;
+use SuperTokens\Exceptions\SuperTokensUnauthorizedException;
+use SuperTokens\Helpers\CookieAndHeader;
+use SuperTokens\Helpers\HandshakeInfo;
 
 class Session
 {

@@ -13,14 +13,14 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-namespace SuperTokens\Session\Tests;
+namespace SuperTokens\Tests;
 
 use Exception;
 use Illuminate\Http\Response;
-use SuperTokens\Session\Exceptions\SuperTokensException;
-use SuperTokens\Session\Exceptions\SuperTokensGeneralException;
-use SuperTokens\Session\Helpers\HandshakeInfo;
-use SuperTokens\Session\SuperToken;
+use SuperTokens\Exceptions\SuperTokensException;
+use SuperTokens\Exceptions\SuperTokensGeneralException;
+use SuperTokens\Helpers\HandshakeInfo;
+use SuperTokens\SuperToken;
 
 class HandshakeTest extends TestCase
 {
