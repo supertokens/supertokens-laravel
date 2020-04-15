@@ -70,18 +70,18 @@ class SessionHandlingFunctions
 
     /**
      * @param string $userId
-     * @param array $jwtPayload
-     * @param array $sessionData
+     * @param array | null $jwtPayload
+     * @param array | null $sessionData
      * @return array
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public static function createNewSession($userId, $jwtPayload, $sessionData)
     {
-        if (count($jwtPayload) === 0) {
+        if (!isset($jwtPayload) || count($jwtPayload) === 0) {
             $jwtPayload = new ArrayObject();
         }
-        if (count($sessionData) === 0) {
+        if (!isset($sessionData) || count($sessionData) === 0) {
             $sessionData = new ArrayObject();
         }
         $response = Querier::getInstance()->sendPostRequest(Constants::SESSION, [
@@ -127,7 +127,7 @@ class SessionHandlingFunctions
                     (!isset($antiCsrfToken) || $antiCsrfToken !== $accessTokenInfo['antiCsrfToken'])
                 ) {
                     if (!isset($antiCsrfToken)) {
-                        throw SuperTokensException::generateTryRefreshTokenException("provided antiCsrfToken is undefined. If you do not want anti-csrf check for this API, please set doAntiCsrfCheck to true");
+                        throw SuperTokensException::generateTryRefreshTokenException("provided antiCsrfToken is undefined. If you do not want anti-csrf check for this API, please set doAntiCsrfCheck to false");
                     }
                     throw SuperTokensException::generateTryRefreshTokenException("anti-csrf check failed");
                 }
@@ -146,9 +146,9 @@ class SessionHandlingFunctions
                 }
             }
         } catch (SuperTokensTryRefreshTokenException $e) {
-            // ignore
+            // we continue to call the service
         } catch (Exception $e) {
-            throw SuperTokensException::generateGeneralException($e);
+            throw $e;
         }
 
         self::$SERVICE_CALLED = true; // for testing purpose
@@ -195,7 +195,7 @@ class SessionHandlingFunctions
         } elseif ($response['status'] === "UNAUTHORISED") {
             throw SuperTokensException::generateUnauthorisedException($response['message']);
         } else {
-            throw SuperTokensException::generateTokenTheftException($response['session']['handle'], $response['session']['userId']);
+            throw SuperTokensException::generateTokenTheftException($response['session']['userId'], $response['session']['handle']);
         }
     }
 
@@ -251,23 +251,24 @@ class SessionHandlingFunctions
         return $response['numberOfSessionsRevoked'] === 1;
     }
 
-    /**
-     * @param array $sessionHandles
-     * @return bool
-     * @throws SuperTokensGeneralException
-     * @throws SuperTokensException
-     */
-    public static function revokeMultipleSessionsUsingSessionHandles($sessionHandles)
-    {
-        $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
-            'sessionHandles' => $sessionHandles
-        ]);
-        return $response['numberOfSessionsRevoked'] === count($sessionHandles);
-    }
+//    /**
+//     * @param array $sessionHandles
+//     * @return bool
+//     * @throws SuperTokensGeneralException
+//     * @throws SuperTokensException
+//     */
+//    public static function revokeMultipleSessionsUsingSessionHandles($sessionHandles)
+//    {
+//        $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
+//            'sessionHandles' => $sessionHandles
+//        ]);
+//        // TODO: return type of this should be list of session handles revoked - change in CDI 2.0
+//        return $response['numberOfSessionsRevoked'] === count($sessionHandles);
+//    }
 
     /**
      * @param string $sessionHandle
-     * @return mixed
+     * @return array | null
      * @throws Exception
      * @throws SuperTokensUnauthorizedException | SuperTokensGeneralException
      */
@@ -284,12 +285,15 @@ class SessionHandlingFunctions
 
     /**
      * @param string $sessionHandle
-     * @param mixed $newSessionData
+     * @param array | null $newSessionData
      * @throws SuperTokensException
      * @throws SuperTokensUnauthorizedException | SuperTokensGeneralException
      */
     public static function updateSessionData($sessionHandle, $newSessionData)
     {
+        if (!isset($newSessionData) || count($newSessionData) === 0) {
+            $newSessionData = new ArrayObject();
+        }
         $response = Querier::getInstance()->sendPutRequest(Constants::SESSION_DATA, [
             'sessionHandle' => $sessionHandle,
             'userDataInDatabase' => $newSessionData

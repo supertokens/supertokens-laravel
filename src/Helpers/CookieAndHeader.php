@@ -27,6 +27,7 @@ define("ID_REFRESH_TOKEN_HEADER_KEY", "id-refresh-token");
 define("FRONTEND_SDK_NAME_HEADER_KEY", "supertokens-sdk-name");
 define("FRONTEND_SDK_VERSION_HEADER_KEY", "supertokens-sdk-version");
 
+// TODO: CDI 2.0: sameSite in cookies
 class CookieAndHeader
 {
     public static function saveFrontendInfoFromRequest(Request $request)
@@ -70,7 +71,7 @@ class CookieAndHeader
         return $request->header($key, null);
     }
 
-    public static function attachAntiCsrfHeaderIfRequired(Response $response, $value)
+    public static function attachAntiCsrfHeader(Response $response, $value)
     {
         CookieAndHeader::setHeader($response, ANTI_CSRF_HEADER_KEY, $value);
         CookieAndHeader::setHeader($response, "Access-Control-Expose-Headers", ANTI_CSRF_HEADER_KEY);

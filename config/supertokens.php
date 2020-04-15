@@ -17,10 +17,10 @@
 /**
  * e.g.
  * 'hosts' => [[
- *      'host': 'localhost',
+ *      'hostname': 'localhost',
  *      'port': 3567
  * ], [
- *      'host': 'some other domain',
+ *      'hostname': 'some other domain',
  *      'port': 8888
  * ]]
  */
