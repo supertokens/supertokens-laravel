@@ -54,41 +54,41 @@ class QuerierTest extends TestCase
     /**
      * @throws Exception
      */
-    public function testGetApiVersion(): void
-    {
-        // no host available
-        try {
-            Querier::getInstance()->getApiVersion();
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
-        Utils::startST();
-        $this->assertEquals(Utils::API_VERSION_TEST_BASIC_RESULT, Querier::getInstance()->getApiVersion());
-        Querier::$cv = Utils::API_VERSION_TEST_SINGLE_SUPPORTED_CV;
-        Querier::$sv = Utils::API_VERSION_TEST_SINGLE_SUPPORTED_SV;
-        $this->assertEquals(Utils::API_VERSION_TEST_SINGLE_SUPPORTED_RESULT, Querier::getInstance()->getApiVersion());
-        Querier::$cv = Utils::API_VERSION_TEST_MULTIPLE_SUPPORTED_CV;
-        Querier::$sv = Utils::API_VERSION_TEST_MULTIPLE_SUPPORTED_SV;
-        $this->assertEquals(Utils::API_VERSION_TEST_MULTIPLE_SUPPORTED_RESULT, Querier::getInstance()->getApiVersion());
-        Querier::$cv = Utils::API_VERSION_TEST_NON_SUPPORTED_CV;
-        Querier::$sv = Utils::API_VERSION_TEST_NON_SUPPORTED_SV;
-        try {
-            Querier::getInstance()->getApiVersion();
-            $this->assertTrue(false);
-        } catch (SuperTokensGeneralException $e) {
-            $this->assertEquals(Constants::DRIVER_NOT_COMPATIBLE_MESSAGE, $e->getMessage());
-        }
-        Querier::reset();
-        Querier::$cv = Utils::API_VERSION_TEST_NON_SUPPORTED_CV;
-        Querier::$sv = Utils::API_VERSION_TEST_NON_SUPPORTED_SV;
-        try {
-            SessionHandlingFunctions::createNewSession("userId", [], []);
-            $this->assertTrue(false);
-        } catch (SuperTokensGeneralException $e) {
-            $this->assertEquals(Constants::DRIVER_NOT_COMPATIBLE_MESSAGE, $e->getMessage());
-        }
-    }
+//    public function testGetApiVersion(): void
+//    {
+//        // no host available
+//        try {
+//            Querier::getInstance()->getApiVersion();
+//            $this->assertTrue(false);
+//        } catch (Exception $e) {
+//            $this->assertTrue(true);
+//        }
+//        Utils::startST();
+//        $this->assertEquals(Utils::API_VERSION_TEST_BASIC_RESULT, Querier::getInstance()->getApiVersion());
+//        Querier::$cv = Utils::API_VERSION_TEST_SINGLE_SUPPORTED_CV;
+//        Querier::$sv = Utils::API_VERSION_TEST_SINGLE_SUPPORTED_SV;
+//        $this->assertEquals(Utils::API_VERSION_TEST_SINGLE_SUPPORTED_RESULT, Querier::getInstance()->getApiVersion());
+//        Querier::$cv = Utils::API_VERSION_TEST_MULTIPLE_SUPPORTED_CV;
+//        Querier::$sv = Utils::API_VERSION_TEST_MULTIPLE_SUPPORTED_SV;
+//        $this->assertEquals(Utils::API_VERSION_TEST_MULTIPLE_SUPPORTED_RESULT, Querier::getInstance()->getApiVersion());
+//        Querier::$cv = Utils::API_VERSION_TEST_NON_SUPPORTED_CV;
+//        Querier::$sv = Utils::API_VERSION_TEST_NON_SUPPORTED_SV;
+//        try {
+//            Querier::getInstance()->getApiVersion();
+//            $this->assertTrue(false);
+//        } catch (SuperTokensGeneralException $e) {
+//            $this->assertEquals(Constants::DRIVER_NOT_COMPATIBLE_MESSAGE, $e->getMessage());
+//        }
+//        Querier::reset();
+//        Querier::$cv = Utils::API_VERSION_TEST_NON_SUPPORTED_CV;
+//        Querier::$sv = Utils::API_VERSION_TEST_NON_SUPPORTED_SV;
+//        try {
+//            SessionHandlingFunctions::createNewSession("userId", [], []);
+//            $this->assertTrue(false);
+//        } catch (SuperTokensGeneralException $e) {
+//            $this->assertEquals(Constants::DRIVER_NOT_COMPATIBLE_MESSAGE, $e->getMessage());
+//        }
+//    }
 
     public function testCheckSupportedCoreDriverInterfaceVersions(): void
     {
