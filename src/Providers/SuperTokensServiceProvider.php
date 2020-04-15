@@ -27,6 +27,10 @@ class SuperTokensServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->mergeConfigFrom(
+            __DIR__.'/../../config/supertokens.php',
+            'supertokens-config'
+        );
     }
 
     /**
@@ -36,26 +40,12 @@ class SuperTokensServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->registerResources();
-        $this->registerPublishing();
-    }
-
-    private function registerResources()
-    {
-        $this->registerSingleton();
-    }
-
-    private function registerPublishing()
-    {
-        $this->publishes([
-            __DIR__.'/../../config/supertokens.php' => config_path('supertokens.php')
-        ]);
-    }
-
-    private function registerSingleton()
-    {
         $this->app->singleton("SuperTokens", function ($app) {
             return new SuperTokens();
         });
+
+        $this->publishes([
+            __DIR__.'/../../config/supertokens.php' => config_path('supertokens.php')
+        ], 'supertokens-config');
     }
 }
