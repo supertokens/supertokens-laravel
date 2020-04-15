@@ -8,7 +8,7 @@
     alt="chat on Discord"></a>
     
 ## Documentation
-To see documentation, please click [here](https://supertokens.io/docs/nodejs/installation).
+To see documentation, please click [here](https://supertokens.io/docs/laravel/installation).
 
 ## Contact us
 For any queries, or support requests, please email us at team@supertokens.io, or join our [Discord](supertokens.io/discord) server.

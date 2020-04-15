@@ -1,0 +1,219 @@
+<?php
+/* Copyright (c) 2020, VRAI Labs and/or its affiliates. All rights reserved.
+ *
+ * This software is licensed under the Apache License, Version 2.0 (the
+ * "License") as published by the Apache Software Foundation.
+ *
+ * You may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+namespace SuperTokens\Session\Tests;
+
+use Exception;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Config;
+use SuperTokens\Session\Exceptions\SuperTokensException;
+use SuperTokens\Session\Exceptions\SuperTokensGeneralException;
+use SuperTokens\Session\Exceptions\SuperTokensTokenTheftException;
+use SuperTokens\Session\Exceptions\SuperTokensTryRefreshTokenException;
+use SuperTokens\Session\Exceptions\SuperTokensUnauthorizedException;
+use SuperTokens\Session\Helpers\Constants;
+use SuperTokens\Session\Helpers\HandshakeInfo;
+use SuperTokens\Session\Helpers\Querier;
+use SuperTokens\Session\SessionHandlingFunctions;
+use SuperTokens\Session\SuperToken;
+
+class SessionTest extends TestCase
+{
+    /**
+     * @throws SuperTokensException
+     * @throws SuperTokensGeneralException
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Utils::reset();
+        Utils::cleanST();
+        Utils::setupST();
+    }
+
+    /**
+     * @throws SuperTokensException
+     * @throws SuperTokensGeneralException
+     */
+    protected function tearDown(): void
+    {
+        Utils::reset();
+        Utils::cleanST();
+        parent::tearDown();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testTokenTheftDetection(): void
+    {
+        Utils::startST();
+        $session = SessionHandlingFunctions::createNewSession("userId", [], []);
+        $refreshedSession = SessionHandlingFunctions::refreshSession($session['refreshToken']['token']);
+        SessionHandlingFunctions::getSession($refreshedSession['accessToken']['token'], $refreshedSession['antiCsrfToken'], true, $refreshedSession['idRefreshToken']['token']);
+        try {
+            SessionHandlingFunctions::refreshSession($session['refreshToken']['token']);
+            $this->assertTrue(false);
+        } catch (SuperTokensTokenTheftException $e) {
+            $this->assertTrue(true);
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testBasicUsageOfSessions(): void
+    {
+        Utils::startST();
+        $session = SessionHandlingFunctions::createNewSession("userId", [], []);
+        $this->assertArrayHasKey("session", $session);
+        $this->assertArrayHasKey("accessToken", $session);
+        $this->assertArrayHasKey("refreshToken", $session);
+        $this->assertArrayHasKey("idRefreshToken", $session);
+        $this->assertArrayHasKey("antiCsrfToken", $session);
+        $this->assertCount(5, array_keys($session));
+
+        SessionHandlingFunctions::getSession($session['accessToken']['token'], $session['antiCsrfToken'], true, $session['idRefreshToken']['token']);
+        self::assertFalse(SessionHandlingFunctions::$SERVICE_CALLED);
+
+        $refreshedSession = SessionHandlingFunctions::refreshSession($session['refreshToken']['token']);
+        $this->assertArrayHasKey("session", $refreshedSession);
+        $this->assertArrayHasKey("accessToken", $refreshedSession);
+        $this->assertArrayHasKey("refreshToken", $refreshedSession);
+        $this->assertArrayHasKey("idRefreshToken", $refreshedSession);
+        $this->assertArrayHasKey("antiCsrfToken", $refreshedSession);
+        $this->assertCount(5, array_keys($refreshedSession));
+
+        $refreshedSessionNew = SessionHandlingFunctions::getSession($refreshedSession['accessToken']['token'], $refreshedSession['antiCsrfToken'], true, $refreshedSession['idRefreshToken']['token']);
+        self::assertTrue(SessionHandlingFunctions::$SERVICE_CALLED);
+        $this->assertArrayHasKey("session", $refreshedSessionNew);
+        $this->assertArrayHasKey("accessToken", $refreshedSessionNew);
+        $this->assertCount(2, array_keys($refreshedSessionNew));
+
+        $refreshedSessionNew2 = SessionHandlingFunctions::getSession($refreshedSessionNew['accessToken']['token'], $refreshedSession['antiCsrfToken'], true, $refreshedSession['idRefreshToken']['token']);
+        self::assertFalse(SessionHandlingFunctions::$SERVICE_CALLED);
+        $this->assertArrayHasKey("session", $refreshedSessionNew2);
+        $this->assertArrayNotHasKey("accessToken", $refreshedSessionNew2);
+        $this->assertCount(1, array_keys($refreshedSessionNew2));
+
+        $revokedSession = SessionHandlingFunctions::revokeSessionUsingSessionHandle($refreshedSessionNew2['session']['handle']);
+        $this->assertTrue($revokedSession);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testSessionVerifyWithAnticsrfPresent(): void
+    {
+        Utils::startST();
+        $session = SessionHandlingFunctions::createNewSession("userId", [], []);
+
+        $sessionGet1 = SessionHandlingFunctions::getSession($session['accessToken']['token'], $session['antiCsrfToken'], true, $session['idRefreshToken']['token']);
+        $this->assertArrayHasKey('session', $sessionGet1);
+        $this->assertCount(3, $sessionGet1['session']);
+
+        $sessionGet2 = SessionHandlingFunctions::getSession($session['accessToken']['token'], $session['antiCsrfToken'], false, $session['idRefreshToken']['token']);
+        $this->assertArrayHasKey('session', $sessionGet2);
+        $this->assertCount(3, $sessionGet2['session']);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testSessionVerifyWithoutAnticsrfPresent(): void
+    {
+        Utils::startST();
+        $session = SessionHandlingFunctions::createNewSession("userId", [], []);
+
+        //passing anti-csrf token as null and anti-csrf check as false
+        $sessionGet1 = SessionHandlingFunctions::getSession($session['accessToken']['token'], null, false, $session['idRefreshToken']['token']);
+        $this->assertArrayHasKey('session', $sessionGet1);
+        $this->assertCount(3, $sessionGet1['session']);
+
+        //passing anti-csrf token as null and anti-csrf check as true
+        try {
+            SessionHandlingFunctions::getSession($session['accessToken']['token'], null, true, $session['idRefreshToken']['token']);
+            $this->assertTrue(false);
+        } catch (SuperTokensTryRefreshTokenException $e) {
+            $this->assertTrue(true);
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testRevokingOfSessions(): void
+    {
+        Utils::startST();
+        SessionHandlingFunctions::revokeAllSessionsForUser("userId");
+        $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+        $session = SessionHandlingFunctions::createNewSession("userId", [], []);
+        $this->assertCount(1, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+        $this->assertTrue(SessionHandlingFunctions::revokeSessionUsingSessionHandle($session['session']['handle']));
+        $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+        SessionHandlingFunctions::createNewSession("userId", [], []);
+        SessionHandlingFunctions::createNewSession("userId", [], []);
+        $this->assertCount(2, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+        $this->assertEquals(2, SessionHandlingFunctions::revokeAllSessionsForUser("userId"));
+        $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+        $this->assertFalse(SessionHandlingFunctions::revokeSessionUsingSessionHandle("random"));
+        $this->assertEquals(0, SessionHandlingFunctions::revokeAllSessionsForUser("randomUserId"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testManipulatingSessionData(): void
+    {
+        Utils::startST();
+        $session = SessionHandlingFunctions::createNewSession("userId", [], []);
+
+        SessionHandlingFunctions::updateSessionData($session['session']['handle'], ["key" => "value"]);
+        $sessionData1 = SessionHandlingFunctions::getSessionData($session['session']['handle']);
+        $this->assertArrayHasKey("key", $sessionData1);
+        $this->assertEquals("value", $sessionData1["key"]);
+
+        SessionHandlingFunctions::updateSessionData($session['session']['handle'], ["key" => "value2"]);
+        $sessionData1 = SessionHandlingFunctions::getSessionData($session['session']['handle']);
+        $this->assertArrayHasKey("key", $sessionData1);
+        $this->assertEquals("value2", $sessionData1["key"]);
+
+        //passing invalid session handle when updating session data
+        try {
+            SessionHandlingFunctions::updateSessionData("incorrect", ["key" => "value2"]);
+            $this->assertTrue(false);
+        } catch (SuperTokensUnauthorizedException $e) {
+            $this->assertTrue(true);
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testAnticsrfDisabledForCore(): void
+    {
+        Utils::setKeyValueInConfig(Utils::ENABLE_ANTI_CSRF_CONFIG_KEY, false);
+        Utils::startST();
+
+        $session = SessionHandlingFunctions::createNewSession("userId", [], []);
+        $sessionGet1 = SessionHandlingFunctions::getSession($session['accessToken']['token'], null, false, $session['idRefreshToken']['token']);
+        $this->assertArrayHasKey('session', $sessionGet1);
+        $this->assertCount(3, $sessionGet1['session']);
+
+        $sessionGet2 = SessionHandlingFunctions::getSession($session['accessToken']['token'], null, true, $session['idRefreshToken']['token']);
+        $this->assertArrayHasKey('session', $sessionGet2);
+        $this->assertCount(3, $sessionGet2['session']);
+    }
+}

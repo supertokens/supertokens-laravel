@@ -1,0 +1,38 @@
+{
+  "name": "supertokens/supertokens-laravel",
+  "version": "0.0.1",
+  "description": "Laravel driver for SuperTokens core",
+  "type": "library",
+  "license": "MIT",
+  "minimum-stability": "dev",
+  "require": {
+    "ramsey/uuid": "3.8.0",
+    "illuminate/http": "7.4.0",
+    "ext-json": "^1.6",
+    "ext-openssl": "^7.2",
+    "guzzlehttp/guzzle": "^7.0@dev"
+  },
+  "autoload": {
+    "psr-4": {
+      "SuperTokens\\Session\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "SuperTokens\\Session\\Tests\\": "tests"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "SuperTokens\\Session\\Providers\\SuperTokensServiceProvider"
+      ]
+    }
+  },
+  "require-dev": {
+    "orchestra/testbench": "5.1.0",
+    "friendsofphp/php-cs-fixer": "^2.16@dev",
+    "ext-posix": "*",
+    "symfony/yaml": "^5.1@dev"
+  }
+}
