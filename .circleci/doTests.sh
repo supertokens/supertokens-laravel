@@ -67,13 +67,13 @@ while [ $i -lt $coreDriverLength ]; do
     coreFree=$(echo $coreFree | jq .core | tr -d '"')
 
     someTestsRan=true
-#    ./setupAndTestWithCommercialCore.sh $coreCommercial
-#    if [[ $? -ne 0 ]]
-#    then
-#        echo "test failed... exiting!"
-#        exit 1
-#    fi
-#    rm -rf ../../com-root
+    ./setupAndTestWithCommercialCore.sh $coreCommercial
+    if [[ $? -ne 0 ]]
+    then
+        echo "test failed... exiting!"
+        exit 1
+    fi
+    rm -rf ../../com-root
 
     ./setupAndTestWithFreeCore.sh $coreFree
     if [[ $? -ne 0 ]]

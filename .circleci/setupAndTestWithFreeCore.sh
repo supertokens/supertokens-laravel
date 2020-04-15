@@ -70,6 +70,5 @@ git checkout $pluginTag
 cd ../
 echo $SUPERTOKENS_API_KEY > apiPassword
 ./utils/setupTestEnvLocal
-ls && ls -l temp
 cd ../project/
-make test
+SUPERTOKENS_PATH=../supertokens-root make test
