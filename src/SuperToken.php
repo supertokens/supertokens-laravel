@@ -54,9 +54,11 @@ class SuperToken
         $accessToken = $newSession['accessToken'];
         $refreshToken = $newSession['refreshToken'];
         $idRefreshToken = $newSession['idRefreshToken'];
+
         CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath']);
         CookieAndHeader::attachRefreshTokenToCookie($response, $refreshToken['token'], $refreshToken['expiry'], $refreshToken['domain'], $refreshToken['cookieSecure'], $refreshToken['cookiePath']);
-        CookieAndHeader::attachIdRefreshTokenToCookieAndHeader($response, $idRefreshToken['token'], $idRefreshToken['expiry'], $idRefreshToken['domain'], $idRefreshToken['cookieSecure'], $idRefreshToken['cookiePath']);
+        CookieAndHeader::attachIdRefreshTokenToCookieAndHeader($response, $idRefreshToken['token'], $idRefreshToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath']);
+        // CookieAndHeader::attachIdRefreshTokenToCookieAndHeader($response, $idRefreshToken['token'], $idRefreshToken['expiry'], $idRefreshToken['domain'], $idRefreshToken['cookieSecure'], $idRefreshToken['cookiePath']);
         if (isset($newSession['antiCsrfToken'])) {
             CookieAndHeader::attachAntiCsrfHeader($response, $newSession['antiCsrfToken']);
         }
@@ -123,7 +125,8 @@ class SuperToken
             $idRefreshToken = $newSession['idRefreshToken'];
             CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath']);
             CookieAndHeader::attachRefreshTokenToCookie($response, $refreshToken['token'], $refreshToken['expiry'], $refreshToken['domain'], $refreshToken['cookieSecure'], $refreshToken['cookiePath']);
-            CookieAndHeader::attachIdRefreshTokenToCookieAndHeader($response, $idRefreshToken['token'], $idRefreshToken['expiry'], $idRefreshToken['domain'], $idRefreshToken['cookieSecure'], $idRefreshToken['cookiePath']);
+            CookieAndHeader::attachIdRefreshTokenToCookieAndHeader($response, $idRefreshToken['token'], $idRefreshToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath']);
+            // CookieAndHeader::attachIdRefreshTokenToCookieAndHeader($response, $idRefreshToken['token'], $idRefreshToken['expiry'], $idRefreshToken['domain'], $idRefreshToken['cookieSecure'], $idRefreshToken['cookiePath']);
             if (isset($newSession['antiCsrfToken'])) {
                 CookieAndHeader::attachAntiCsrfHeader($response, $newSession['antiCsrfToken']);
             }
@@ -141,6 +144,7 @@ class SuperToken
 
     /**
      * @param $userId
+     * @return int
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      * @return integer
@@ -163,6 +167,7 @@ class SuperToken
 
     /**
      * @param $sessionHandle
+     * @return bool
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      * @return bool
@@ -185,6 +190,7 @@ class SuperToken
 
     /**
      * @param $sessionHandle
+     * @return mixed
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorizedException
      * @return array | null

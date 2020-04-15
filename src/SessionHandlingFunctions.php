@@ -124,7 +124,7 @@ class SessionHandlingFunctions
                 if (
                     $handshakeInfo->enableAntiCsrf &&
                     $doAntiCsrfCheck &&
-                    (!isset($antiCsrfToken) || $antiCsrfToken !==  $accessTokenInfo['antiCsrfToken'])
+                    (!isset($antiCsrfToken) || $antiCsrfToken !== $accessTokenInfo['antiCsrfToken'])
                 ) {
                     if (!isset($antiCsrfToken)) {
                         throw SuperTokensException::generateTryRefreshTokenException("provided antiCsrfToken is undefined. If you do not want anti-csrf check for this API, please set doAntiCsrfCheck to false");
@@ -161,7 +161,6 @@ class SessionHandlingFunctions
             $requestBody['antiCsrfToken'] = $antiCsrfToken;
         }
         $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_VERIFY, $requestBody);
-
         if ($response['status'] === "OK") {
             $instance = HandshakeInfo::getInstance();
             $instance->updateJwtSigningPublicKeyInfo($response['jwtSigningPublicKey'], $response['jwtSigningPublicKeyExpiryTime']);
@@ -208,9 +207,14 @@ class SessionHandlingFunctions
      */
     public static function revokeAllSessionsForUser($userId)
     {
-        $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
+        $response = Querier::getInstance()->sendDeleteRequest(Constants::SESSION, [
             'userId' => $userId
         ]);
+        /*
+            $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
+                'userId' => $userId
+            ]);
+        */ // TODO cdi 2.0.0
         return $response['numberOfSessionsRevoked'];
     }
 
@@ -236,9 +240,14 @@ class SessionHandlingFunctions
      */
     public static function revokeSessionUsingSessionHandle($sessionHandle)
     {
-        $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
+        $response = Querier::getInstance()->sendDeleteRequest(Constants::SESSION, [
             'sessionHandles' => [$sessionHandle]
         ]);
+        /* {
+            $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
+                'sessionHandles' => [$sessionHandle]
+            ]);
+        */ // TODO cdi 2.0.0
         return $response['numberOfSessionsRevoked'] === 1;
     }
 

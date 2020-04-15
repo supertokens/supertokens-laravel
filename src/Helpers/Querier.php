@@ -109,12 +109,12 @@ class Querier
 
     /**
      * @return string
-     * @throws SuperTokensException
-     * @throws SuperTokensGeneralException
      */
     public function getApiVersion()
     {
         if (!isset(self::$apiVersion) || ((App::environment("testing")) && !is_null(self::$cv) && !is_null(self::$sv))) {
+            self::$apiVersion = "1.0";
+            /*
             $coreVersionsResponse = $this->sendRequest(Constants::API_VERSION, "GET", [], function ($url, $data) {
                 return Http::get($url);
             }) ;
@@ -129,6 +129,7 @@ class Querier
                 throw SuperTokensException::generateGeneralException(Constants::DRIVER_NOT_COMPATIBLE_MESSAGE);
             }
             self::$apiVersion = max($commonVersions);
+            */ // TODO cdi 2.0.0
         }
         return self::$apiVersion;
     }
