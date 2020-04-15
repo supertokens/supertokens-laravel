@@ -10,7 +10,7 @@ frontendDriverArray=`echo $frontendDriverJson | jq ".versions"`
 echo "got frontend driver relations"
 
 # get driver version
-version=`cat ../package.json | grep -e '"version":'`
+version=`cat ../composer.json | grep -e '"version":'`
 while IFS='"' read -ra ADDR; do
     counter=0
     for i in "${ADDR[@]}"; do
