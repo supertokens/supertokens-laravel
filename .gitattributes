@@ -3,3 +3,4 @@
 /.gitignore export-ignore
 /.circleci export-ignore
 /tests export-ignore
+/hooks export-ignore
