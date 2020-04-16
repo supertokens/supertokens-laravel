@@ -95,7 +95,7 @@ class CookieAndHeader
      */
     public static function setCookie(Response $response, $key, $value, $minutes, $path, $domain, $secure, $httpOnly, $sameSite)
     {
-        $response->withCookie(cookie($key, $value, $minutes, $path, $domain, $secure, $httpOnly)->withSameSite($sameSite));
+        $response->withCookie(cookie($key, $value, $minutes, $path, $domain, $secure, $httpOnly, false, $sameSite));
     }
 
     /**
