@@ -201,7 +201,6 @@ class SuperTokensTest extends TestCase
         ]);
         $request5->headers->set("anti-csrf", $responseData2['antiCsrf']);
         $response5 = new Response();
-        $response5->
         $session = SuperTokens::getSession($request5, $response5, true);
         self::assertFalse(SessionHandlingFunctions::$SERVICE_CALLED);
 
