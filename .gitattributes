@@ -4,3 +4,7 @@
 /.circleci export-ignore
 /tests export-ignore
 /hooks export-ignore
+/addDevTag export-ignore
+/addReleaseTag export-ignore
+/coreDriverInterfaceSupported.json export-ignore
+/frontendDriverInterfaceSupported.json export-ignore
