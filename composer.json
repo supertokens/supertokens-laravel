@@ -1,6 +1,6 @@
 {
   "name": "supertokens/supertokens-laravel",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Laravel driver for SuperTokens core",
   "type": "library",
   "license": "Apache-2.0",
