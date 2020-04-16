@@ -6,11 +6,10 @@
   "license": "Apache-2.0",
   "minimum-stability": "dev",
   "require": {
-    "ramsey/uuid": "3.8.0",
-    "illuminate/http": "7.4.0",
-    "ext-json": "^1.6",
-    "ext-openssl": "^7.2",
-    "guzzlehttp/guzzle": "^6.5"
+    "illuminate/http": ">=7",
+    "ext-json": ">=1.6",
+    "ext-openssl": ">=7.2",
+    "guzzlehttp/guzzle": ">=6"
   },
   "autoload": {
     "psr-4": {
