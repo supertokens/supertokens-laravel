@@ -21,7 +21,7 @@ use Illuminate\Http\Response;
 use SuperTokens\Exceptions\SuperTokensException;
 use SuperTokens\Exceptions\SuperTokensGeneralException;
 use SuperTokens\Exceptions\SuperTokensTryRefreshTokenException;
-use SuperTokens\Exceptions\SuperTokensUnauthorizedException;
+use SuperTokens\Exceptions\SuperTokensUnauthorisedException;
 use SuperTokens\Helpers\Constants;
 use SuperTokens\Helpers\DeviceInfo;
 use SuperTokens\Helpers\Querier;
@@ -73,7 +73,7 @@ class DeviceDriverInfoTest extends TestCase
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      * @throws SuperTokensTryRefreshTokenException
-     * @throws SuperTokensUnauthorizedException
+     * @throws SuperTokensUnauthorisedException
      * @throws Exception
      */
     public function testDriverInfoCheckWithFrontendSdk(): void

@@ -19,7 +19,7 @@ use ArrayObject;
 use Illuminate\Http\Response;
 use SuperTokens\Exceptions\SuperTokensException;
 use SuperTokens\Exceptions\SuperTokensGeneralException;
-use SuperTokens\Exceptions\SuperTokensUnauthorizedException;
+use SuperTokens\Exceptions\SuperTokensUnauthorisedException;
 use SuperTokens\Helpers\CookieAndHeader;
 use SuperTokens\Helpers\HandshakeInfo;
 
@@ -76,13 +76,13 @@ class Session
      * @return array | null
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
-     * @throws SuperTokensUnauthorizedException
+     * @throws SuperTokensUnauthorisedException
      */
     public function getSessionData()
     {
         try {
             return SessionHandlingFunctions::getSessionData($this->sessionHandle);
-        } catch (SuperTokensUnauthorizedException $e) {
+        } catch (SuperTokensUnauthorisedException $e) {
             $handshakeInfo = HandshakeInfo::getInstance();
             CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath);
             throw $e;
@@ -92,14 +92,14 @@ class Session
     /**
      * @param array | null $newSessionData
      * @throws SuperTokensGeneralException
-     * @throws SuperTokensUnauthorizedException
+     * @throws SuperTokensUnauthorisedException
      * @throws SuperTokensException
      */
     public function updateSessionInfo($newSessionData)
     {
         try {
             SessionHandlingFunctions::updateSessionData($this->sessionHandle, $newSessionData);
-        } catch (SuperTokensUnauthorizedException $e) {
+        } catch (SuperTokensUnauthorisedException $e) {
             $handshakeInfo = HandshakeInfo::getInstance();
             CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath);
             throw $e;
