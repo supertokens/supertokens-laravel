@@ -343,7 +343,7 @@ class SuperTokensTest extends TestCase
         $request2->headers->set("anti-csrf", $responseData1['antiCsrf']);
         $response2 = new Response();
         $session1 = SuperTokens::getSession($request2, $response2, true);
-        $session1->updateSessionInfo(["key" => "value"]);
+        $session1->updateSessionData(["key" => "value"]);
 
         $request3 = new Request([], [], [], [
             'sAccessToken' => $responseData1['accessToken'],
@@ -363,7 +363,7 @@ class SuperTokensTest extends TestCase
         $request4->headers->set("anti-csrf", $responseData1['antiCsrf']);
         $response4 = new Response();
         $session3 = SuperTokens::getSession($request4, $response4, true);
-        $session3->updateSessionInfo(["key" => "value2"]);
+        $session3->updateSessionData(["key" => "value2"]);
 
         $request5 = new Request([], [], [], [
             'sAccessToken' => $responseData1['accessToken'],

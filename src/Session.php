@@ -95,7 +95,7 @@ class Session
      * @throws SuperTokensUnauthorisedException
      * @throws SuperTokensException
      */
-    public function updateSessionInfo($newSessionData)
+    public function updateSessionData($newSessionData)
     {
         try {
             SessionHandlingFunctions::updateSessionData($this->sessionHandle, $newSessionData);
