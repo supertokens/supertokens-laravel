@@ -22,7 +22,7 @@ use SuperTokens\Exceptions\SuperTokensException;
 use SuperTokens\Exceptions\SuperTokensGeneralException;
 use SuperTokens\Exceptions\SuperTokensTokenTheftException;
 use SuperTokens\Exceptions\SuperTokensTryRefreshTokenException;
-use SuperTokens\Exceptions\SuperTokensUnauthorizedException;
+use SuperTokens\Exceptions\SuperTokensUnauthorisedException;
 use SuperTokens\SessionHandlingFunctions;
 use SuperTokens\SuperTokens;
 
@@ -379,7 +379,7 @@ class SuperTokensTest extends TestCase
         try {
             SuperTokens::updateSessionData("invalidSessionHandle", ["key" => "value"]);
             $this->assertTrue(false);
-        } catch (SuperTokensUnauthorizedException $e) {
+        } catch (SuperTokensUnauthorisedException $e) {
             $this->assertTrue(true);
         }
     }

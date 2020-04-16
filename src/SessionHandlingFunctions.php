@@ -25,7 +25,7 @@ use SuperTokens\Exceptions\SuperTokensException;
 use SuperTokens\Exceptions\SuperTokensGeneralException;
 use SuperTokens\Exceptions\SuperTokensTokenTheftException;
 use SuperTokens\Exceptions\SuperTokensTryRefreshTokenException;
-use SuperTokens\Exceptions\SuperTokensUnauthorizedException;
+use SuperTokens\Exceptions\SuperTokensUnauthorisedException;
 use SuperTokens\Helpers\Constants;
 use SuperTokens\Helpers\HandshakeInfo;
 use SuperTokens\Helpers\Querier;
@@ -106,14 +106,14 @@ class SessionHandlingFunctions
      * @param string | null $idRefreshToken
      * @return array
      * @throws SuperTokensGeneralException
-     * @throws SuperTokensUnauthorizedException
+     * @throws SuperTokensUnauthorisedException
      * @throws SuperTokensTryRefreshTokenException
      * @throws SuperTokensException
      */
     public static function getSession($accessToken, $antiCsrfToken, $doAntiCsrfCheck, $idRefreshToken)
     {
         if (!isset($idRefreshToken)) {
-            throw new SuperTokensUnauthorizedException('idRefreshToken missing');
+            throw new SuperTokensUnauthorisedException('idRefreshToken missing');
         }
         $handshakeInfo = HandshakeInfo::getInstance();
 
@@ -180,7 +180,7 @@ class SessionHandlingFunctions
      * @param $refreshToken
      * @return array
      * @throws SuperTokensGeneralException
-     * @throws SuperTokensUnauthorizedException
+     * @throws SuperTokensUnauthorisedException
      * @throws SuperTokensTokenTheftException
      * @throws SuperTokensException
       */
@@ -270,7 +270,7 @@ class SessionHandlingFunctions
      * @param string $sessionHandle
      * @return array | null
      * @throws Exception
-     * @throws SuperTokensUnauthorizedException | SuperTokensGeneralException
+     * @throws SuperTokensUnauthorisedException | SuperTokensGeneralException
      */
     public static function getSessionData($sessionHandle)
     {
@@ -287,7 +287,7 @@ class SessionHandlingFunctions
      * @param string $sessionHandle
      * @param array | null $newSessionData
      * @throws SuperTokensException
-     * @throws SuperTokensUnauthorizedException | SuperTokensGeneralException
+     * @throws SuperTokensUnauthorisedException | SuperTokensGeneralException
      */
     public static function updateSessionData($sessionHandle, $newSessionData)
     {
@@ -299,7 +299,7 @@ class SessionHandlingFunctions
             'userDataInDatabase' => $newSessionData
         ]);
         if ($response['status'] === Constants::EXCEPTION_UNAUTHORISED) {
-            throw new SuperTokensUnauthorizedException($response['message']);
+            throw new SuperTokensUnauthorisedException($response['message']);
         }
     }
 }

@@ -18,14 +18,14 @@ namespace SuperTokens\Exceptions;
 use Exception;
 
 /**
- * Class SuperTokensUnauthorizedException
+ * Class SuperTokensUnauthorisedException
  * @package SuperTokens\Laravel\Exceptions
  */
-class SuperTokensUnauthorizedException extends SuperTokensException
+class SuperTokensUnauthorisedException extends SuperTokensException
 {
 
     /**
-     * SuperTokensUnauthorizedException constructor.
+     * SuperTokensUnauthorisedException constructor.
      * @param $anything
      */
     public function __construct($anything)

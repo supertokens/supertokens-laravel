@@ -22,7 +22,7 @@ use SuperTokens\Exceptions\SuperTokensException;
 use SuperTokens\Exceptions\SuperTokensGeneralException;
 use SuperTokens\Exceptions\SuperTokensTokenTheftException;
 use SuperTokens\Exceptions\SuperTokensTryRefreshTokenException;
-use SuperTokens\Exceptions\SuperTokensUnauthorizedException;
+use SuperTokens\Exceptions\SuperTokensUnauthorisedException;
 use SuperTokens\Helpers\Constants;
 use SuperTokens\Helpers\HandshakeInfo;
 use SuperTokens\Helpers\Querier;
@@ -200,7 +200,7 @@ class SessionTest extends TestCase
         try {
             SessionHandlingFunctions::updateSessionData("incorrect", ["key" => "value2"]);
             $this->assertTrue(false);
-        } catch (SuperTokensUnauthorizedException $e) {
+        } catch (SuperTokensUnauthorisedException $e) {
             $this->assertTrue(true);
         }
     }

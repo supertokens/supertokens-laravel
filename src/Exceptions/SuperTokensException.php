@@ -48,7 +48,7 @@ abstract class SuperTokensException extends Exception
         if ($anything instanceof SuperTokensException) {
             return $anything;
         }
-        return new SuperTokensUnauthorizedException($anything);
+        return new SuperTokensUnauthorisedException($anything);
     }
 
     public static function generateTryRefreshTokenException($anything)
