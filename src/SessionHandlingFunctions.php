@@ -70,8 +70,8 @@ class SessionHandlingFunctions
 
     /**
      * @param string $userId
-     * @param array | null $jwtPayload
-     * @param array | null $sessionData
+     * @param array $jwtPayload
+     * @param array $sessionData
      * @return array
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
@@ -207,14 +207,15 @@ class SessionHandlingFunctions
      */
     public static function revokeAllSessionsForUser($userId)
     {
-        $response = Querier::getInstance()->sendDeleteRequest(Constants::SESSION, [
-            'userId' => $userId
-        ]);
-        /*
+        if (Querier::getInstance()->getApiVersion() === "1.0") {
+            $response = Querier::getInstance()->sendDeleteRequest(Constants::SESSION, [
+                'userId' => $userId
+            ]);
+        } else {
             $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
                 'userId' => $userId
             ]);
-        */ // TODO cdi 2.0.0
+        }
         return $response['numberOfSessionsRevoked'];
     }
 
@@ -240,14 +241,15 @@ class SessionHandlingFunctions
      */
     public static function revokeSessionUsingSessionHandle($sessionHandle)
     {
-        $response = Querier::getInstance()->sendDeleteRequest(Constants::SESSION, [
-            'sessionHandles' => [$sessionHandle]
-        ]);
-        /* {
+        if (Querier::getInstance()->getApiVersion() === "1.0") {
+            $response = Querier::getInstance()->sendDeleteRequest(Constants::SESSION, [
+                'sessionHandles' => [$sessionHandle]
+            ]);
+        } else {
             $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
                 'sessionHandles' => [$sessionHandle]
             ]);
-        */ // TODO cdi 2.0.0
+        }
         return $response['numberOfSessionsRevoked'] === 1;
     }
 
@@ -268,7 +270,7 @@ class SessionHandlingFunctions
 
     /**
      * @param string $sessionHandle
-     * @return array | null
+     * @return array
      * @throws Exception
      * @throws SuperTokensUnauthorisedException | SuperTokensGeneralException
      */
@@ -285,7 +287,7 @@ class SessionHandlingFunctions
 
     /**
      * @param string $sessionHandle
-     * @param array | null $newSessionData
+     * @param array $newSessionData
      * @throws SuperTokensException
      * @throws SuperTokensUnauthorisedException | SuperTokensGeneralException
      */

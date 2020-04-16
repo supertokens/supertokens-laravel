@@ -68,8 +68,15 @@ class HandshakeInfo
     public $jwtSigningPublicKeyExpiryTime;
 
     /**
+     * @var string;
+     */
+    public $sameSite;
+
+    /**
      * HandshakeInfo constructor.
-     * @param array $info
+     * @param $info
+     * @throws SuperTokensException
+     * @throws SuperTokensGeneralException
      */
     private function __construct($info)
     {
@@ -81,6 +88,10 @@ class HandshakeInfo
         $this->jwtSigningPublicKey = $info['jwtSigningPublicKey'];
         $this->jwtSigningPublicKeyExpiryTime = $info['jwtSigningPublicKeyExpiryTime'];
         $this->refreshTokenPath = $info['refreshTokenPath'];
+        $this->sameSite = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
+        if (Querier::getInstance()->getApiVersion() !== "1.0") {
+            $this->sameSite = $info['cookieSameSite'];
+        }
     }
 
     /**

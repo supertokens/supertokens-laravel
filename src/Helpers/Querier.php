@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Config;
 use SuperTokens\Exceptions\SuperTokensException;
 use SuperTokens\Exceptions\SuperTokensGeneralException;
+use function PHPUnit\Framework\assertEquals;
 
 class Querier
 {
@@ -109,27 +110,34 @@ class Querier
 
     /**
      * @return string
+     * @throws SuperTokensException
+     * @throws SuperTokensGeneralException
      */
     public function getApiVersion()
     {
         if (!isset(self::$apiVersion) || ((App::environment("testing")) && !is_null(self::$cv) && !is_null(self::$sv))) {
-            self::$apiVersion = "1.0";
-            /*
-            $coreVersionsResponse = $this->sendRequest(Constants::API_VERSION, "GET", [], function ($url, $data) {
-                return Http::get($url);
-            }) ;
-            $coreVersions = $coreVersionsResponse['versions'];
-            $supportedAPIVersions = Constants::SUPPORTED_CDI_VERSIONS;
-            if ((App::environment("testing")) && !is_null(self::$cv) && !is_null(self::$sv)) {
-                $supportedAPIVersions = self::$sv;
-                $coreVersions = self::$cv;
+            try {
+                $coreVersionsResponse = $this->sendRequest(Constants::API_VERSION, "GET", [], function ($url, $data) {
+                    return Http::get($url);
+                }) ;
+                $coreVersions = $coreVersionsResponse['versions'];
+                $supportedAPIVersions = Constants::SUPPORTED_CDI_VERSIONS;
+                if ((App::environment("testing")) && !is_null(self::$cv) && !is_null(self::$sv)) {
+                    $supportedAPIVersions = self::$sv;
+                    $coreVersions = self::$cv;
+                }
+                $commonVersions = array_values(array_intersect($supportedAPIVersions, $coreVersions));
+                if (empty($commonVersions)) {
+                    throw SuperTokensException::generateGeneralException(Constants::DRIVER_NOT_COMPATIBLE_MESSAGE);
+                }
+                self::$apiVersion = max($commonVersions);
+            } catch (SuperTokensGeneralException $e) {
+                $tryHello = $this->sendRequest(Constants::HELLO, "GET", [], function ($url, $data) {
+                    return Http::get($url);
+                });
+                assertEquals("Hello\n", $tryHello); // will be true if it is cdi version 1.0.0
+                self::$apiVersion = "1.0";
             }
-            $commonVersions = array_values(array_intersect($supportedAPIVersions, $coreVersions));
-            if (empty($commonVersions)) {
-                throw SuperTokensException::generateGeneralException(Constants::DRIVER_NOT_COMPATIBLE_MESSAGE);
-            }
-            self::$apiVersion = max($commonVersions);
-            */ // TODO cdi 2.0.0
         }
         return self::$apiVersion;
     }

@@ -62,9 +62,4 @@ class Utils
         $date = new DateTime();
         return $date->getTimestamp();
     }
-
-    public static function emptyJSON()
-    {
-        return json_decode("{}");
-    }
 }

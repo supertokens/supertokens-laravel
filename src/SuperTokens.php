@@ -15,17 +15,18 @@
  */
 namespace SuperTokens;
 
-use ArrayObject;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use SuperTokens\Exceptions\SuperTokensException;
 use SuperTokens\Exceptions\SuperTokensTokenTheftException;
+use SuperTokens\Helpers\Constants;
 use SuperTokens\Helpers\CookieAndHeader;
 use SuperTokens\Exceptions\SuperTokensGeneralException;
 use SuperTokens\Exceptions\SuperTokensUnauthorisedException;
 use SuperTokens\Exceptions\SuperTokensTryRefreshTokenException;
 use SuperTokens\Helpers\HandshakeInfo;
+use SuperTokens\Helpers\Querier;
 
 class SuperTokens
 {
@@ -42,8 +43,8 @@ class SuperTokens
     /**
      * @param Response $response
      * @param string $userId
-     * @param array | null $jwtPayload
-     * @param array | null $sessionData
+     * @param array $jwtPayload
+     * @param array $sessionData
      * @return Session
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
@@ -51,17 +52,7 @@ class SuperTokens
     public static function createNewSession(Response $response, $userId, $jwtPayload = null, $sessionData = null)
     {
         $newSession = SessionHandlingFunctions::createNewSession($userId, $jwtPayload, $sessionData);
-        $accessToken = $newSession['accessToken'];
-        $refreshToken = $newSession['refreshToken'];
-        $idRefreshToken = $newSession['idRefreshToken'];
-
-        CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath']);
-        CookieAndHeader::attachRefreshTokenToCookie($response, $refreshToken['token'], $refreshToken['expiry'], $refreshToken['domain'], $refreshToken['cookieSecure'], $refreshToken['cookiePath']);
-        CookieAndHeader::attachIdRefreshTokenToCookieAndHeader($response, $idRefreshToken['token'], $idRefreshToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath']);
-        // CookieAndHeader::attachIdRefreshTokenToCookieAndHeader($response, $idRefreshToken['token'], $idRefreshToken['expiry'], $idRefreshToken['domain'], $idRefreshToken['cookieSecure'], $idRefreshToken['cookiePath']);
-        if (isset($newSession['antiCsrfToken'])) {
-            CookieAndHeader::attachAntiCsrfHeader($response, $newSession['antiCsrfToken']);
-        }
+        CookieAndHeader::attachSessionToResponse($response, $newSession);
         return new Session($newSession['session']['handle'], $newSession['session']['userId'], $newSession['session']['userDataInJWT'], $response);
     }
 
@@ -88,12 +79,16 @@ class SuperTokens
             $newSession = SessionHandlingFunctions::getSession($accessToken, $antiCsrfToken, $doAntiCsrfCheck, $idRefreshToken);
             if (isset($newSession['accessToken'])) {
                 $accessToken = $newSession['accessToken'];
-                CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath']);
+                $accessTokenSameSite = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
+                if (Querier::getInstance()->getApiVersion() !== "1.0") {
+                    $accessTokenSameSite = $accessToken['sameSite'];
+                }
+                CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessTokenSameSite);
             }
             return new Session($newSession['session']['handle'], $newSession['session']['userId'], $newSession['session']['userDataInJWT'], $response);
         } catch (SuperTokensUnauthorisedException $e) {
             $handshakeInfo = HandshakeInfo::getInstance();
-            CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath);
+            CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
             throw $e;
         }
     }
@@ -113,31 +108,21 @@ class SuperTokens
         $refreshToken = CookieAndHeader::getRefreshTokenFromCookie($request);
         if (!isset($refreshToken)) {
             $handshakeInfo = HandshakeInfo::getInstance();
-            CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath);
+            CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
             throw SuperTokensException::generateUnauthorisedException("Missing auth tokens in cookies. Have you set the correct refresh API path in your frontend and SuperTokens config?");
         }
 
         try {
             $newSession = SessionHandlingFunctions::refreshSession($refreshToken);
-
-            $accessToken = $newSession['accessToken'];
-            $refreshToken = $newSession['refreshToken'];
-            $idRefreshToken = $newSession['idRefreshToken'];
-            CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath']);
-            CookieAndHeader::attachRefreshTokenToCookie($response, $refreshToken['token'], $refreshToken['expiry'], $refreshToken['domain'], $refreshToken['cookieSecure'], $refreshToken['cookiePath']);
-            CookieAndHeader::attachIdRefreshTokenToCookieAndHeader($response, $idRefreshToken['token'], $idRefreshToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath']);
-            // CookieAndHeader::attachIdRefreshTokenToCookieAndHeader($response, $idRefreshToken['token'], $idRefreshToken['expiry'], $idRefreshToken['domain'], $idRefreshToken['cookieSecure'], $idRefreshToken['cookiePath']);
-            if (isset($newSession['antiCsrfToken'])) {
-                CookieAndHeader::attachAntiCsrfHeader($response, $newSession['antiCsrfToken']);
-            }
+            CookieAndHeader::attachSessionToResponse($response, $newSession);
             return new Session($newSession['session']['handle'], $newSession['session']['userId'], $newSession['session']['userDataInJWT'], $response);
         } catch (SuperTokensUnauthorisedException $e) {
             $handshakeInfo = HandshakeInfo::getInstance();
-            CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath);
+            CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
             throw $e;
         } catch (SuperTokensTokenTheftException $e) {
             $handshakeInfo = HandshakeInfo::getInstance();
-            CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath);
+            CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
             throw $e;
         }
     }
@@ -191,7 +176,7 @@ class SuperTokens
     /**
      * @param $sessionHandle
      * @return mixed
-     * @return array | null
+     * @return array
      *@throws SuperTokensUnauthorisedException
      * @throws SuperTokensGeneralException
      */
@@ -202,7 +187,7 @@ class SuperTokens
 
     /**
      * @param $sessionHandle
-     * @param array | null $newSessionData
+     * @param array $newSessionData
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
