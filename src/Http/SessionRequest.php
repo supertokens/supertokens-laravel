@@ -13,12 +13,10 @@ class SessionRequest extends Request
      */
     public $supertokenSession;
 
-    public function __construct(array $query = [], array $request = [], array $attributes = [], array $cookies = [], array $files = [], array $server = [], $content = null, $session = null)
+    public function __construct(SessionMiddleware $session, array $query = [], array $request = [], array $attributes = [], array $cookies = [], array $files = [], array $server = [], $content = null)
     {
         parent::__construct($query, $request, $attributes, $cookies, $files, $server, $content);
-        if (isset($session)) {
-            $this->supertokenSession = $session;
-        }
+        $this->supertokenSession = $session;
     }
 
     /**
@@ -28,6 +26,6 @@ class SessionRequest extends Request
      */
     public static function attachSession(Request $request, SessionMiddleware $session)
     {
-        return new SessionRequest($request->query->all(), $request->post(), $request->attributes->all(), $request->cookies->all(), $request->files->all(), $request->server->all(), $request->content, $session);
+        return new SessionRequest($session, $request->query->all(), $request->post(), $request->attributes->all(), $request->cookies->all(), $request->files->all(), $request->server->all(), $request->content);
     }
 }
