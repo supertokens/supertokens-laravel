@@ -95,6 +95,32 @@ class SuperTokens
 
     /**
      * @param Request $request
+     * @param boolean $doAntiCsrfCheck
+     * @return Session
+     * @throws SuperTokensGeneralException
+     * @throws SuperTokensTryRefreshTokenException
+     * @throws SuperTokensException
+     * @throws SuperTokensUnauthorisedException
+     */
+    public static function getSessionForMiddleware(Request $request, $doAntiCsrfCheck)
+    {
+        CookieAndHeader::saveFrontendInfoFromRequest($request);
+        $accessToken = CookieAndHeader::getAccessTokenFromCookie($request);
+        if (!isset($accessToken)) {
+            throw SuperTokensException::generateTryRefreshTokenException("access token missing in cookies");
+        }
+        try {
+            $idRefreshToken = CookieAndHeader::getIdRefreshTokenFromCookie($request);
+            $antiCsrfToken = CookieAndHeader::getAntiCsrfHeader($request);
+            $newSession = SessionHandlingFunctions::getSession($accessToken, $antiCsrfToken, $doAntiCsrfCheck, $idRefreshToken);
+            return new Session($newSession['session']['handle'], $newSession['session']['userId'], $newSession['session']['userDataInJWT'], $response);
+        } catch (SuperTokensUnauthorisedException $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * @param Request $request
      * @param Response $response
      * @return Session
      * @throws SuperTokensException

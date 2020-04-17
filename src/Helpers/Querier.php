@@ -116,10 +116,12 @@ class Querier
     public function getApiVersion()
     {
         if (!isset(self::$apiVersion) || ((App::environment("testing")) && !is_null(self::$cv) && !is_null(self::$sv))) {
+            $getAPISuccess = false;
             try {
                 $coreVersionsResponse = $this->sendRequest(Constants::API_VERSION, "GET", [], function ($url, $data) {
                     return Http::get($url);
-                }) ;
+                });
+                $getAPISuccess = true;
                 $coreVersions = $coreVersionsResponse['versions'];
                 $supportedAPIVersions = Constants::SUPPORTED_CDI_VERSIONS;
                 if ((App::environment("testing")) && !is_null(self::$cv) && !is_null(self::$sv)) {
@@ -132,6 +134,9 @@ class Querier
                 }
                 self::$apiVersion = max($commonVersions);
             } catch (SuperTokensGeneralException $e) {
+                if ($getAPISuccess) {
+                    throw $e;
+                }
                 $tryHello = $this->sendRequest(Constants::HELLO, "GET", [], function ($url, $data) {
                     return Http::get($url);
                 });
