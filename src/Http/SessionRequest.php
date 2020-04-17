@@ -4,12 +4,12 @@
 namespace SuperTokens\Http;
 
 use Illuminate\Http\Request;
-use SuperTokens\Session;
+use SuperTokens\SessionMiddleware;
 
 class SessionRequest extends Request
 {
     /**
-     * @var Session
+     * @var SessionMiddleware
      */
     public $supertokenSession;
 
@@ -23,10 +23,10 @@ class SessionRequest extends Request
 
     /**
      * @param Request $request
-     * @param Session $session
+     * @param SessionMiddleware $session
      * @return SessionRequest
      */
-    public static function attachSession(Request $request, Session $session)
+    public static function attachSession(Request $request, SessionMiddleware $session)
     {
         return new SessionRequest($request->query->all(), $request->post(), $request->attributes->all(), $request->cookies->all(), $request->files->all(), $request->server->all(), $request->content, $session);
     }
