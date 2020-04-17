@@ -15,6 +15,7 @@ use SuperTokens\Helpers\CookieAndHeader;
 use SuperTokens\Helpers\HandshakeInfo;
 use SuperTokens\Helpers\Querier;
 use SuperTokens\Http\SessionRequest;
+use SuperTokens\SessionMiddleware;
 use SuperTokens\SuperTokens;
 
 class SessionVerify
@@ -46,7 +47,8 @@ class SessionVerify
                 $response->setStatusCode(500)->setContent($e->getMessage());
                 return $response;
             }
-            $sessionRequest = SessionRequest::attachSession($request, $session);
+            $sessionMiddleware = new SessionMiddleware($session['session']['handle'], $session['session']['userId'], $session['session']['userDataInJWT']);
+            $sessionRequest = SessionRequest::attachSession($request, $sessionMiddleware);
 
             $response = $next($sessionRequest);
 

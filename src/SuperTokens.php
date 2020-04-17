@@ -96,7 +96,7 @@ class SuperTokens
     /**
      * @param Request $request
      * @param boolean $doAntiCsrfCheck
-     * @return SessionMiddleware
+     * @return array
      * @throws SuperTokensGeneralException
      * @throws SuperTokensTryRefreshTokenException
      * @throws SuperTokensException
@@ -112,8 +112,7 @@ class SuperTokens
         try {
             $idRefreshToken = CookieAndHeader::getIdRefreshTokenFromCookie($request);
             $antiCsrfToken = CookieAndHeader::getAntiCsrfHeader($request);
-            $newSession = SessionHandlingFunctions::getSession($accessToken, $antiCsrfToken, $doAntiCsrfCheck, $idRefreshToken);
-            return new SessionMiddleware($newSession['session']['handle'], $newSession['session']['userId'], $newSession['session']['userDataInJWT']);
+            return SessionHandlingFunctions::getSession($accessToken, $antiCsrfToken, $doAntiCsrfCheck, $idRefreshToken);
         } catch (SuperTokensUnauthorisedException $e) {
             throw $e;
         }
