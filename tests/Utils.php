@@ -202,6 +202,9 @@ class Utils
         $accessTokenExpiry = null;
         $refreshTokenExpiry = null;
         $idRefreshTokenExpiry = null;
+        $accessTokenMaxAge = null;
+        $refreshTokenMaxAge = null;
+        $idRefreshTokenMaxAge = null;
         $accessTokenCookie = null;
         $refreshTokenCookie = null;
         $idRefreshTokenCookie = null;
@@ -213,19 +216,23 @@ class Utils
             $cookieName = $cookie->getName();
             $cookieValue = $cookie->getValue();
             $cookieExpiry = $cookie->getExpiresTime();
+            $cookieMaxAge = $cookie->getMaxAge();
 
             if ($cookieName === "sAccessToken") {
                 $accessToken = $cookieValue;
                 $accessTokenExpiry = $cookieExpiry;
                 $accessTokenCookie = $cookie;
+                $accessTokenMaxAge = $cookieMaxAge;
             } elseif ($cookieName === "sRefreshToken") {
                 $refreshToken = $cookieValue;
                 $refreshTokenExpiry = $cookieExpiry;
                 $refreshTokenCookie = $cookie;
+                $refreshTokenMaxAge = $cookieMaxAge;
             } elseif ($cookieName === "sIdRefreshToken") {
                 $idRefreshToken = $cookieValue;
                 $idRefreshTokenExpiry = $cookieExpiry;
                 $idRefreshTokenCookie = $cookie;
+                $idRefreshTokenMaxAge = $cookieMaxAge;
             }
         }
         return [
@@ -239,8 +246,10 @@ class Utils
             'idRefreshTokenExpiry' => $idRefreshTokenExpiry,
             'accessTokenCookie' => $accessTokenCookie,
             'refreshTokenCookie' => $refreshTokenCookie,
-            'idRefreshTokenCookie' => $idRefreshTokenCookie
-
+            'idRefreshTokenCookie' => $idRefreshTokenCookie,
+            'accessTokenMaxAge' => $accessTokenMaxAge,
+            'refreshTokenMaxAge'=> $refreshTokenMaxAge,
+            'idRefreshTokenMaxAge' => $idRefreshTokenMaxAge
         ];
     }
 }

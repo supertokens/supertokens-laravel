@@ -64,6 +64,7 @@ class SuperTokensTest extends TestCase
         $response1 = new Response();
         SuperTokens::createNewSession($response1, "userId", [], []);
         $responseData1 = Utils::extractInfoFromResponse($response1);
+        $this->assertEquals(3600, $responseData1['accessTokenMaxAge']);
 
         $request2 = new Request([], [], [], [
             'sRefreshToken' => $responseData1['refreshToken']
