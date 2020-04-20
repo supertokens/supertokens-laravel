@@ -157,7 +157,7 @@ class SuperTokens
      * @return int
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
-     * @return integer
+     * @return array | integer
      */
     public static function revokeAllSessionsForUser($userId)
     {
@@ -187,16 +187,16 @@ class SuperTokens
         return SessionHandlingFunctions::revokeSessionUsingSessionHandle($sessionHandle);
     }
 
-//    /**
-//     * @param $sessionHandles
-//     * @throws SuperTokensException
-//     * @throws SuperTokensGeneralException
-//     */
-//      TODO: CDI 2.0 - return type should be list of sessions revoked
-//    public static function revokeMultipleSessionsUsingSessionHandles($sessionHandles)
-//    {
-//        SessionHandlingFunctions::revokeMultipleSessionsUsingSessionHandles($sessionHandles);
-//    }
+    /**
+     * @param $sessionHandles
+     * @return array
+     * @throws SuperTokensException
+     * @throws SuperTokensGeneralException
+     */
+    public static function revokeMultipleSessionsUsingSessionHandles($sessionHandles)
+    {
+        return SessionHandlingFunctions::revokeMultipleSessionsUsingSessionHandles($sessionHandles);
+    }
 
     /**
      * @param $sessionHandle

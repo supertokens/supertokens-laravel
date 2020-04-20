@@ -49,6 +49,11 @@ class SessionHandlingFunctions
     public static $SERVICE_CALLED = false; // for testing purpose
 
     /**
+     * @var string | null
+     */
+    public static $FUNCTION_VERSION = null; // for testing purpose
+
+    /**
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
@@ -56,6 +61,7 @@ class SessionHandlingFunctions
     {
         if (App::environment("testing")) {
             self::$SERVICE_CALLED = false;
+            self::$FUNCTION_VERSION = null;
         } else {
             throw SuperTokensException::generateGeneralException("calling testing function in non testing env");
         }
@@ -201,7 +207,7 @@ class SessionHandlingFunctions
 
     /**
      * @param string $userId
-     * @return integer
+     * @return array | integer
      * @throws SuperTokensGeneralException
      * @throws SuperTokensException
      */
@@ -211,12 +217,15 @@ class SessionHandlingFunctions
             $response = Querier::getInstance()->sendDeleteRequest(Constants::SESSION, [
                 'userId' => $userId
             ]);
+            self::$FUNCTION_VERSION = "1.0";
+            return $response['numberOfSessionsRevoked'];
         } else {
             $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
                 'userId' => $userId
             ]);
+            self::$FUNCTION_VERSION = "2.0";
+            return $response['sessionHandlesRevoked'];
         }
-        return $response['numberOfSessionsRevoked'];
     }
 
     /**
@@ -245,28 +254,30 @@ class SessionHandlingFunctions
             $response = Querier::getInstance()->sendDeleteRequest(Constants::SESSION, [
                 'sessionHandles' => [$sessionHandle]
             ]);
+            self::$FUNCTION_VERSION = "1.0";
+            return $response['numberOfSessionsRevoked'] === 1;
         } else {
             $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
                 'sessionHandles' => [$sessionHandle]
             ]);
+            self::$FUNCTION_VERSION = "2.0";
+            return (array_key_exists('sessionHandlesRevoked', $response) && in_array($sessionHandle, $response['sessionHandlesRevoked']));
         }
-        return $response['numberOfSessionsRevoked'] === 1;
     }
 
-//    /**
-//     * @param array $sessionHandles
-//     * @return bool
-//     * @throws SuperTokensGeneralException
-//     * @throws SuperTokensException
-//     */
-//    public static function revokeMultipleSessionsUsingSessionHandles($sessionHandles)
-//    {
-//        $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
-//            'sessionHandles' => $sessionHandles
-//        ]);
-//        // TODO: return type of this should be list of session handles revoked - change in CDI 2.0
-//        return $response['numberOfSessionsRevoked'] === count($sessionHandles);
-//    }
+    /**
+     * @param array $sessionHandles
+     * @return array
+     * @throws SuperTokensGeneralException
+     * @throws SuperTokensException
+     */
+    public static function revokeMultipleSessionsUsingSessionHandles($sessionHandles)
+    {
+        $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
+            'sessionHandles' => $sessionHandles
+        ]);
+        return $response['sessionHandlesRevoked'];
+    }
 
     /**
      * @param string $sessionHandle

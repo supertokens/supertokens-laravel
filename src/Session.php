@@ -52,7 +52,7 @@ class Session
      * @param array $userDataInJWT
      * @param $response
      */
-    public function __construct($sessionHandle, $userId, $userDataInJWT, $response)
+    public function __construct($sessionHandle, $userId, $userDataInJWT, $response = null)
     {
         $this->sessionHandle = $sessionHandle;
         $this->userId = $userId;
@@ -61,12 +61,19 @@ class Session
     }
 
     /**
-     * @throws SuperTokensGeneralException
+     * @param Response | null $response
      * @throws SuperTokensException
+     * @throws SuperTokensGeneralException
      */
-    public function revokeSession()
+    public function revokeSession($response = null)
     {
         if (SessionHandlingFunctions::revokeSessionUsingSessionHandle($this->sessionHandle)) {
+            if (isset($response)) {
+                $this->response = $response;
+            }
+            if (!isset($this->response)) {
+                SuperTokensGeneralException::generateGeneralException("function requires a response object");
+            }
             $handshakeInfo = HandshakeInfo::getInstance();
             CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
         }
@@ -83,8 +90,10 @@ class Session
         try {
             return SessionHandlingFunctions::getSessionData($this->sessionHandle);
         } catch (SuperTokensUnauthorisedException $e) {
-            $handshakeInfo = HandshakeInfo::getInstance();
-            CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+            if (isset($this->response)) {
+                $handshakeInfo = HandshakeInfo::getInstance();
+                CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+            }
             throw $e;
         }
     }
@@ -103,8 +112,10 @@ class Session
             }
             SessionHandlingFunctions::updateSessionData($this->sessionHandle, $newSessionData);
         } catch (SuperTokensUnauthorisedException $e) {
-            $handshakeInfo = HandshakeInfo::getInstance();
-            CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+            if (isset($this->response)) {
+                $handshakeInfo = HandshakeInfo::getInstance();
+                CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+            }
             throw $e;
         }
     }

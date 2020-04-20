@@ -8,3 +8,4 @@
 /addReleaseTag export-ignore
 /coreDriverInterfaceSupported.json export-ignore
 /frontendDriverInterfaceSupported.json export-ignore
+/examples export-ignore

@@ -160,18 +160,39 @@ class SessionTest extends TestCase
     {
         Utils::startST();
         SessionHandlingFunctions::revokeAllSessionsForUser("userId");
-        $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
-        $session = SessionHandlingFunctions::createNewSession("userId", [], []);
-        $this->assertCount(1, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
-        $this->assertTrue(SessionHandlingFunctions::revokeSessionUsingSessionHandle($session['session']['handle']));
-        $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
-        SessionHandlingFunctions::createNewSession("userId", [], []);
-        SessionHandlingFunctions::createNewSession("userId", [], []);
-        $this->assertCount(2, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
-        $this->assertEquals(2, SessionHandlingFunctions::revokeAllSessionsForUser("userId"));
-        $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
-        $this->assertFalse(SessionHandlingFunctions::revokeSessionUsingSessionHandle("random"));
-        $this->assertEquals(0, SessionHandlingFunctions::revokeAllSessionsForUser("randomUserId"));
+        if (Querier::getInstance()->getApiVersion() === "1.0") {
+            $this->assertEquals("1.0", SessionHandlingFunctions::$FUNCTION_VERSION);
+            $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+            $session = SessionHandlingFunctions::createNewSession("userId", [], []);
+            $this->assertCount(1, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+            $this->assertTrue(SessionHandlingFunctions::revokeSessionUsingSessionHandle($session['session']['handle']));
+            $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+            SessionHandlingFunctions::createNewSession("userId", [], []);
+            SessionHandlingFunctions::createNewSession("userId", [], []);
+            $this->assertCount(2, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+            $this->assertEquals(2, SessionHandlingFunctions::revokeAllSessionsForUser("userId"));
+            $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+            SessionHandlingFunctions::reset();
+            $this->assertFalse(SessionHandlingFunctions::revokeSessionUsingSessionHandle("random"));
+            $this->assertEquals("1.0", SessionHandlingFunctions::$FUNCTION_VERSION);
+            $this->assertEquals(0, SessionHandlingFunctions::revokeAllSessionsForUser("randomUserId"));
+        } else {
+            $this->assertEquals("2.0", SessionHandlingFunctions::$FUNCTION_VERSION);
+            $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+            $session = SessionHandlingFunctions::createNewSession("userId", [], []);
+            $this->assertCount(1, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+            $this->assertTrue(SessionHandlingFunctions::revokeSessionUsingSessionHandle($session['session']['handle']));
+            $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+            SessionHandlingFunctions::createNewSession("userId", [], []);
+            SessionHandlingFunctions::createNewSession("userId", [], []);
+            $this->assertCount(2, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+            $this->assertCount(2, SessionHandlingFunctions::revokeAllSessionsForUser("userId"));
+            $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+            SessionHandlingFunctions::reset();
+            $this->assertFalse(SessionHandlingFunctions::revokeSessionUsingSessionHandle("random"));
+            $this->assertEquals("2.0", SessionHandlingFunctions::$FUNCTION_VERSION);
+            $this->assertCount(0, SessionHandlingFunctions::revokeAllSessionsForUser("randomUserId"));
+        }
     }
 
     /**
