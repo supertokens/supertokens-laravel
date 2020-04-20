@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
+use SuperTokens\SuperTokens;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +16,27 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware("supertokens.errorhandler")->get('/create', function (Request $request) {
+    $response = new Response();
+    $userId = "test user";
+    SuperTokens::createNewSession($response, $userId, [], []);
+    return $response->setContent("success");
+});
+
+Route::middleware("supertokens.verify:false")->get('/verify', function (Request $request) {
+    $response = new Response();
+    return $response->setContent($request->request->get('supertokenSession')->getUserId());
+});
+
+Route::middleware("supertokens.errorhandler")->get('/refresh', function (Request $request) {
+    $response = new Response();
+    SuperTokens::refreshSession($request, $response);
+    return $response->setContent("success");
+});
+
+Route::middleware("supertokens.verify:false")->get("/logout", function (Request $request) {
+    $response = new Response();
+    $request->request->get('supertokenSession')->revokeSession($response);
+    ;
+    return $response->setContent("success");
 });
