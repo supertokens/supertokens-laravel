@@ -140,7 +140,9 @@ class Querier
                 $tryHello = $this->sendRequest(Constants::HELLO, "GET", [], function ($url, $data) {
                     return Http::get($url);
                 });
-                assertEquals("Hello\n", $tryHello); // will be true if it is cdi version 1.0.0
+                if ($tryHello !== "Hello\n") {
+                    throw $e;
+                }
                 self::$apiVersion = "1.0";
             }
         }
