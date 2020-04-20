@@ -88,9 +88,9 @@ class Utils
         $v2Exploded = explode(".", $v2);
         $maxLoop = min(count($v1Exploded), count($v2Exploded));
         for ($i = 0; $i < $maxLoop; $i++) {
-            if (max($v1Exploded[$i]) > max($v2Exploded[$i])) {
+            if ((int)$v1Exploded[$i] > (int)$v2Exploded[$i]) {
                 return $v1;
-            } elseif (max($v2Exploded[$i]) > max($v1Exploded[$i])) {
+            } elseif ((int)$v2Exploded[$i] > (int)$v1Exploded[$i]) {
                 return $v2;
             }
         }
