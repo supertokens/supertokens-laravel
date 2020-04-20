@@ -62,4 +62,41 @@ class Utils
         $date = new DateTime();
         return $date->getTimestamp();
     }
+
+    /**
+     * @param array $versions
+     * @return mixed
+     */
+    public static function findMaxVersion($versions)
+    {
+        $maxV = $versions[0];
+        for ($i = 1; $i < count($versions); $i++) {
+            $version = $versions[$i];
+            $maxV = self::compareVersions($maxV, $version);
+        }
+        return $maxV;
+    }
+
+    /**
+     * @param string $v1
+     * @param string $v2
+     * @return mixed
+     */
+    private static function compareVersions($v1, $v2)
+    {
+        $v1Exploded = explode(".", $v1);
+        $v2Exploded = explode(".", $v2);
+        $maxLoop = min(count($v1Exploded), count($v2Exploded));
+        for ($i = 0; $i < $maxLoop; $i++) {
+            if (max($v1Exploded[$i]) > max($v2Exploded[$i])) {
+                return $v1;
+            } elseif (max($v2Exploded[$i]) > max($v1Exploded[$i])) {
+                return $v2;
+            }
+        }
+        if (count($v1Exploded) > count($v2Exploded)) {
+            return $v1;
+        }
+        return $v2;
+    }
 }

@@ -132,7 +132,7 @@ class Querier
                 if (empty($commonVersions)) {
                     throw SuperTokensException::generateGeneralException(Constants::DRIVER_NOT_COMPATIBLE_MESSAGE);
                 }
-                self::$apiVersion = max($commonVersions);
+                self::$apiVersion = Utils::findMaxVersion($commonVersions);
             } catch (SuperTokensGeneralException $e) {
                 if ($getAPISuccess) {
                     throw $e;
