@@ -204,6 +204,7 @@ class CookieAndHeader
      */
     private static function getMinutes($expiresAt)
     {
+        $expiresAt = (int)floor($expiresAt / 1000);
         $currentTimestamp = Utils::getCurrentTimestamp();
         $minutes = floor(($expiresAt - $currentTimestamp) / 60);
         $minutes = max(0, $minutes);
