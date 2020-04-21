@@ -51,7 +51,7 @@ class SessionHandlingFunctions
     /**
      * @var string | null
      */
-    public static $FUNCTION_VERSION = null; // for testing purpose
+    public static $TEST_FUNCTION_VERSION = null; // for testing purpose
 
     /**
      * @throws SuperTokensException
@@ -61,7 +61,7 @@ class SessionHandlingFunctions
     {
         if (App::environment("testing")) {
             self::$SERVICE_CALLED = false;
-            self::$FUNCTION_VERSION = null;
+            self::$TEST_FUNCTION_VERSION = null;
         } else {
             throw SuperTokensException::generateGeneralException("calling testing function in non testing env");
         }
@@ -217,13 +217,13 @@ class SessionHandlingFunctions
             $response = Querier::getInstance()->sendDeleteRequest(Constants::SESSION, [
                 'userId' => $userId
             ]);
-            self::$FUNCTION_VERSION = "1.0";
+            self::$TEST_FUNCTION_VERSION = "1.0";
             return $response['numberOfSessionsRevoked'];
         } else {
             $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
                 'userId' => $userId
             ]);
-            self::$FUNCTION_VERSION = "2.0";
+            self::$TEST_FUNCTION_VERSION = "2.0";
             return $response['sessionHandlesRevoked'];
         }
     }
@@ -254,13 +254,13 @@ class SessionHandlingFunctions
             $response = Querier::getInstance()->sendDeleteRequest(Constants::SESSION, [
                 'sessionHandles' => [$sessionHandle]
             ]);
-            self::$FUNCTION_VERSION = "1.0";
+            self::$TEST_FUNCTION_VERSION = "1.0";
             return $response['numberOfSessionsRevoked'] === 1;
         } else {
             $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
                 'sessionHandles' => [$sessionHandle]
             ]);
-            self::$FUNCTION_VERSION = "2.0";
+            self::$TEST_FUNCTION_VERSION = "2.0";
             return (array_key_exists('sessionHandlesRevoked', $response) && in_array($sessionHandle, $response['sessionHandlesRevoked']));
         }
     }

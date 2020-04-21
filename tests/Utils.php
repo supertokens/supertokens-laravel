@@ -46,6 +46,25 @@ class Utils
     const API_VERSION_TEST_SINGLE_SUPPORTED_RESULT = "1.1";
     const API_VERSION_TEST_BASIC_RESULT = "2.0";
     const SUPPORTED_CORE_DRIVER_INTERFACE_FILE = "./coreDriverInterfaceSupported.json";
+    const TEST_ACCESS_TOKEN_PATH_VALUE = "/test";
+    const TEST_ACCESS_TOKEN_PATH_CONFIG_KEY = "access_token_path";
+    const TEST_REFRESH_TOKEN_PATH_KEY_VALUE = "/refresh/test";
+    const TEST_REFRESH_TOKEN_PATH_CONFIG_KEY = "refresh_api_path";
+    const TEST_SESSION_EXPIRED_STATUS_CODE_VALUE = 401;
+    const TEST_SESSION_EXPIRED_STATUS_CODE_CONFIG_KEY = "session_expired_status_code";
+    const TEST_COOKIE_DOMAIN_VALUE = "test.supertokens.io";
+    const TEST_COOKIE_DOMAIN_CONFIG_KEY = "cookie_domain";
+    const TEST_ACCESS_TOKEN_MAX_AGE_VALUE = 7200; // seconds
+    const TEST_ACCESS_TOKEN_MAX_AGE_CONFIG_KEY = "access_token_validity";
+    const TEST_REFRESH_TOKEN_MAX_AGE_VALUE = 720; // minutes
+    const TEST_REFRESH_TOKEN_MAX_AGE_CONFIG_KEY = "refresh_token_validity";
+    const TEST_COOKIE_SAME_SITE_VALUE = "lax";
+    const TEST_COOKIE_SAME_SITE_CONFIG_KEY = "cookie_same_site";
+    const TEST_COOKIE_SECURE_VALUE = true;
+    const TEST_COOKIE_SECURE_CONFIG_KEY = "cookie_secure";
+    const ACCESS_CONTROL_EXPOSE_HEADER = 'Access-Control-Expose-Headers';
+    const ACCESS_CONTROL_EXPOSE_HEADER_ANTI_CSRF_ENABLE = "id-refresh-token, anti-csrf";
+    const ACCESS_CONTROL_EXPOSE_HEADER_ANTI_CSRF_DISABLE = "id-refresh-token";
 
     /**
      * @param string $key
@@ -199,6 +218,7 @@ class Utils
         $idRefreshToken = null;
         $antiCsrfToken = $response->headers->get('anti-csrf');
         $idRefreshTokenFromHeader = $response->headers->get('id-refresh-token');
+        $accessControlExposeHeader = $response->headers->get(self::ACCESS_CONTROL_EXPOSE_HEADER);
         $accessTokenExpiry = null;
         $refreshTokenExpiry = null;
         $idRefreshTokenExpiry = null;
@@ -208,6 +228,21 @@ class Utils
         $accessTokenCookie = null;
         $refreshTokenCookie = null;
         $idRefreshTokenCookie = null;
+        $accessTokenSameSite = null;
+        $refreshTokenSameSite = null;
+        $idRefreshTokenSameSite = null;
+        $accessTokenDomain = null;
+        $refreshTokenDomain = null;
+        $idRefreshTokenDomain = null;
+        $accessTokenPath = null;
+        $refreshTokenPath = null;
+        $idRefreshTokenPath = null;
+        $accessTokenSecure = null;
+        $refreshTokenSecure = null;
+        $idRefreshTokenSecure = null;
+        $accessTokenHttpOnly = null;
+        $refreshTokenHttpOnly = null;
+        $idRefreshTokenHttpOnly = null;
 
         $cookies = $response->headers->getCookies();
 
@@ -217,22 +252,42 @@ class Utils
             $cookieValue = $cookie->getValue();
             $cookieExpiry = $cookie->getExpiresTime();
             $cookieMaxAge = $cookie->getMaxAge();
+            $cookieDomain = $cookie->getDomain();
+            $cookiePath = $cookie->getPath();
+            $cookieSameSite = $cookie->getSameSite();
+            $cookieSecure = $cookie->isSecure();
+            $cookieHttpOnly = $cookie->isHttpOnly();
 
             if ($cookieName === "sAccessToken") {
                 $accessToken = $cookieValue;
                 $accessTokenExpiry = $cookieExpiry;
                 $accessTokenCookie = $cookie;
                 $accessTokenMaxAge = $cookieMaxAge;
+                $accessTokenSameSite = $cookieSameSite;
+                $accessTokenDomain = $cookieDomain;
+                $accessTokenPath = $cookiePath;
+                $accessTokenSecure = $cookieSecure;
+                $accessTokenHttpOnly = $cookieHttpOnly;
             } elseif ($cookieName === "sRefreshToken") {
                 $refreshToken = $cookieValue;
                 $refreshTokenExpiry = $cookieExpiry;
                 $refreshTokenCookie = $cookie;
                 $refreshTokenMaxAge = $cookieMaxAge;
+                $refreshTokenSameSite = $cookieSameSite;
+                $refreshTokenDomain = $cookieDomain;
+                $refreshTokenPath = $cookiePath;
+                $refreshTokenSecure = $cookieSecure;
+                $refreshTokenHttpOnly = $cookieHttpOnly;
             } elseif ($cookieName === "sIdRefreshToken") {
                 $idRefreshToken = $cookieValue;
                 $idRefreshTokenExpiry = $cookieExpiry;
                 $idRefreshTokenCookie = $cookie;
                 $idRefreshTokenMaxAge = $cookieMaxAge;
+                $idRefreshTokenSameSite = $cookieSameSite;
+                $idRefreshTokenDomain = $cookieDomain;
+                $idRefreshTokenPath = $cookiePath;
+                $idRefreshTokenSecure = $cookieSecure;
+                $idRefreshTokenHttpOnly = $cookieHttpOnly;
             }
         }
         return [
@@ -249,7 +304,23 @@ class Utils
             'idRefreshTokenCookie' => $idRefreshTokenCookie,
             'accessTokenMaxAge' => $accessTokenMaxAge,
             'refreshTokenMaxAge'=> $refreshTokenMaxAge,
-            'idRefreshTokenMaxAge' => $idRefreshTokenMaxAge
+            'idRefreshTokenMaxAge' => $idRefreshTokenMaxAge,
+            'accessTokenSameSite' => $accessTokenSameSite,
+            'refreshTokenSameSite' => $refreshTokenSameSite,
+            'idRefreshTokenSameSite' => $idRefreshTokenSameSite,
+            'accessTokenDomain' => $accessTokenDomain,
+            'refreshTokenDomain' => $refreshTokenDomain,
+            'idRefreshTokenDomain' => $idRefreshTokenDomain,
+            'accessTokenPath' => $accessTokenPath,
+            'refreshTokenPath' => $refreshTokenPath,
+            'idRefreshTokenPath' => $idRefreshTokenPath,
+            'accessTokenSecure' => $accessTokenSecure,
+            'refreshTokenSecure' => $refreshTokenSecure,
+            'idRefreshTokenSecure' => $idRefreshTokenSecure,
+            'accessTokenHttpOnly' => $accessTokenHttpOnly,
+            'refreshTokenHttpOnly' => $refreshTokenHttpOnly,
+            'idRefreshTokenHttpOnly' => $idRefreshTokenHttpOnly,
+            'accessControlExposeHeader' => $accessControlExposeHeader
         ];
     }
 }

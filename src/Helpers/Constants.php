@@ -33,5 +33,6 @@ class Constants
     const SUPPORTED_CDI_VERSIONS = ['1.0', '2.0'];
     const EXCEPTION_UNAUTHORISED = "UNAUTHORISED";
     const DRIVER_NOT_COMPATIBLE_MESSAGE = "Current driver version is not compatible with the core version on your host/s";
-    const SAME_SITE_COOKIE_DEFAULT_VALUE = "None";
+    const SAME_SITE_COOKIE_DEFAULT_VALUE = "none";
+    const SESSION_EXPIRED_STATUS_CODE = 440;
 }

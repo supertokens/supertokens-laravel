@@ -19,8 +19,10 @@ use Exception;
 use Illuminate\Http\Response;
 use SuperTokens\Exceptions\SuperTokensException;
 use SuperTokens\Exceptions\SuperTokensGeneralException;
+use SuperTokens\Helpers\Constants;
 use SuperTokens\Helpers\HandshakeInfo;
 use SuperTokens\SuperTokens;
+use SuperTokens\Helpers\Querier;
 
 class HandshakeTest extends TestCase
 {
@@ -79,5 +81,25 @@ class HandshakeTest extends TestCase
         $updatedInfo = HandshakeInfo::getInstance();
         $this->assertEquals("hello", $updatedInfo->jwtSigningPublicKey);
         $this->assertEquals(100, $updatedInfo->jwtSigningPublicKeyExpiryTime);
+    }
+
+    /**
+     * @throws SuperTokensException
+     * @throws SuperTokensGeneralException
+     */
+    public function testCustomConfig(): void
+    {
+        Utils::startST();
+        $statusCodeSupported = Querier::getInstance()->getApiVersion() !== "1.0";
+        Utils::reset();
+        Utils::cleanST();
+        Utils::setupST();
+        $expectedStatusCode = Constants::SESSION_EXPIRED_STATUS_CODE;
+        if ($statusCodeSupported) {
+            Utils::setKeyValueInConfig(Utils::TEST_SESSION_EXPIRED_STATUS_CODE_CONFIG_KEY, Utils::TEST_SESSION_EXPIRED_STATUS_CODE_VALUE);
+            $expectedStatusCode = Utils::TEST_SESSION_EXPIRED_STATUS_CODE_VALUE;
+        }
+        Utils::startST();
+        $this->assertEquals($expectedStatusCode, HandshakeInfo::getInstance()->sessionExpiredStatusCode);
     }
 }

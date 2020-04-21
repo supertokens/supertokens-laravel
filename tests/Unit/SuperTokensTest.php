@@ -23,8 +23,10 @@ use SuperTokens\Exceptions\SuperTokensGeneralException;
 use SuperTokens\Exceptions\SuperTokensTokenTheftException;
 use SuperTokens\Exceptions\SuperTokensTryRefreshTokenException;
 use SuperTokens\Exceptions\SuperTokensUnauthorisedException;
+use SuperTokens\Helpers\Constants;
 use SuperTokens\SessionHandlingFunctions;
 use SuperTokens\SuperTokens;
+use SuperTokens\Helpers\Querier;
 
 // TODO: add tests for JWT and session data null, empty checks
 // TODO: add tests for cookie expiry checking
@@ -52,6 +54,287 @@ class SuperTokensTest extends TestCase
         Utils::reset();
         Utils::cleanST();
         parent::tearDown();
+    }
+
+    public function testCookieAndHeaderValuesAntiCsrfEnabled(): void
+    {
+        Utils::startST();
+        $sameSiteSupported = Querier::getInstance()->getApiVersion() !== "1.0";
+        Utils::reset();
+        Utils::cleanST();
+        Utils::setupST();
+        $expectedSameSite = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
+        if ($sameSiteSupported) {
+            Utils::setKeyValueInConfig(Utils::TEST_COOKIE_SAME_SITE_CONFIG_KEY, Utils::TEST_COOKIE_SAME_SITE_VALUE);
+            $expectedSameSite = Utils::TEST_COOKIE_SAME_SITE_VALUE;
+        }
+        Utils::setKeyValueInConfig(Utils::TEST_ACCESS_TOKEN_MAX_AGE_CONFIG_KEY, Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE);
+        Utils::setKeyValueInConfig(Utils::TEST_ACCESS_TOKEN_PATH_CONFIG_KEY, Utils::TEST_ACCESS_TOKEN_PATH_VALUE);
+        Utils::setKeyValueInConfig(Utils::TEST_COOKIE_DOMAIN_CONFIG_KEY, Utils::TEST_COOKIE_DOMAIN_VALUE);
+        Utils::setKeyValueInConfig(Utils::TEST_REFRESH_TOKEN_MAX_AGE_CONFIG_KEY, Utils::TEST_REFRESH_TOKEN_MAX_AGE_VALUE);
+        Utils::setKeyValueInConfig(Utils::TEST_REFRESH_TOKEN_PATH_CONFIG_KEY, Utils::TEST_REFRESH_TOKEN_PATH_KEY_VALUE);
+        Utils::setKeyValueInConfig(Utils::TEST_COOKIE_SECURE_CONFIG_KEY, Utils::TEST_COOKIE_SECURE_VALUE);
+        Utils::startST();
+
+        $response1 = new Response();
+        SuperTokens::createNewSession($response1, "userId", [], []);
+        $responseData1 = Utils::extractInfoFromResponse($response1);
+        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE, $responseData1['accessTokenMaxAge']);
+        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_PATH_VALUE, $responseData1['accessTokenPath']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData1['accessTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData1['refreshTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData1['idRefreshTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData1['accessTokenSecure']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData1['refreshTokenSecure']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData1['idRefreshTokenSecure']);
+        $this->assertEquals(true, $responseData1['accessTokenHttpOnly']);
+        $this->assertEquals(true, $responseData1['refreshTokenHttpOnly']);
+        $this->assertEquals(true, $responseData1['idRefreshTokenHttpOnly']);
+        $this->assertEquals(Utils::TEST_REFRESH_TOKEN_MAX_AGE_VALUE * 60, $responseData1['refreshTokenMaxAge']);
+        $this->assertEquals(Utils::TEST_REFRESH_TOKEN_PATH_KEY_VALUE, $responseData1['refreshTokenPath']);
+        $this->assertEquals($expectedSameSite, $responseData1['accessTokenSameSite']);
+        $this->assertEquals($expectedSameSite, $responseData1['refreshTokenSameSite']);
+        $this->assertEquals($expectedSameSite, $responseData1['idRefreshTokenSameSite']);
+        $this->assertEquals($responseData1['idRefreshToken'].';'.$responseData1['idRefreshTokenExpiry'], substr($responseData1['idRefreshTokenFromHeader'], 0, -3)); // doing substring as expiry extracted from cookie will not include milliseconds part
+        $this->assertEquals(Utils::ACCESS_CONTROL_EXPOSE_HEADER_ANTI_CSRF_ENABLE, $responseData1['accessControlExposeHeader']);
+        $this->assertNotNull($responseData1['antiCsrf']);
+
+        $request2 = new Request([], [], [], [
+            'sAccessToken' => $responseData1['accessToken'],
+            'sIdRefreshToken' => $responseData1['idRefreshToken']
+        ]);
+        $request2->headers->set("anti-csrf", $responseData1['antiCsrf']);
+        $response2 = new Response();
+        SuperTokens::getSession($request2, $response2, true);
+        $responseData2 = Utils::extractInfoFromResponse($response1);
+        $this->assertEquals($responseData1['accessToken'], $responseData2['accessToken']);
+        $this->assertEquals($responseData1['refreshToken'], $responseData2['refreshToken']);
+        $this->assertEquals($responseData1['idRefreshToken'], $responseData2['idRefreshToken']);
+        $this->assertEquals($responseData1['antiCsrf'], $responseData2['antiCsrf']);
+
+        $request3 = new Request([], [], [], [
+            'sRefreshToken' => $responseData2['refreshToken']
+        ]);
+        $request3->headers->set("anti-csrf", $responseData2['antiCsrf']);
+        $response3 = new Response();
+        SuperTokens::refreshSession($request3, $response3);
+        $responseData3 = Utils::extractInfoFromResponse($response3);
+        $this->assertNotEquals($responseData2['accessToken'], $responseData3['accessToken']);
+        $this->assertNotEquals($responseData2['refreshToken'], $responseData3['refreshToken']);
+        $this->assertNotEquals($responseData2['idRefreshToken'], $responseData3['idRefreshToken']);
+        $this->assertNotEquals($responseData2['antiCsrf'], $responseData3['antiCsrf']);
+        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE, $responseData3['accessTokenMaxAge']);
+        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_PATH_VALUE, $responseData3['accessTokenPath']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData3['accessTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData3['refreshTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData3['idRefreshTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData3['accessTokenSecure']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData3['refreshTokenSecure']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData3['idRefreshTokenSecure']);
+        $this->assertEquals(true, $responseData3['accessTokenHttpOnly']);
+        $this->assertEquals(true, $responseData3['refreshTokenHttpOnly']);
+        $this->assertEquals(true, $responseData3['idRefreshTokenHttpOnly']);
+        $this->assertEquals(Utils::TEST_REFRESH_TOKEN_MAX_AGE_VALUE * 60, $responseData3['refreshTokenMaxAge']);
+        $this->assertEquals(Utils::TEST_REFRESH_TOKEN_PATH_KEY_VALUE, $responseData3['refreshTokenPath']);
+        $this->assertEquals($expectedSameSite, $responseData3['accessTokenSameSite']);
+        $this->assertEquals($expectedSameSite, $responseData3['refreshTokenSameSite']);
+        $this->assertEquals($expectedSameSite, $responseData3['idRefreshTokenSameSite']);
+        $this->assertEquals($responseData3['idRefreshToken'].';'.$responseData3['idRefreshTokenExpiry'], substr($responseData3['idRefreshTokenFromHeader'], 0, -3)); // doing substring as expiry extracted from cookie will not include milliseconds part
+        $this->assertEquals(Utils::ACCESS_CONTROL_EXPOSE_HEADER_ANTI_CSRF_ENABLE, $responseData3['accessControlExposeHeader']);
+        $this->assertNotNull($responseData3['antiCsrf']);
+
+        $request4 = new Request([], [], [], [
+            'sAccessToken' => $responseData3['accessToken'],
+            'sIdRefreshToken' => $responseData3['idRefreshToken']
+        ]);
+        $request4->headers->set("anti-csrf", $responseData3['antiCsrf']);
+        $response4 = new Response();
+        SuperTokens::getSession($request4, $response4, true);
+        $responseData4 = Utils::extractInfoFromResponse($response4);
+        $this->assertNotEquals($responseData3['accessToken'], $responseData4['accessToken']);
+        $this->assertNotEquals($responseData1['accessToken'], $responseData4['accessToken']);
+        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE, $responseData4['accessTokenMaxAge']);
+        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_PATH_VALUE, $responseData4['accessTokenPath']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData4['accessTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData4['accessTokenSecure']);
+        $this->assertEquals(true, $responseData4['accessTokenHttpOnly']);
+        $this->assertEquals($expectedSameSite, $responseData4['accessTokenSameSite']);
+
+        $request5 = new Request([], [], [], [
+            'sAccessToken' => $responseData4['accessToken'],
+            'sIdRefreshToken' => $responseData3['idRefreshToken']
+        ]);
+        $request5->headers->set("anti-csrf", $responseData3['antiCsrf']);
+        $response5 = new Response();
+        $session = SuperTokens::getSession($request5, $response5, true);
+        $responseData5 = Utils::extractInfoFromResponse($response5);
+        $this->assertNull($responseData5['accessTokenCookie']);
+        $this->assertNull($responseData5['refreshTokenCookie']);
+        $this->assertNull($responseData5['idRefreshTokenCookie']);
+        $this->assertNull($responseData5['antiCsrf']);
+
+        $session->revokeSession();
+        $responseData5 = Utils::extractInfoFromResponse($response5);
+        $this->assertEquals(0, $responseData5['accessTokenExpiry']);
+        $this->assertEquals("", $responseData5['accessToken']);
+        $this->assertEquals("", $responseData5['refreshToken']);
+        $this->assertEquals("", $responseData5['idRefreshToken']);
+        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_PATH_VALUE, $responseData5['accessTokenPath']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData5['accessTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData5['refreshTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData5['idRefreshTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData5['accessTokenSecure']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData5['refreshTokenSecure']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData5['idRefreshTokenSecure']);
+        $this->assertEquals(true, $responseData5['accessTokenHttpOnly']);
+        $this->assertEquals(true, $responseData5['refreshTokenHttpOnly']);
+        $this->assertEquals(true, $responseData5['idRefreshTokenHttpOnly']);
+        $this->assertEquals(0, $responseData5['refreshTokenExpiry']);
+        $this->assertEquals(Utils::TEST_REFRESH_TOKEN_PATH_KEY_VALUE, $responseData5['refreshTokenPath']);
+        $this->assertEquals($expectedSameSite, $responseData5['accessTokenSameSite']);
+        $this->assertEquals($expectedSameSite, $responseData5['refreshTokenSameSite']);
+        $this->assertEquals($expectedSameSite, $responseData5['idRefreshTokenSameSite']);
+        $this->assertEquals("remove", $responseData5['idRefreshTokenFromHeader']);
+        $this->assertNull($responseData5['antiCsrf']);
+    }
+
+    public function testCookieAndHeaderValuesAntiCsrfDisabled(): void
+    {
+        Utils::startST();
+        $sameSiteSupported = Querier::getInstance()->getApiVersion() !== "1.0";
+        Utils::reset();
+        Utils::cleanST();
+        Utils::setupST();
+        $expectedSameSite = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
+        if ($sameSiteSupported) {
+            Utils::setKeyValueInConfig(Utils::TEST_COOKIE_SAME_SITE_CONFIG_KEY, Utils::TEST_COOKIE_SAME_SITE_VALUE);
+            $expectedSameSite = Utils::TEST_COOKIE_SAME_SITE_VALUE;
+        }
+        Utils::setKeyValueInConfig(Utils::ENABLE_ANTI_CSRF_CONFIG_KEY, false);
+        Utils::setKeyValueInConfig(Utils::TEST_ACCESS_TOKEN_MAX_AGE_CONFIG_KEY, Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE);
+        Utils::setKeyValueInConfig(Utils::TEST_ACCESS_TOKEN_PATH_CONFIG_KEY, Utils::TEST_ACCESS_TOKEN_PATH_VALUE);
+        Utils::setKeyValueInConfig(Utils::TEST_COOKIE_DOMAIN_CONFIG_KEY, Utils::TEST_COOKIE_DOMAIN_VALUE);
+        Utils::setKeyValueInConfig(Utils::TEST_REFRESH_TOKEN_MAX_AGE_CONFIG_KEY, Utils::TEST_REFRESH_TOKEN_MAX_AGE_VALUE);
+        Utils::setKeyValueInConfig(Utils::TEST_REFRESH_TOKEN_PATH_CONFIG_KEY, Utils::TEST_REFRESH_TOKEN_PATH_KEY_VALUE);
+        Utils::setKeyValueInConfig(Utils::TEST_COOKIE_SECURE_CONFIG_KEY, Utils::TEST_COOKIE_SECURE_VALUE);
+        Utils::startST();
+
+        $response1 = new Response();
+        SuperTokens::createNewSession($response1, "userId", [], []);
+        $responseData1 = Utils::extractInfoFromResponse($response1);
+        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE, $responseData1['accessTokenMaxAge']);
+        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_PATH_VALUE, $responseData1['accessTokenPath']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData1['accessTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData1['refreshTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData1['idRefreshTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData1['accessTokenSecure']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData1['refreshTokenSecure']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData1['idRefreshTokenSecure']);
+        $this->assertEquals(true, $responseData1['accessTokenHttpOnly']);
+        $this->assertEquals(true, $responseData1['refreshTokenHttpOnly']);
+        $this->assertEquals(true, $responseData1['idRefreshTokenHttpOnly']);
+        $this->assertEquals(Utils::TEST_REFRESH_TOKEN_MAX_AGE_VALUE * 60, $responseData1['refreshTokenMaxAge']);
+        $this->assertEquals(Utils::TEST_REFRESH_TOKEN_PATH_KEY_VALUE, $responseData1['refreshTokenPath']);
+        $this->assertEquals($expectedSameSite, $responseData1['accessTokenSameSite']);
+        $this->assertEquals($expectedSameSite, $responseData1['refreshTokenSameSite']);
+        $this->assertEquals($expectedSameSite, $responseData1['idRefreshTokenSameSite']);
+        $this->assertEquals($responseData1['idRefreshToken'].';'.$responseData1['idRefreshTokenExpiry'], substr($responseData1['idRefreshTokenFromHeader'], 0, -3)); // doing substring as expiry extracted from cookie will not include milliseconds part
+        $this->assertEquals(Utils::ACCESS_CONTROL_EXPOSE_HEADER_ANTI_CSRF_DISABLE, $responseData1['accessControlExposeHeader']);
+        $this->assertNull($responseData1['antiCsrf']);
+
+        $request2 = new Request([], [], [], [
+            'sAccessToken' => $responseData1['accessToken'],
+            'sIdRefreshToken' => $responseData1['idRefreshToken']
+        ]);
+        $response2 = new Response();
+        SuperTokens::getSession($request2, $response2, false);
+        $responseData2 = Utils::extractInfoFromResponse($response1);
+        $this->assertEquals($responseData1['accessToken'], $responseData2['accessToken']);
+        $this->assertEquals($responseData1['refreshToken'], $responseData2['refreshToken']);
+        $this->assertEquals($responseData1['idRefreshToken'], $responseData2['idRefreshToken']);
+        $this->assertEquals($responseData1['antiCsrf'], $responseData2['antiCsrf']);
+
+        $request3 = new Request([], [], [], [
+            'sRefreshToken' => $responseData2['refreshToken']
+        ]);
+        $response3 = new Response();
+        SuperTokens::refreshSession($request3, $response3);
+        $responseData3 = Utils::extractInfoFromResponse($response3);
+        $this->assertNotEquals($responseData2['accessToken'], $responseData3['accessToken']);
+        $this->assertNotEquals($responseData2['refreshToken'], $responseData3['refreshToken']);
+        $this->assertNotEquals($responseData2['idRefreshToken'], $responseData3['idRefreshToken']);
+        $this->assertEquals($responseData2['antiCsrf'], $responseData3['antiCsrf']);
+        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE, $responseData3['accessTokenMaxAge']);
+        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_PATH_VALUE, $responseData3['accessTokenPath']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData3['accessTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData3['refreshTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData3['idRefreshTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData3['accessTokenSecure']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData3['refreshTokenSecure']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData3['idRefreshTokenSecure']);
+        $this->assertEquals(true, $responseData3['accessTokenHttpOnly']);
+        $this->assertEquals(true, $responseData3['refreshTokenHttpOnly']);
+        $this->assertEquals(true, $responseData3['idRefreshTokenHttpOnly']);
+        $this->assertEquals(Utils::TEST_REFRESH_TOKEN_MAX_AGE_VALUE * 60, $responseData3['refreshTokenMaxAge']);
+        $this->assertEquals(Utils::TEST_REFRESH_TOKEN_PATH_KEY_VALUE, $responseData3['refreshTokenPath']);
+        $this->assertEquals($expectedSameSite, $responseData3['accessTokenSameSite']);
+        $this->assertEquals($expectedSameSite, $responseData3['refreshTokenSameSite']);
+        $this->assertEquals($expectedSameSite, $responseData3['idRefreshTokenSameSite']);
+        $this->assertEquals($responseData3['idRefreshToken'].';'.$responseData3['idRefreshTokenExpiry'], substr($responseData3['idRefreshTokenFromHeader'], 0, -3)); // doing substring as expiry extracted from cookie will not include milliseconds part
+        $this->assertEquals(Utils::ACCESS_CONTROL_EXPOSE_HEADER_ANTI_CSRF_DISABLE, $responseData3['accessControlExposeHeader']);
+        $this->assertNull($responseData3['antiCsrf']);
+
+        $request4 = new Request([], [], [], [
+            'sAccessToken' => $responseData3['accessToken'],
+            'sIdRefreshToken' => $responseData3['idRefreshToken']
+        ]);
+        $response4 = new Response();
+        SuperTokens::getSession($request4, $response4, false);
+        $responseData4 = Utils::extractInfoFromResponse($response4);
+        $this->assertNotEquals($responseData3['accessToken'], $responseData4['accessToken']);
+        $this->assertNotEquals($responseData1['accessToken'], $responseData4['accessToken']);
+        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE, $responseData4['accessTokenMaxAge']);
+        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_PATH_VALUE, $responseData4['accessTokenPath']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData4['accessTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData4['accessTokenSecure']);
+        $this->assertEquals(true, $responseData4['accessTokenHttpOnly']);
+        $this->assertEquals($expectedSameSite, $responseData4['accessTokenSameSite']);
+
+        $request5 = new Request([], [], [], [
+            'sAccessToken' => $responseData4['accessToken'],
+            'sIdRefreshToken' => $responseData3['idRefreshToken']
+        ]);
+        $response5 = new Response();
+        $session = SuperTokens::getSession($request5, $response5, true);
+        $responseData5 = Utils::extractInfoFromResponse($response5);
+        $this->assertNull($responseData5['accessTokenCookie']);
+        $this->assertNull($responseData5['refreshTokenCookie']);
+        $this->assertNull($responseData5['idRefreshTokenCookie']);
+        $this->assertNull($responseData5['antiCsrf']);
+
+        $session->revokeSession();
+        $responseData5 = Utils::extractInfoFromResponse($response5);
+        $this->assertEquals(0, $responseData5['accessTokenExpiry']);
+        $this->assertEquals("", $responseData5['accessToken']);
+        $this->assertEquals("", $responseData5['refreshToken']);
+        $this->assertEquals("", $responseData5['idRefreshToken']);
+        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_PATH_VALUE, $responseData5['accessTokenPath']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData5['accessTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData5['refreshTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData5['idRefreshTokenDomain']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData5['accessTokenSecure']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData5['refreshTokenSecure']);
+        $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData5['idRefreshTokenSecure']);
+        $this->assertEquals(true, $responseData5['accessTokenHttpOnly']);
+        $this->assertEquals(true, $responseData5['refreshTokenHttpOnly']);
+        $this->assertEquals(true, $responseData5['idRefreshTokenHttpOnly']);
+        $this->assertEquals(0, $responseData5['refreshTokenExpiry']);
+        $this->assertEquals(Utils::TEST_REFRESH_TOKEN_PATH_KEY_VALUE, $responseData5['refreshTokenPath']);
+        $this->assertEquals($expectedSameSite, $responseData5['accessTokenSameSite']);
+        $this->assertEquals($expectedSameSite, $responseData5['refreshTokenSameSite']);
+        $this->assertEquals($expectedSameSite, $responseData5['idRefreshTokenSameSite']);
+        $this->assertEquals("remove", $responseData5['idRefreshTokenFromHeader']);
+        $this->assertNull($responseData5['antiCsrf']);
     }
 
     /**

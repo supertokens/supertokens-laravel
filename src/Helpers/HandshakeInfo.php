@@ -73,6 +73,10 @@ class HandshakeInfo
     public $sameSite;
 
     /**
+     * @var integer;
+     */
+    public $sessionExpiredStatusCode;
+    /**
      * HandshakeInfo constructor.
      * @param $info
      * @throws SuperTokensException
@@ -91,6 +95,10 @@ class HandshakeInfo
         $this->sameSite = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
         if (Querier::getInstance()->getApiVersion() !== "1.0") {
             $this->sameSite = $info['cookieSameSite'];
+        }
+        $this->sessionExpiredStatusCode = Constants::SESSION_EXPIRED_STATUS_CODE;
+        if (Querier::getInstance()->getApiVersion() !== "1.0") {
+            $this->sessionExpiredStatusCode = $info['sessionExpiredStatusCode'];
         }
     }
 
@@ -129,5 +137,13 @@ class HandshakeInfo
     {
         $this->jwtSigningPublicKey = $newKey;
         $this->jwtSigningPublicKeyExpiryTime = $newExpiry;
+    }
+
+    /**
+     * @return integer
+     */
+    public function getSessionExpiredStatusCode()
+    {
+        return $this->sessionExpiredStatusCode;
     }
 }

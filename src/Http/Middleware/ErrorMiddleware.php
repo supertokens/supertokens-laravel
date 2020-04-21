@@ -41,7 +41,7 @@ class ErrorMiddleware
                 try {
                     $handshakeInfo = HandshakeInfo::getInstance();
                     CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
-                    $response->setStatusCode(440)->setContent($message);
+                    $response->setStatusCode($handshakeInfo->getSessionExpiredStatusCode())->setContent($message);
                 } catch (SuperTokensGeneralException | SuperTokensException $e) {
                     $response->setStatusCode(500)->setContent($e->getMessage());
                 }

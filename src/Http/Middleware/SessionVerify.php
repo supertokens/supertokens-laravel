@@ -39,7 +39,7 @@ class SessionVerify
                 }
                 $handshakeInfo = HandshakeInfo::getInstance();
                 CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
-                $response->setStatusCode(440)->setContent($message);
+                $response->setStatusCode($handshakeInfo->getSessionExpiredStatusCode())->setContent($message);
                 return $response;
             } catch (SuperTokensGeneralException | SuperTokensException $e) {
                 $response = new Response();
@@ -76,7 +76,7 @@ class SessionVerify
                     }
                     $handshakeInfo = HandshakeInfo::getInstance();
                     CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
-                    $response->setStatusCode(440)->setContent($message);
+                    $response->setStatusCode($handshakeInfo->getSessionExpiredStatusCode())->setContent($message);
                 }
             }
             return $response;
