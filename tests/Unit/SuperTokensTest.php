@@ -696,4 +696,12 @@ class SuperTokensTest extends TestCase
         $session2 = SuperTokens::getSession($request3, $response3, false);
         $this->assertEquals("userId", $session2->getUserId());
     }
+
+    public function testSetOptionsHeadersApi(): void
+    {
+        $response = new Response();
+        SuperTokens::setRelevantHeadersForOptionAPI($response);
+        $this->assertEquals("anti-csrf, supertokens-sdk-name, supertokens-sdk-version", $response->headers->get('Access-Control-Allow-Headers'));
+        $this->assertEquals("true", $response->headers->get('Access-Control-Allow-Credentials'));
+    }
 }

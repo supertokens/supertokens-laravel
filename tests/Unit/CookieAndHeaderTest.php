@@ -83,4 +83,12 @@ class CookieAndHeaderTest extends TestCase
         $cookieValue = CookieAndHeader::getCookie($request, $key);
         $this->assertEquals($cookieValue, $value);
     }
+
+    public function testSetOptionsHeadersApi(): void
+    {
+        $response = new Response();
+        CookieAndHeader::setOptionsAPIHeader($response);
+        $this->assertEquals("anti-csrf, supertokens-sdk-name, supertokens-sdk-version", $response->headers->get('Access-Control-Allow-Headers'));
+        $this->assertEquals("true", $response->headers->get('Access-Control-Allow-Credentials'));
+    }
 }
