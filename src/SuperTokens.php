@@ -53,7 +53,7 @@ class SuperTokens
     {
         $newSession = SessionHandlingFunctions::createNewSession($userId, $jwtPayload, $sessionData);
         CookieAndHeader::attachSessionToResponse($response, $newSession);
-        return new Session($newSession['session']['handle'], $newSession['session']['userId'], $newSession['session']['userDataInJWT'], $response);
+        return new Session($newSession['accessToken']['token'], $newSession['session']['handle'], $newSession['session']['userId'], $newSession['session']['userDataInJWT'], $response);
     }
 
     /**
@@ -84,8 +84,9 @@ class SuperTokens
                     $accessTokenSameSite = $accessToken['sameSite'];
                 }
                 CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessTokenSameSite);
+                $accessToken = $accessToken['token'];
             }
-            return new Session($newSession['session']['handle'], $newSession['session']['userId'], $newSession['session']['userDataInJWT'], $response);
+            return new Session($accessToken, $newSession['session']['handle'], $newSession['session']['userId'], $newSession['session']['userDataInJWT'], $response);
         } catch (SuperTokensUnauthorisedException $e) {
             $handshakeInfo = HandshakeInfo::getInstance();
             CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
@@ -140,7 +141,7 @@ class SuperTokens
         try {
             $newSession = SessionHandlingFunctions::refreshSession($refreshToken);
             CookieAndHeader::attachSessionToResponse($response, $newSession);
-            return new Session($newSession['session']['handle'], $newSession['session']['userId'], $newSession['session']['userDataInJWT'], $response);
+            return new Session($newSession['accessToken']['token'], $newSession['session']['handle'], $newSession['session']['userId'], $newSession['session']['userDataInJWT'], $response);
         } catch (SuperTokensUnauthorisedException $e) {
             $handshakeInfo = HandshakeInfo::getInstance();
             CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);

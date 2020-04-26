@@ -29,6 +29,8 @@ class Constants
     const CONFIG = "/config";
     const HANDSHAKE = "/handshake";
     const DEV_PRODUCTION_MODE = "/devproductionmode";
+    const JWT_DATA = "/jwt/data";
+    const SESSION_REGENERATE = "/session/regenerate";
     const API_VERSION_HEADER = "cdi-version";
     const SUPPORTED_CDI_VERSIONS = ['1.0', '2.0'];
     const EXCEPTION_UNAUTHORISED = "UNAUTHORISED";

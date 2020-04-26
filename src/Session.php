@@ -20,8 +20,10 @@ use Illuminate\Http\Response;
 use SuperTokens\Exceptions\SuperTokensException;
 use SuperTokens\Exceptions\SuperTokensGeneralException;
 use SuperTokens\Exceptions\SuperTokensUnauthorisedException;
+use SuperTokens\Helpers\Constants;
 use SuperTokens\Helpers\CookieAndHeader;
 use SuperTokens\Helpers\HandshakeInfo;
+use SuperTokens\Helpers\Querier;
 
 class Session
 {
@@ -29,6 +31,11 @@ class Session
      * @var
      */
     private $sessionHandle;
+
+    /**
+     * @var
+     */
+    private $accessToken;
 
     /**
      * @var string
@@ -47,33 +54,33 @@ class Session
 
     /**
      * SuperTokens constructor.
+     * @param $accessToken
      * @param $sessionHandle
      * @param $userId
      * @param array $userDataInJWT
      * @param $response
      */
-    public function __construct($sessionHandle, $userId, $userDataInJWT, $response = null)
+    public function __construct($accessToken, $sessionHandle, $userId, $userDataInJWT, $response = null)
     {
         $this->sessionHandle = $sessionHandle;
         $this->userId = $userId;
         $this->userDataInJWT = $userDataInJWT;
         $this->response = $response;
+        $this->accessToken = $accessToken;
     }
 
     /**
-     * @param Response | null $response
+     * @param Response $response
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
-    public function revokeSession($response = null)
+    public function revokeSession(Response $response)
     {
         if (SessionHandlingFunctions::revokeSessionUsingSessionHandle($this->sessionHandle)) {
-            if (isset($response)) {
-                $this->response = $response;
+            if (!isset($response)) {
+                throw SuperTokensGeneralException::generateGeneralException("function requires a response object");
             }
-            if (!isset($this->response)) {
-                SuperTokensGeneralException::generateGeneralException("function requires a response object");
-            }
+            $this->response = $response;
             $handshakeInfo = HandshakeInfo::getInstance();
             CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
         }
@@ -106,8 +113,11 @@ class Session
      */
     public function updateSessionData($newSessionData)
     {
+        if (!isset($newSessionData) || is_null($newSessionData)) {
+            throw SuperTokensGeneralException::generateGeneralException("session data passed to the function can't be null. Please pass empty array instead.");
+        }
         try {
-            if (!isset($newSessionData) || count($newSessionData) === 0) {
+            if (count($newSessionData) === 0) {
                 $newSessionData = new ArrayObject();
             }
             SessionHandlingFunctions::updateSessionData($this->sessionHandle, $newSessionData);
@@ -134,5 +144,56 @@ class Session
     public function getJWTPayload()
     {
         return $this->userDataInJWT;
+    }
+
+    public function getHandle()
+    {
+        return $this->sessionHandle;
+    }
+
+    public function getAccessToken()
+    {
+        return $this->accessToken;
+    }
+
+    /**
+     * @param array $newJWTPayload
+     * @param Response $response
+     * @throws SuperTokensException
+     * @throws SuperTokensGeneralException
+     * @throws SuperTokensUnauthorisedException
+     */
+    public function updateJWTPayload($newJWTPayload, Response $response)
+    {
+        if (Querier::getInstance()->getApiVersion() === "1.0") {
+            throw SuperTokensException::generateGeneralException("the current function is not supported for the core");
+        }
+        if (!isset($response)) {
+            throw SuperTokensGeneralException::generateGeneralException("function requires a response object");
+        }
+        if (!isset($newJWTPayload) || is_null($newJWTPayload)) {
+            throw SuperTokensGeneralException::generateGeneralException("jwt data passed to the function can't be null. Please pass empty array instead.");
+        }
+        $this->response = $response;
+        if (count($newJWTPayload) === 0) {
+            $newJWTPayload = new ArrayObject();
+        }
+        $queryResponse = Querier::getInstance()->sendPostRequest(Constants::SESSION_REGENERATE, [
+            'accessToken' => $this->accessToken,
+            'userDataInJWT' => $newJWTPayload
+        ]);
+        if ($queryResponse['status'] === Constants::EXCEPTION_UNAUTHORISED) {
+            throw new SuperTokensUnauthorisedException($queryResponse['message']);
+        }
+        $this->userDataInJWT = $queryResponse['session']['userDataInJWT'];
+        if (isset($queryResponse['accessToken'])) {
+            $accessToken = $queryResponse['accessToken'];
+            $this->accessToken = $accessToken['token'];
+            $accessTokenSameSite = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
+            if (Querier::getInstance()->getApiVersion() !== "1.0") {
+                $accessTokenSameSite = $accessToken['sameSite'];
+            }
+            CookieAndHeader::attachAccessTokenToCookie($this->response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessTokenSameSite);
+        }
     }
 }

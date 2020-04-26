@@ -21,15 +21,19 @@ class Jwt
 {
 
     /**
-     * @return string
+     * @return array
      */
     private static function getHeader()
     {
-        return base64_encode(json_encode([
+        return [base64_encode(json_encode([
             'alg' => 'RS256',
             'typ' => 'JWT',
             'version' => '1'
-        ]));
+        ])), base64_encode(json_encode([
+            'alg' => 'RS256',
+            'typ' => 'JWT',
+            'version' => '2'
+        ]))];
     }
 
     /**
@@ -41,20 +45,20 @@ class Jwt
     public static function verifyJWTAndGetPayload($jwt, $signingPublicKey)
     {
         $splittedInput = explode(".", $jwt);
-        $header = Jwt::getHeader();
+        $headers = Jwt::getHeader();
 
         if (count($splittedInput) !== 3) {
             throw new Exception("invalid jwt");
         }
 
-        if ($splittedInput[0] !== $header) {
+        if (!in_array($splittedInput[0], $headers)) {
             throw new Exception("jwt header mismatch");
         }
 
         $payload = $splittedInput[1];
         $publicKey = openssl_pkey_get_public("-----BEGIN PUBLIC KEY-----\n".wordwrap($signingPublicKey, 64, "\n", true)."\n-----END PUBLIC KEY-----");
         $signature = $splittedInput[2];
-        $verificationOk = openssl_verify($header.".".$payload, base64_decode($signature), $publicKey, "sha256");
+        $verificationOk = openssl_verify($splittedInput[0].".".$payload, base64_decode($signature), $publicKey, "sha256");
 
         if ($verificationOk !== 1) {
             throw new Exception("jwt verification failed");

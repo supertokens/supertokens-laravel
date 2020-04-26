@@ -46,7 +46,7 @@ class SessionHandlingFunctions
     /**
      * @var bool
      */
-    public static $SERVICE_CALLED = false; // for testing purpose
+    public static $TEST_SERVICE_CALLED = false; // for testing purpose
 
     /**
      * @var string | null
@@ -60,7 +60,7 @@ class SessionHandlingFunctions
     public static function reset()
     {
         if (App::environment("testing")) {
-            self::$SERVICE_CALLED = false;
+            self::$TEST_SERVICE_CALLED = false;
             self::$TEST_FUNCTION_VERSION = null;
         } else {
             throw SuperTokensException::generateGeneralException("calling testing function in non testing env");
@@ -141,7 +141,7 @@ class SessionHandlingFunctions
                     !$handshakeInfo->accessTokenBlacklistingEnabled &&
                     !isset($accessTokenInfo['parentRefreshTokenHash1'])
                 ) {
-                    self::$SERVICE_CALLED = false; // for testing purpose
+                    self::$TEST_SERVICE_CALLED = false; // for testing purpose
                     return [
                         'session' => [
                             'handle' => $accessTokenInfo['sessionHandle'],
@@ -157,7 +157,7 @@ class SessionHandlingFunctions
             throw $e;
         }
 
-        self::$SERVICE_CALLED = true; // for testing purpose
+        self::$TEST_SERVICE_CALLED = true; // for testing purpose
 
         $requestBody = [
             'accessToken' => $accessToken,
@@ -304,7 +304,10 @@ class SessionHandlingFunctions
      */
     public static function updateSessionData($sessionHandle, $newSessionData)
     {
-        if (!isset($newSessionData) || count($newSessionData) === 0) {
+        if (!isset($newSessionData) || is_null($newSessionData)) {
+            throw SuperTokensException::generateGeneralException("session data passed to the function can't be null. Please pass empty array instead.");
+        }
+        if (count($newSessionData) === 0) {
             $newSessionData = new ArrayObject();
         }
         $response = Querier::getInstance()->sendPutRequest(Constants::SESSION_DATA, [
@@ -314,5 +317,53 @@ class SessionHandlingFunctions
         if ($response['status'] === Constants::EXCEPTION_UNAUTHORISED) {
             throw new SuperTokensUnauthorisedException($response['message']);
         }
+    }
+
+    /**
+     * @param string $sessionHandle
+     * @param array $newJWTPayload
+     * @throws SuperTokensException
+     * @throws SuperTokensGeneralException
+     * @throws SuperTokensUnauthorisedException
+     */
+    public static function updateJWTPayloadUsingSessionHandle($sessionHandle, $newJWTPayload)
+    {
+        if (!isset($newJWTPayload) || is_null($newJWTPayload)) {
+            throw SuperTokensException::generateGeneralException("jwt data passed to the function can't be null. Please pass empty array instead.");
+        }
+        if (count($newJWTPayload) === 0) {
+            $newJWTPayload = new ArrayObject();
+        }
+        if (Querier::getInstance()->getApiVersion() === "1.0") {
+            throw SuperTokensException::generateGeneralException("the current function is not supported for the core. Please upgrade the supertokens service.");
+        }
+        $response = Querier::getInstance()->sendPutRequest(Constants::JWT_DATA, [
+            'sessionHandle' => $sessionHandle,
+            'userDataInJWT' => $newJWTPayload
+        ]);
+        if ($response['status'] === Constants::EXCEPTION_UNAUTHORISED) {
+            throw new SuperTokensUnauthorisedException($response['message']);
+        }
+    }
+
+    /**
+     * @param string $sessionHandle
+     * @return array
+     * @throws SuperTokensException
+     * @throws SuperTokensGeneralException
+     * @throws SuperTokensUnauthorisedException
+     */
+    public static function getJWTPayloadUsingSessionHandle($sessionHandle)
+    {
+        if (Querier::getInstance()->getApiVersion() === "1.0") {
+            throw SuperTokensException::generateGeneralException("the current function is not supported for the core. Please upgrade the supertokens service.");
+        }
+        $response = Querier::getInstance()->sendGetRequest(Constants::JWT_DATA, [
+            'sessionHandle' => $sessionHandle
+        ]);
+        if ($response['status'] === "OK") {
+            return $response['userDataInJWT'];
+        }
+        throw SuperTokensException::generateUnauthorisedException($response['message']);
     }
 }
