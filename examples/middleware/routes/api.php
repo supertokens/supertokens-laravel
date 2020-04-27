@@ -37,6 +37,5 @@ Route::middleware("supertokens.errorhandler")->get('/refresh', function (Request
 Route::middleware("supertokens.verify:false")->get("/logout", function (Request $request) {
     $response = new Response();
     $request->request->get('supertokenSession')->revokeSession($response);
-    ;
     return $response->setContent("success");
 });

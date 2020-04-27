@@ -49,7 +49,7 @@ class SuperTokens
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
-    public static function createNewSession(Response $response, $userId, $jwtPayload = null, $sessionData = null)
+    public static function createNewSession(Response $response, $userId, $jwtPayload = [], $sessionData = [])
     {
         $newSession = SessionHandlingFunctions::createNewSession($userId, $jwtPayload, $sessionData);
         CookieAndHeader::attachSessionToResponse($response, $newSession);
@@ -229,5 +229,28 @@ class SuperTokens
     public static function setRelevantHeadersForOptionAPI(Response $response)
     {
         CookieAndHeader::setOptionsAPIHeader($response);
+    }
+
+    /**
+     * @param string $sessionHandle
+     * @param array $newJWTPayload
+     * @throws SuperTokensException
+     * @throws SuperTokensGeneralException
+     * @throws SuperTokensUnauthorisedException
+     */
+    public static function updateJWTPayloadUsingSessionHandle($sessionHandle, $newJWTPayload)
+    {
+        SessionHandlingFunctions::updateJWTPayloadUsingSessionHandle($sessionHandle, $newJWTPayload);
+    }
+
+    /**
+     * @param string $sessionHandle
+     * @throws SuperTokensException
+     * @throws SuperTokensGeneralException
+     * @throws SuperTokensUnauthorisedException
+     */
+    public static function getJWTPayloadUsingSessionHandle($sessionHandle)
+    {
+        SessionHandlingFunctions::getJWTPayloadUsingSessionHandle($sessionHandle);
     }
 }

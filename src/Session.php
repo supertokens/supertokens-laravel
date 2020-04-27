@@ -183,6 +183,8 @@ class Session
             'userDataInJWT' => $newJWTPayload
         ]);
         if ($queryResponse['status'] === Constants::EXCEPTION_UNAUTHORISED) {
+            $handshakeInfo = HandshakeInfo::getInstance();
+            CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
             throw new SuperTokensUnauthorisedException($queryResponse['message']);
         }
         $this->userDataInJWT = $queryResponse['session']['userDataInJWT'];

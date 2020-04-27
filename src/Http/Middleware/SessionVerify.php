@@ -25,11 +25,15 @@ class SessionVerify
      * @param string $antiCsrfCheck
      * @return mixed
      */
-    public function handle(Request $request, Closure $next, string $antiCsrfCheck = "true")
+    public function handle(Request $request, Closure $next, string $antiCsrfCheck = null)
     {
         try {
             try {
-                $antiCsrfCheckBoolean = strtolower($antiCsrfCheck) === "true";
+                if (!isset($antiCsrfCheck)) {
+                    $antiCsrfCheckBoolean = !$request->isMethod('get');
+                } else {
+                    $antiCsrfCheckBoolean = strtolower($antiCsrfCheck) === "true";
+                }
                 $session = SuperTokens::getSessionForMiddleware($request, $antiCsrfCheckBoolean);
             } catch (SuperTokensTryRefreshTokenException | SuperTokensUnauthorisedException $e) {
                 $response = new Response();
