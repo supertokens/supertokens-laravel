@@ -22,6 +22,9 @@ use Throwable;
  * Class SuperTokensException
  * @package SuperTokens\Laravel\Exceptions
  */
+
+// TODO: can we not make the specific exceptions inherit from this? If we can do that, then we also don't need to make this an exception. Also, then your functions below will change to check for each exception type explicitly
+
 abstract class SuperTokensException extends Exception
 {
 

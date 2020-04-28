@@ -113,6 +113,8 @@ class Querier
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
+
+    // TODO: Change this to be something similar to how NodeJS does it? You have a function that takes two string arrays and returns the maximum version from them, so you can test that function independently and you won't need $cv and $sv.
     public function getApiVersion()
     {
         if (!isset(self::$apiVersion) || ((App::environment("testing")) && !is_null(self::$cv) && !is_null(self::$sv))) {
@@ -134,6 +136,7 @@ class Querier
                 }
                 self::$apiVersion = Utils::findMaxVersion($commonVersions);
             } catch (SuperTokensGeneralException $e) {
+                // TODO: No need to do tryHello thing. Just see if the error is from request and is 404, then set it to 1.0
                 if ($getAPISuccess) {
                     throw $e;
                 }

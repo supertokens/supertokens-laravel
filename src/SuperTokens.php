@@ -114,7 +114,7 @@ class SuperTokens
             $idRefreshToken = CookieAndHeader::getIdRefreshTokenFromCookie($request);
             $antiCsrfToken = CookieAndHeader::getAntiCsrfHeader($request);
             return SessionHandlingFunctions::getSession($accessToken, $antiCsrfToken, $doAntiCsrfCheck, $idRefreshToken);
-        } catch (SuperTokensUnauthorisedException $e) {
+        } catch (SuperTokensUnauthorisedException $e) { // TODO: What is the point of this try, catch if you are just throwing $e?
             throw $e;
         }
     }
@@ -251,6 +251,7 @@ class SuperTokens
      */
     public static function getJWTPayloadUsingSessionHandle($sessionHandle)
     {
+        // TODO: return? It means you have not tested this function at all?
         SessionHandlingFunctions::getJWTPayloadUsingSessionHandle($sessionHandle);
     }
 }

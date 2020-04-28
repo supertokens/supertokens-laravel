@@ -84,6 +84,7 @@ class SessionHandlingFunctions
      */
     public static function createNewSession($userId, $jwtPayload, $sessionData)
     {
+        // TODO: Do not accept null in jwtPayload and sessionData? Also, add typings to functions?
         if (!isset($jwtPayload) || count($jwtPayload) === 0) {
             $jwtPayload = new ArrayObject();
         }
@@ -101,7 +102,7 @@ class SessionHandlingFunctions
         unset($response['status']);
         unset($response['jwtSigningPublicKey']);
         unset($response['jwtSigningPublicKeyExpiryTime']);
-
+        // TODO: set sameSite to none in case of cdi 1.0 here. This is tha layer that is querying the API, so it should be the one to make the response "uniform"
         return $response;
     }
 
@@ -173,7 +174,7 @@ class SessionHandlingFunctions
             unset($response['status']);
             unset($response['jwtSigningPublicKey']);
             unset($response['jwtSigningPublicKeyExpiryTime']);
-
+            // TODO: if cdi 1.0, add none
             return $response;
         } elseif ($response['status'] === "UNAUTHORISED") {
             throw SuperTokensException::generateUnauthorisedException($response['message']);
@@ -248,6 +249,7 @@ class SessionHandlingFunctions
      * @throws SuperTokensGeneralException
      * @throws SuperTokensException
      */
+    // TODO: change name to revokeSession - in docs and in SuperTokens.php
     public static function revokeSessionUsingSessionHandle($sessionHandle)
     {
         if (Querier::getInstance()->getApiVersion() === "1.0") {
@@ -261,7 +263,8 @@ class SessionHandlingFunctions
                 'sessionHandles' => [$sessionHandle]
             ]);
             self::$TEST_FUNCTION_VERSION = "2.0";
-            return (array_key_exists('sessionHandlesRevoked', $response) && in_array($sessionHandle, $response['sessionHandlesRevoked']));
+            return count($response['sessionHandlesRevoked']) === 1; // TODO: Is this fine? If it is, remove the comment below.
+            // return (array_key_exists('sessionHandlesRevoked', $response) && in_array($sessionHandle, $response['sessionHandlesRevoked']));
         }
     }
 
@@ -302,6 +305,7 @@ class SessionHandlingFunctions
      * @throws SuperTokensException
      * @throws SuperTokensUnauthorisedException | SuperTokensGeneralException
      */
+    // TODO: add types to function params
     public static function updateSessionData($sessionHandle, $newSessionData)
     {
         if (!isset($newSessionData) || is_null($newSessionData)) {
@@ -326,6 +330,8 @@ class SessionHandlingFunctions
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
      */
+    // TODO: add types to function params
+    // TODO: change name to updateJWTPayload - even in docs, and in SuperTokens.php
     public static function updateJWTPayloadUsingSessionHandle($sessionHandle, $newJWTPayload)
     {
         if (!isset($newJWTPayload) || is_null($newJWTPayload)) {
@@ -353,6 +359,7 @@ class SessionHandlingFunctions
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
      */
+    // TODO: change name to getJWTPayload - even in docs, and in SuperTokens.php
     public static function getJWTPayloadUsingSessionHandle($sessionHandle)
     {
         if (Querier::getInstance()->getApiVersion() === "1.0") {

@@ -15,6 +15,7 @@ use SuperTokens\Helpers\CookieAndHeader;
 use SuperTokens\Helpers\HandshakeInfo;
 use SuperTokens\Helpers\Querier;
 
+// TODO: remove this middleware. Not reviewing.
 class ErrorMiddleware
 {
     /**

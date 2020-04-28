@@ -32,6 +32,8 @@ use SuperTokens\Helpers\Querier;
 // TODO: add tests for JWT and session data null, empty checks
 // TODO: add tests for cookie expiry checking
 
+// TODO: add tests for middleware
+
 class SuperTokensTest extends TestCase
 {
     /**

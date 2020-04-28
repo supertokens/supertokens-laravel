@@ -29,7 +29,7 @@ define("ID_REFRESH_TOKEN_HEADER_KEY", "id-refresh-token");
 define("FRONTEND_SDK_NAME_HEADER_KEY", "supertokens-sdk-name");
 define("FRONTEND_SDK_VERSION_HEADER_KEY", "supertokens-sdk-version");
 
-// TODO: CDI 2.0: sameSite in cookies
+
 class CookieAndHeader
 {
     public static function saveFrontendInfoFromRequest(Request $request)

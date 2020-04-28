@@ -76,6 +76,7 @@ class Session
      */
     public function revokeSession(Response $response)
     {
+        // TODO: check for response object missing here.. not after IF statement.
         if (SessionHandlingFunctions::revokeSessionUsingSessionHandle($this->sessionHandle)) {
             if (!isset($response)) {
                 throw SuperTokensGeneralException::generateGeneralException("function requires a response object");
@@ -98,6 +99,7 @@ class Session
             return SessionHandlingFunctions::getSessionData($this->sessionHandle);
         } catch (SuperTokensUnauthorisedException $e) {
             if (isset($this->response)) {
+                // TODO: write comments here explaining when it will come here, and when it won't
                 $handshakeInfo = HandshakeInfo::getInstance();
                 CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
             }
@@ -111,6 +113,7 @@ class Session
      * @throws SuperTokensUnauthorisedException
      * @throws SuperTokensException
      */
+    // TODO: make it updateSessionData(array $newSessionData)
     public function updateSessionData($newSessionData)
     {
         if (!isset($newSessionData) || is_null($newSessionData)) {
@@ -151,6 +154,7 @@ class Session
         return $this->sessionHandle;
     }
 
+    // TODO: Why do we need this function?
     public function getAccessToken()
     {
         return $this->accessToken;
@@ -192,7 +196,7 @@ class Session
             $accessToken = $queryResponse['accessToken'];
             $this->accessToken = $accessToken['token'];
             $accessTokenSameSite = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
-            if (Querier::getInstance()->getApiVersion() !== "1.0") {
+            if (Querier::getInstance()->getApiVersion() !== "1.0") {    // TODO: We can assume that this ID statement is true cause of the first IF statement in this function
                 $accessTokenSameSite = $accessToken['sameSite'];
             }
             CookieAndHeader::attachAccessTokenToCookie($this->response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessTokenSameSite);
