@@ -69,7 +69,7 @@ class SuperTokens
     public static function getSession(Request $request, Response $response, $doAntiCsrfCheck)
     {
         CookieAndHeader::saveFrontendInfoFromRequest($request);
-        $accessToken = CookieAndHeader::getAccessTokenFromCookie($request);
+        $accessToken = CookieAndHeader::getAccessTokenFromCookie($request); // TODO: you are overwriting this variable later in this function. It can EASILY cause confusion. Please do not do that.
         if (!isset($accessToken)) {
             throw SuperTokensException::generateTryRefreshTokenException("access token missing in cookies");
         }
