@@ -59,6 +59,7 @@ class Utils
      */
     public static function getCurrentTimestamp()
     {
+        // TODO: This is wrong! You are supposed to return in milliseconds?!
         $date = new DateTime();
         return $date->getTimestamp();
     }
