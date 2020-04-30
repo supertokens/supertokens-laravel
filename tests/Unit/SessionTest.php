@@ -235,24 +235,24 @@ class SessionTest extends TestCase
         $session1 = SessionHandlingFunctions::createNewSession("userId", [], []);
         $session2 = SessionHandlingFunctions::createNewSession("userId", [], []);
         if (Querier::getInstance()->getApiVersion() !== "1.0") {
-            $jwtData0 = SessionHandlingFunctions::getJWTPayloadUsingSessionHandle($session1['session']['handle']);
+            $jwtData0 = SessionHandlingFunctions::getJWTPayload($session1['session']['handle']);
             $this->assertTrue(count($jwtData0) === 0);
             $this->assertTrue(count($session1['session']['userDataInJWT']) === 0);
-            $jwtData1 = SessionHandlingFunctions::getJWTPayloadUsingSessionHandle($session2['session']['handle']);
+            $jwtData1 = SessionHandlingFunctions::getJWTPayload($session2['session']['handle']);
             $this->assertTrue(count($jwtData1) === 0);
             $this->assertTrue(count($session2['session']['userDataInJWT']) === 0);
 
-            SessionHandlingFunctions::updateJWTPayloadUsingSessionHandle($session1['session']['handle'], ["key" => "value"]);
-            $jwtData2 = SessionHandlingFunctions::getJWTPayloadUsingSessionHandle($session1['session']['handle']);
+            SessionHandlingFunctions::updateJWTPayload($session1['session']['handle'], ["key" => "value"]);
+            $jwtData2 = SessionHandlingFunctions::getJWTPayload($session1['session']['handle']);
             $this->assertArrayHasKey("key", $jwtData2);
             $this->assertEquals("value", $jwtData2["key"]);
-            $jwtData3 = SessionHandlingFunctions::getJWTPayloadUsingSessionHandle($session2['session']['handle']);
+            $jwtData3 = SessionHandlingFunctions::getJWTPayload($session2['session']['handle']);
             $this->assertArrayNotHasKey("key", $jwtData3);
             $this->assertTrue(count($jwtData3) === 0);
 
             //passing invalid session handle when updating session data
             try {
-                SessionHandlingFunctions::updateJWTPayloadUsingSessionHandle("incorrect", ["key" => "value2"]);
+                SessionHandlingFunctions::updateJWTPayload("incorrect", ["key" => "value2"]);
                 $this->assertTrue(false);
             } catch (SuperTokensUnauthorisedException $e) {
                 $this->assertTrue(true);
@@ -260,20 +260,20 @@ class SessionTest extends TestCase
 
             //passing invalid jwt data when updating session data
             try {
-                SessionHandlingFunctions::updateJWTPayloadUsingSessionHandle($session1['session']['handle'], null);
+                SessionHandlingFunctions::updateJWTPayload($session1['session']['handle'], null);
                 $this->assertTrue(false);
             } catch (SuperTokensGeneralException $e) {
                 $this->assertTrue(true);
             }
         } else {
             try {
-                SessionHandlingFunctions::getJWTPayloadUsingSessionHandle($session1['session']['handle']);
+                SessionHandlingFunctions::getJWTPayload($session1['session']['handle']);
                 $this->assertTrue(false);
             } catch (SuperTokensGeneralException $e) {
                 $this->assertTrue(true);
             }
             try {
-                SessionHandlingFunctions::updateJWTPayloadUsingSessionHandle($session1['session']['handle'], []);
+                SessionHandlingFunctions::updateJWTPayload($session1['session']['handle'], []);
                 $this->assertTrue(false);
             } catch (SuperTokensGeneralException $e) {
                 $this->assertTrue(true);

@@ -238,9 +238,9 @@ class SuperTokens
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
      */
-    public static function updateJWTPayloadUsingSessionHandle($sessionHandle, $newJWTPayload)
+    public static function updateJWTPayload($sessionHandle, $newJWTPayload)
     {
-        SessionHandlingFunctions::updateJWTPayloadUsingSessionHandle($sessionHandle, $newJWTPayload);
+        SessionHandlingFunctions::updateJWTPayload($sessionHandle, $newJWTPayload);
     }
 
     /**
@@ -249,9 +249,9 @@ class SuperTokens
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
      */
-    public static function getJWTPayloadUsingSessionHandle($sessionHandle)
+    public static function getJWTPayload($sessionHandle)
     {
         // TODO: return? It means you have not tested this function at all?
-        SessionHandlingFunctions::getJWTPayloadUsingSessionHandle($sessionHandle);
+        SessionHandlingFunctions::getJWTPayload($sessionHandle);
     }
 }

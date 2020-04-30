@@ -332,7 +332,7 @@ class SessionHandlingFunctions
      */
     // TODO: add types to function params
     // TODO: change name to updateJWTPayload - even in docs, and in SuperTokens.php
-    public static function updateJWTPayloadUsingSessionHandle($sessionHandle, $newJWTPayload)
+    public static function updateJWTPayload($sessionHandle, $newJWTPayload)
     {
         if (!isset($newJWTPayload) || is_null($newJWTPayload)) {
             throw SuperTokensException::generateGeneralException("jwt data passed to the function can't be null. Please pass empty array instead.");
@@ -360,7 +360,7 @@ class SessionHandlingFunctions
      * @throws SuperTokensUnauthorisedException
      */
     // TODO: change name to getJWTPayload - even in docs, and in SuperTokens.php
-    public static function getJWTPayloadUsingSessionHandle($sessionHandle)
+    public static function getJWTPayload($sessionHandle)
     {
         if (Querier::getInstance()->getApiVersion() === "1.0") {
             throw SuperTokensException::generateGeneralException("the current function is not supported for the core. Please upgrade the supertokens service.");

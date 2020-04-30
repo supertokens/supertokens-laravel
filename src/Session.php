@@ -33,6 +33,11 @@ class Session
     private $sessionHandle;
 
     /**
+     * @var boolean;
+     */
+    public $removeCookies;
+
+    /**
      * @var
      */
     private $accessToken;
@@ -67,23 +72,22 @@ class Session
         $this->userDataInJWT = $userDataInJWT;
         $this->response = $response;
         $this->accessToken = $accessToken;
+        $this->removeCookies = false;
     }
 
     /**
-     * @param Response $response
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
-    public function revokeSession(Response $response)
+    public function revokeSession()
     {
-        // TODO: check for response object missing here.. not after IF statement.
         if (SessionHandlingFunctions::revokeSessionUsingSessionHandle($this->sessionHandle)) {
-            if (!isset($response)) {
-                throw SuperTokensGeneralException::generateGeneralException("function requires a response object");
+            if (isset($this->response)) {
+                $handshakeInfo = HandshakeInfo::getInstance();
+                CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+            } else {
+                $this->removeCookies = true;
             }
-            $this->response = $response;
-            $handshakeInfo = HandshakeInfo::getInstance();
-            CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
         }
     }
 
@@ -99,9 +103,11 @@ class Session
             return SessionHandlingFunctions::getSessionData($this->sessionHandle);
         } catch (SuperTokensUnauthorisedException $e) {
             if (isset($this->response)) {
-                // TODO: write comments here explaining when it will come here, and when it won't
+                // it will come here if the user is not using middleware. If the user is not using the middleware, the response variable will be set in the session object
                 $handshakeInfo = HandshakeInfo::getInstance();
                 CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+            } else {
+                $this->removeCookies = true;
             }
             throw $e;
         }
@@ -114,7 +120,7 @@ class Session
      * @throws SuperTokensException
      */
     // TODO: make it updateSessionData(array $newSessionData)
-    public function updateSessionData($newSessionData)
+    public function updateSessionData(array $newSessionData)
     {
         if (!isset($newSessionData) || is_null($newSessionData)) {
             throw SuperTokensGeneralException::generateGeneralException("session data passed to the function can't be null. Please pass empty array instead.");
@@ -126,8 +132,11 @@ class Session
             SessionHandlingFunctions::updateSessionData($this->sessionHandle, $newSessionData);
         } catch (SuperTokensUnauthorisedException $e) {
             if (isset($this->response)) {
+                // it will come here if the user is not using middleware. If the user is not using the middleware, the response variable will be set in the session object
                 $handshakeInfo = HandshakeInfo::getInstance();
                 CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+            } else {
+                $this->removeCookies = true;
             }
             throw $e;
         }
@@ -154,7 +163,8 @@ class Session
         return $this->sessionHandle;
     }
 
-    // TODO: Why do we need this function?
+    // Why do we need this function?
+    // For testing purpose
     public function getAccessToken()
     {
         return $this->accessToken;
@@ -162,23 +172,18 @@ class Session
 
     /**
      * @param array $newJWTPayload
-     * @param Response $response
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
      */
-    public function updateJWTPayload($newJWTPayload, Response $response)
+    public function updateJWTPayload(array $newJWTPayload)
     {
         if (Querier::getInstance()->getApiVersion() === "1.0") {
             throw SuperTokensException::generateGeneralException("the current function is not supported for the core");
         }
-        if (!isset($response)) {
-            throw SuperTokensGeneralException::generateGeneralException("function requires a response object");
-        }
         if (!isset($newJWTPayload) || is_null($newJWTPayload)) {
             throw SuperTokensGeneralException::generateGeneralException("jwt data passed to the function can't be null. Please pass empty array instead.");
         }
-        $this->response = $response;
         if (count($newJWTPayload) === 0) {
             $newJWTPayload = new ArrayObject();
         }
@@ -187,18 +192,20 @@ class Session
             'userDataInJWT' => $newJWTPayload
         ]);
         if ($queryResponse['status'] === Constants::EXCEPTION_UNAUTHORISED) {
-            $handshakeInfo = HandshakeInfo::getInstance();
-            CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+            if (isset($this->response)) {
+                // it will come here if the user is not using middleware. If the user is not using the middleware, the response variable will be set in the session object
+                $handshakeInfo = HandshakeInfo::getInstance();
+                CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+            } else {
+                $this->removeCookies = true;
+            }
             throw new SuperTokensUnauthorisedException($queryResponse['message']);
         }
         $this->userDataInJWT = $queryResponse['session']['userDataInJWT'];
         if (isset($queryResponse['accessToken'])) {
             $accessToken = $queryResponse['accessToken'];
             $this->accessToken = $accessToken['token'];
-            $accessTokenSameSite = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
-            if (Querier::getInstance()->getApiVersion() !== "1.0") {    // TODO: We can assume that this ID statement is true cause of the first IF statement in this function
-                $accessTokenSameSite = $accessToken['sameSite'];
-            }
+            $accessTokenSameSite = $accessToken['sameSite'];
             CookieAndHeader::attachAccessTokenToCookie($this->response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessTokenSameSite);
         }
     }
