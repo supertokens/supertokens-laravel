@@ -57,7 +57,7 @@ class Utils
     /**
      * @return int
      */
-    public static function getCurrentTimestamp()
+    public static function getCurrentTimestampMS()
     {
         return (int)round(microtime(true) * 1000);
     }
