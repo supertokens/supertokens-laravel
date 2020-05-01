@@ -58,7 +58,7 @@ class AccessToken
                 (!isset($antiCsrfToken) && $doAntiCsrfCheck)) {
                 throw new Exception("invalid access token payload");
             }
-            if ($expiryTime < Utils::getCurrentTimestamp()) {
+            if ($expiryTime < Utils::getCurrentTimestampMS()) {
                 throw new Exception("expired access token");
             }
 

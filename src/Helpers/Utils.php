@@ -57,10 +57,9 @@ class Utils
     /**
      * @return int
      */
-    public static function getCurrentTimestamp()
+    public static function getCurrentTimestampMS()
     {
-        $date = new DateTime();
-        return $date->getTimestamp();
+        return (int)round(microtime(true) * 1000);
     }
 
     /**

@@ -125,7 +125,7 @@ class SessionHandlingFunctions
         $handshakeInfo = HandshakeInfo::getInstance();
 
         try {
-            if ($handshakeInfo->jwtSigningPublicKeyExpiryTime > Utils::getCurrentTimestamp()) {
+            if ($handshakeInfo->jwtSigningPublicKeyExpiryTime > Utils::getCurrentTimestampMS()) {
                 $accessTokenInfo = AccessToken::getInfoFromAccessToken($accessToken, $handshakeInfo->jwtSigningPublicKey, $handshakeInfo->enableAntiCsrf && $doAntiCsrfCheck);
 
                 if (
