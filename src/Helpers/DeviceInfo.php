@@ -48,7 +48,6 @@ class DeviceInfo
     }
 
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public static function reset()

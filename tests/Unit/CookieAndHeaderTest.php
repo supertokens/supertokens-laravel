@@ -23,7 +23,6 @@ use SuperTokens\Helpers\Querier;
 class CookieAndHeaderTest extends TestCase
 {
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     protected function setUp(): void
@@ -35,7 +34,6 @@ class CookieAndHeaderTest extends TestCase
     }
 
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     protected function tearDown(): void

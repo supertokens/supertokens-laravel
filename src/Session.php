@@ -85,7 +85,6 @@ class Session
     }
 
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public function revokeSession()
@@ -102,7 +101,6 @@ class Session
 
     /**
      * @return array
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
      */
@@ -125,7 +123,6 @@ class Session
      * @param array $newSessionData
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
-     * @throws SuperTokensException
      */
     public function updateSessionData(array $newSessionData)
     {
@@ -179,7 +176,6 @@ class Session
 
     /**
      * @param array $newJWTPayload
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
      */

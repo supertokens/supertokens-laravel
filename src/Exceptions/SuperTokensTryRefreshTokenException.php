@@ -21,7 +21,7 @@ use Exception;
  * Class SuperTokensTryRefreshTokenException
  * @package SuperTokens\Laravel\Exceptions
  */
-class SuperTokensTryRefreshTokenException extends SuperTokensException
+class SuperTokensTryRefreshTokenException extends Exception
 {
 
     /**
@@ -37,6 +37,6 @@ class SuperTokensTryRefreshTokenException extends SuperTokensException
         } elseif ($anything instanceof Exception) {
             $message = $anything->getMessage();
         }
-        parent::__construct($message, $previous);
+        parent::__construct($message, 0, $previous);
     }
 }

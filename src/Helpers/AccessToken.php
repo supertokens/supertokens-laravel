@@ -27,7 +27,6 @@ class AccessToken
      * @param string $jwtSigningPublicKey
      * @param $doAntiCsrfCheck
      * @return array
-     * @throws SuperTokensException
      * @throws SuperTokensTryRefreshTokenException
      */
     public static function getInfoFromAccessToken($token, $jwtSigningPublicKey, $doAntiCsrfCheck)

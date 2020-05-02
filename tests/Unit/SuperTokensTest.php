@@ -37,7 +37,6 @@ use SuperTokens\Helpers\Querier;
 class SuperTokensTest extends TestCase
 {
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     protected function setUp(): void
@@ -49,7 +48,6 @@ class SuperTokensTest extends TestCase
     }
 
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     protected function tearDown(): void

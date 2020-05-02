@@ -46,7 +46,6 @@ class SuperTokens
      * @param array $jwtPayload
      * @param array $sessionData
      * @return Session
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public static function createNewSession(Response $response, string $userId, array $jwtPayload = [], array $sessionData = [])
@@ -73,7 +72,6 @@ class SuperTokens
      * @return Session
      * @throws SuperTokensGeneralException
      * @throws SuperTokensTryRefreshTokenException
-     * @throws SuperTokensException
      * @throws SuperTokensUnauthorisedException
      */
     public static function getSession(Request $request, Response $response, $doAntiCsrfCheck)
@@ -119,7 +117,6 @@ class SuperTokens
      * @param Request $request
      * @param Response $response
      * @return Session
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
      * @throws SuperTokensTokenTheftException
@@ -158,7 +155,6 @@ class SuperTokens
     /**
      * @param $userId
      * @return int
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      * @return array | integer
      */
@@ -170,7 +166,6 @@ class SuperTokens
     /**
      * @param $userId
      * @return array
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public static function getAllSessionHandlesForUser($userId)
@@ -182,7 +177,6 @@ class SuperTokens
     /**
      * @param $sessionHandle
      * @return bool
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      * @return bool
      */
@@ -194,7 +188,6 @@ class SuperTokens
     /**
      * @param $sessionHandles
      * @return array
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public static function revokeMultipleSessions($sessionHandles)
@@ -217,7 +210,6 @@ class SuperTokens
     /**
      * @param $sessionHandle
      * @param array $newSessionData
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
      */
@@ -236,7 +228,6 @@ class SuperTokens
 
     /**
      * @param string $sessionHandle
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
      */
@@ -248,7 +239,6 @@ class SuperTokens
     /**
      * @param string $sessionHandle
      * @param array $newJWTPayload
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
      */

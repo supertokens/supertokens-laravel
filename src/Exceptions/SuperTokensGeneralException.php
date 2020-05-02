@@ -18,7 +18,7 @@ namespace SuperTokens\Exceptions;
 use Exception;
 use Throwable;
 
-class SuperTokensGeneralException extends SuperTokensException
+class SuperTokensGeneralException extends Exception
 {
 
     /**
@@ -38,6 +38,6 @@ class SuperTokensGeneralException extends SuperTokensException
                 $message = $anything->getMessage();
             }
         }
-        parent::__construct($message, $previous);
+        parent::__construct($message, 0, $previous);
     }
 }

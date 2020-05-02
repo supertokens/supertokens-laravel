@@ -32,7 +32,6 @@ use SuperTokens\SuperTokens;
 class SessionTest extends TestCase
 {
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     protected function setUp(): void
@@ -44,7 +43,6 @@ class SessionTest extends TestCase
     }
 
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     protected function tearDown(): void

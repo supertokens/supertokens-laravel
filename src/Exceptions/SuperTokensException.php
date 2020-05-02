@@ -23,24 +23,19 @@ use Throwable;
  * @package SuperTokens\Laravel\Exceptions
  */
 
-// TODO: can we not make the specific exceptions inherit from this? If we can do that, then we also don't need to make this an exception. Also, then your functions below will change to check for each exception type explicitly
-
-abstract class SuperTokensException extends Exception
+abstract class SuperTokensException
 {
-
-    /**
-     * SuperTokensException constructor.
-     * @param string $message
-     * @param Throwable|null $previous
-     */
-    public function __construct($message = "", Throwable $previous = null)
+    public static function isSuperTokensException($exception)
     {
-        parent::__construct($message, 0, $previous);
+        return $exception instanceof SuperTokensGeneralException ||
+            $exception instanceof SuperTokensUnauthorisedException ||
+            $exception instanceof SuperTokensTryRefreshTokenException ||
+            $exception instanceof SuperTokensTokenTheftException;
     }
 
     public static function generateGeneralException($anything, Throwable $previous = null)
     {
-        if ($anything instanceof SuperTokensException) {
+        if (self::isSuperTokensException($anything)) {
             return $anything;
         }
         return new SuperTokensGeneralException($anything, $previous);
@@ -48,7 +43,7 @@ abstract class SuperTokensException extends Exception
 
     public static function generateUnauthorisedException($anything)
     {
-        if ($anything instanceof SuperTokensException) {
+        if (self::isSuperTokensException($anything)) {
             return $anything;
         }
         return new SuperTokensUnauthorisedException($anything);
@@ -56,7 +51,7 @@ abstract class SuperTokensException extends Exception
 
     public static function generateTryRefreshTokenException($anything)
     {
-        if ($anything instanceof SuperTokensException) {
+        if (self::isSuperTokensException($anything)) {
             return $anything;
         }
         return new SuperTokensTryRefreshTokenException($anything);

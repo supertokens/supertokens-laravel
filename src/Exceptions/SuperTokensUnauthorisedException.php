@@ -21,7 +21,7 @@ use Exception;
  * Class SuperTokensUnauthorisedException
  * @package SuperTokens\Laravel\Exceptions
  */
-class SuperTokensUnauthorisedException extends SuperTokensException
+class SuperTokensUnauthorisedException extends Exception
 {
 
     /**
@@ -34,12 +34,12 @@ class SuperTokensUnauthorisedException extends SuperTokensException
         $previous = null;
         if (is_string($anything)) {
             $message = $anything;
-        } elseif ($anything instanceof SuperTokensException) {
+        } elseif (SuperTokensException::isSuperTokensException($anything)) {
             $message = $anything->getMessage();
             $previous = $anything->getPrevious();
         } elseif ($anything instanceof Exception) {
             $message = $anything->getMessage();
         }
-        parent::__construct($message, $previous);
+        parent::__construct($message, 0, $previous);
     }
 }

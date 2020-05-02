@@ -84,7 +84,6 @@ class HandshakeInfo
     /**
      * HandshakeInfo constructor.
      * @param $info
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     private function __construct($info)
@@ -108,7 +107,6 @@ class HandshakeInfo
     }
 
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public static function reset()
@@ -123,7 +121,6 @@ class HandshakeInfo
 
     /**
      * @return HandshakeInfo
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public static function getInstance()
@@ -146,7 +143,6 @@ class HandshakeInfo
     /**
      * @param string $newKey
      * @param integer $newExpiry
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public function updateJwtSigningPublicKeyInfo($newKey, $newExpiry)
@@ -169,7 +165,6 @@ class HandshakeInfo
 
     /**
      * @param array $keyValuePairs
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     private static function updateInCache(array $keyValuePairs)

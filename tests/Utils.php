@@ -196,7 +196,6 @@ class Utils
     }
 
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public static function reset()

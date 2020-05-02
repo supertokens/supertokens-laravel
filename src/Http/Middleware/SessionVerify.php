@@ -25,7 +25,6 @@ class SessionVerify
      * @param Closure $next
      * @param string $antiCsrfCheck
      * @return mixed
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public function handle(Request $request, Closure $next, string $antiCsrfCheck = null)

@@ -30,7 +30,6 @@ use SuperTokens\SuperTokens;
 class DeviceDriverInfoTest extends TestCase
 {
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     protected function setUp(): void
@@ -42,7 +41,6 @@ class DeviceDriverInfoTest extends TestCase
     }
 
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     protected function tearDown(): void
@@ -70,7 +68,6 @@ class DeviceDriverInfoTest extends TestCase
     }
 
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      * @throws SuperTokensTryRefreshTokenException
      * @throws SuperTokensUnauthorisedException

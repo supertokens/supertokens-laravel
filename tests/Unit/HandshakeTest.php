@@ -28,7 +28,6 @@ use SuperTokens\Helpers\Utils as SuperTokensUtils;
 class HandshakeTest extends TestCase
 {
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     protected function setUp(): void
@@ -40,7 +39,6 @@ class HandshakeTest extends TestCase
     }
 
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     protected function tearDown(): void
@@ -58,7 +56,7 @@ class HandshakeTest extends TestCase
         try {
             SuperTokens::createNewSession(new Response(), "abc", [], []);
             $this->assertTrue(false);
-        } catch (SuperTokensException $e) {
+        } catch (SuperTokensGeneralException $e) {
             $this->assertTrue(true);
         }
     }
@@ -88,7 +86,6 @@ class HandshakeTest extends TestCase
     }
 
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public function testCustomConfig(): void

@@ -54,7 +54,6 @@ class SessionHandlingFunctions
     public static $TEST_FUNCTION_VERSION = null; // for testing purpose
 
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public static function reset()
@@ -79,7 +78,6 @@ class SessionHandlingFunctions
      * @param array $jwtPayload
      * @param array $sessionData
      * @return array
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public static function createNewSession(string $userId, array $jwtPayload, array $sessionData)
@@ -121,7 +119,6 @@ class SessionHandlingFunctions
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
      * @throws SuperTokensTryRefreshTokenException
-     * @throws SuperTokensException
      */
     public static function getSession($accessToken, $antiCsrfToken, $doAntiCsrfCheck, $idRefreshToken)
     {
@@ -198,7 +195,6 @@ class SessionHandlingFunctions
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
      * @throws SuperTokensTokenTheftException
-     * @throws SuperTokensException
       */
     public static function refreshSession($refreshToken)
     {
@@ -227,7 +223,6 @@ class SessionHandlingFunctions
      * @param string $userId
      * @return array | integer
      * @throws SuperTokensGeneralException
-     * @throws SuperTokensException
      */
     public static function revokeAllSessionsForUser($userId)
     {
@@ -250,7 +245,6 @@ class SessionHandlingFunctions
      * @param string $userId
      * @return array
      * @throws SuperTokensGeneralException
-     * @throws SuperTokensException
      */
     public static function getAllSessionHandlesForUser($userId)
     {
@@ -264,7 +258,6 @@ class SessionHandlingFunctions
      * @param $sessionHandle
      * @return bool
      * @throws SuperTokensGeneralException
-     * @throws SuperTokensException
      */
     public static function revokeSession($sessionHandle)
     {
@@ -287,7 +280,6 @@ class SessionHandlingFunctions
      * @param array $sessionHandles
      * @return array
      * @throws SuperTokensGeneralException
-     * @throws SuperTokensException
      */
     public static function revokeMultipleSessions($sessionHandles)
     {
@@ -308,7 +300,7 @@ class SessionHandlingFunctions
      * @param string $sessionHandle
      * @return array
      * @throws Exception
-     * @throws SuperTokensUnauthorisedException | SuperTokensGeneralException
+     * @throws SuperTokensUnauthorisedException
      */
     public static function getSessionData($sessionHandle)
     {
@@ -324,7 +316,6 @@ class SessionHandlingFunctions
     /**
      * @param string $sessionHandle
      * @param array $newSessionData
-     * @throws SuperTokensException
      * @throws SuperTokensUnauthorisedException | SuperTokensGeneralException
      */
     public static function updateSessionData($sessionHandle, $newSessionData)
@@ -348,7 +339,6 @@ class SessionHandlingFunctions
     /**
      * @param string $sessionHandle
      * @return array
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
      */
@@ -369,7 +359,6 @@ class SessionHandlingFunctions
     /**
      * @param string $sessionHandle
      * @param array $newJWTPayload
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
      */

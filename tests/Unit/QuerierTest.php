@@ -29,7 +29,6 @@ use SuperTokens\Helpers\Utils as SuperTokensUtils;
 class QuerierTest extends TestCase
 {
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     protected function setUp(): void
@@ -41,7 +40,6 @@ class QuerierTest extends TestCase
     }
 
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     protected function tearDown(): void
@@ -93,7 +91,7 @@ class QuerierTest extends TestCase
             $querier = Querier::getInstance();
             $querier->sendGetRequest("/", []);
             $this->assertTrue(false);
-        } catch (SuperTokensException $e) {
+        } catch (SuperTokensGeneralException $e) {
             $this->assertTrue(true);
         }
     }

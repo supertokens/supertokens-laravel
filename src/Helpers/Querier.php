@@ -58,7 +58,6 @@ class Querier
     }
 
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public static function reset()
@@ -71,7 +70,6 @@ class Querier
     }
 
     /**
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public function getHostsAliveForTesting()
@@ -84,7 +82,6 @@ class Querier
 
     /**
      * @return Querier
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public static function getInstance()
@@ -100,7 +97,6 @@ class Querier
 
     /**
      * @return string
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
 
@@ -128,7 +124,6 @@ class Querier
      * @param $body
      * @param boolean $test
      * @return mixed
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public function sendPostRequest($path, $body, $test=false)
@@ -160,7 +155,6 @@ class Querier
      * @param $path
      * @param $body
      * @return mixed
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public function sendPutRequest($path, $body)
@@ -176,7 +170,6 @@ class Querier
      * @param $path
      * @param $body
      * @return mixed
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public function sendDeleteRequest($path, $body)
@@ -192,7 +185,6 @@ class Querier
      * @param $path
      * @param $query
      * @return mixed
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     public function sendGetRequest($path, $query)
@@ -211,7 +203,6 @@ class Querier
      * @param $httpFunction
      * @param int $numberOfRetries
      * @return mixed
-     * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
     private function sendRequest($path, $method, $data, $httpFunction, $numberOfRetries = -1)

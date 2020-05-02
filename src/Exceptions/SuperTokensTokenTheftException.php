@@ -21,7 +21,7 @@ use Exception;
  * Class SuperTokensTokenTheftException
  * @package SuperTokens\Laravel\Exceptions
  */
-class SuperTokensTokenTheftException extends SuperTokensException
+class SuperTokensTokenTheftException extends Exception
 {
     private $userId;
 
@@ -34,8 +34,7 @@ class SuperTokensTokenTheftException extends SuperTokensException
      */
     public function __construct($userId, $sessionHandle)
     {
-        $message = "Token Theft Detected";
-        parent::__construct($message);
+        parent::__construct("Token Theft Detected");
         $this->userId = $userId;
         $this->sessionHandle = $sessionHandle;
     }
