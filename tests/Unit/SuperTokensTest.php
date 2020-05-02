@@ -792,7 +792,7 @@ class SuperTokensTest extends TestCase
     public function testSetOptionsHeadersApi(): void
     {
         $response = new Response();
-        SuperTokens::setRelevantHeadersForOptionAPI($response);
+        SuperTokens::setRelevantHeadersForOptionsAPI($response);
         $this->assertEquals("anti-csrf, supertokens-sdk-name, supertokens-sdk-version", $response->headers->get('Access-Control-Allow-Headers'));
         $this->assertEquals("true", $response->headers->get('Access-Control-Allow-Credentials'));
     }

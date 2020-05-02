@@ -33,26 +33,6 @@ class Session
     private $sessionHandle;
 
     /**
-     * @var boolean;
-     */
-    public $removeCookies;
-
-    /**
-     * @var boolean;
-     */
-    public $updateAccessToken;
-
-    /**
-     * @var array;
-     */
-    public $accessTokenInfo;
-
-    /**
-     * @var
-     */
-    private $accessToken;
-
-    /**
      * @var string
      */
     private $userId;
@@ -66,6 +46,24 @@ class Session
      * @var Response
      */
     private $response;
+
+    /**
+     * @var
+     */
+    private $accessToken;
+
+
+    // used to tell the middleware what to do.
+    /**
+     * @var boolean;
+     */
+    public $removeCookies;
+
+    /**
+     * @var array;
+     */
+    public $newAccessTokenInfo;
+    // used to tell the middleware what to do.
 
     /**
      * SuperTokens constructor.
@@ -83,8 +81,7 @@ class Session
         $this->response = $response;
         $this->accessToken = $accessToken;
         $this->removeCookies = false;
-        $this->updateAccessToken = false;
-        $this->accessTokenInfo = [];
+        $this->newAccessTokenInfo = [];
     }
 
     /**
@@ -93,7 +90,7 @@ class Session
      */
     public function revokeSession()
     {
-        if (SessionHandlingFunctions::revokeSessionUsingSessionHandle($this->sessionHandle)) {
+        if (SessionHandlingFunctions::revokeSession($this->sessionHandle)) {
             if (isset($this->response)) {
                 $handshakeInfo = HandshakeInfo::getInstance();
                 CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
@@ -115,7 +112,6 @@ class Session
             return SessionHandlingFunctions::getSessionData($this->sessionHandle);
         } catch (SuperTokensUnauthorisedException $e) {
             if (isset($this->response)) {
-                // it will come here if the user is not using middleware. If the user is not using the middleware, the response variable will be set in the session object
                 $handshakeInfo = HandshakeInfo::getInstance();
                 CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
             } else {
@@ -131,7 +127,6 @@ class Session
      * @throws SuperTokensUnauthorisedException
      * @throws SuperTokensException
      */
-    // TODO: make it updateSessionData(array $newSessionData)
     public function updateSessionData(array $newSessionData)
     {
         if (!isset($newSessionData) || is_null($newSessionData)) {
@@ -193,12 +188,14 @@ class Session
         if (Querier::getInstance()->getApiVersion() === "1.0") {
             throw SuperTokensException::generateGeneralException("the current function is not supported for the core");
         }
+
         if (!isset($newJWTPayload) || is_null($newJWTPayload)) {
             throw SuperTokensGeneralException::generateGeneralException("jwt data passed to the function can't be null. Please pass empty array instead.");
         }
         if (count($newJWTPayload) === 0) {
             $newJWTPayload = new ArrayObject();
         }
+
         $queryResponse = Querier::getInstance()->sendPostRequest(Constants::SESSION_REGENERATE, [
             'accessToken' => $this->accessToken,
             'userDataInJWT' => $newJWTPayload
@@ -218,11 +215,9 @@ class Session
             $accessToken = $queryResponse['accessToken'];
             $this->accessToken = $accessToken['token'];
             if (isset($this->response)) {
-                // it will come here if the user is not using middleware. If the user is not using the middleware, the response variable will be set in the session object
                 CookieAndHeader::attachAccessTokenToCookie($this->response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessToken['sameSite']);
             } else {
-                $this->updateAccessToken = true;
-                $this->accessTokenInfo = $accessToken;
+                $this->newAccessTokenInfo = $accessToken;
             }
         }
     }

@@ -40,7 +40,7 @@ class SessionVerify
                 } else {
                     $antiCsrfCheckBoolean = strtolower($antiCsrfCheck) === "true";
                 }
-                $session = SuperTokens::getSessionForMiddleware($request, $antiCsrfCheckBoolean);
+                $session = SuperTokens::getSession($request, null, $antiCsrfCheckBoolean);
             } catch (SuperTokensTryRefreshTokenException | SuperTokensUnauthorisedException $e) {
                 $response = new Response();
                 $message = "Try Refresh Token";
@@ -61,8 +61,8 @@ class SessionVerify
             $request->merge(['supertokenSession' => $session]);
             $response = $next($request);
 
-            if ($session->updateAccessToken && count($session->accessTokenInfo) !== 0 && !$session->removeCookies) {
-                $accessToken = $session->accessTokenInfo;
+            if (count($session->newAccessTokenInfo) !== 0 && !$session->removeCookies) {
+                $accessToken = $session->newAccessTokenInfo;
                 CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessToken['sameSite']);
             }
 

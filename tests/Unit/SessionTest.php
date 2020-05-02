@@ -110,7 +110,7 @@ class SessionTest extends TestCase
         $this->assertArrayNotHasKey("accessToken", $refreshedSessionNew2);
         $this->assertCount(1, array_keys($refreshedSessionNew2));
 
-        $revokedSession = SessionHandlingFunctions::revokeSessionUsingSessionHandle($refreshedSessionNew2['session']['handle']);
+        $revokedSession = SessionHandlingFunctions::revokeSession($refreshedSessionNew2['session']['handle']);
         $this->assertTrue($revokedSession);
     }
 
@@ -165,7 +165,7 @@ class SessionTest extends TestCase
             $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
             $session = SessionHandlingFunctions::createNewSession("userId", [], []);
             $this->assertCount(1, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
-            $this->assertTrue(SessionHandlingFunctions::revokeSessionUsingSessionHandle($session['session']['handle']));
+            $this->assertTrue(SessionHandlingFunctions::revokeSession($session['session']['handle']));
             $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
             SessionHandlingFunctions::createNewSession("userId", [], []);
             SessionHandlingFunctions::createNewSession("userId", [], []);
@@ -173,7 +173,7 @@ class SessionTest extends TestCase
             $this->assertEquals(2, SessionHandlingFunctions::revokeAllSessionsForUser("userId"));
             $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
             SessionHandlingFunctions::reset();
-            $this->assertFalse(SessionHandlingFunctions::revokeSessionUsingSessionHandle("random"));
+            $this->assertFalse(SessionHandlingFunctions::revokeSession("random"));
             $this->assertEquals("1.0", SessionHandlingFunctions::$TEST_FUNCTION_VERSION);
             $this->assertEquals(0, SessionHandlingFunctions::revokeAllSessionsForUser("randomUserId"));
         } else {
@@ -181,7 +181,7 @@ class SessionTest extends TestCase
             $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
             $session = SessionHandlingFunctions::createNewSession("userId", [], []);
             $this->assertCount(1, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
-            $this->assertTrue(SessionHandlingFunctions::revokeSessionUsingSessionHandle($session['session']['handle']));
+            $this->assertTrue(SessionHandlingFunctions::revokeSession($session['session']['handle']));
             $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
             SessionHandlingFunctions::createNewSession("userId", [], []);
             SessionHandlingFunctions::createNewSession("userId", [], []);
@@ -189,7 +189,7 @@ class SessionTest extends TestCase
             $this->assertCount(2, SessionHandlingFunctions::revokeAllSessionsForUser("userId"));
             $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
             SessionHandlingFunctions::reset();
-            $this->assertFalse(SessionHandlingFunctions::revokeSessionUsingSessionHandle("random"));
+            $this->assertFalse(SessionHandlingFunctions::revokeSession("random"));
             $this->assertEquals("2.0", SessionHandlingFunctions::$TEST_FUNCTION_VERSION);
             $this->assertCount(0, SessionHandlingFunctions::revokeAllSessionsForUser("randomUserId"));
         }

@@ -209,21 +209,4 @@ class CookieAndHeader
         $minutes = max(0, $minutes);
         return (int)$minutes;
     }
-
-    /**
-     * @param Response $response
-     * @param $session
-     */
-    public static function attachSessionToResponse(Response $response, $session)
-    {
-        $accessToken = $session['accessToken'];
-        $refreshToken = $session['refreshToken'];
-        $idRefreshToken = $session['idRefreshToken'];
-        CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessToken['sameSite']);
-        CookieAndHeader::attachRefreshTokenToCookie($response, $refreshToken['token'], $refreshToken['expiry'], $refreshToken['domain'], $refreshToken['cookieSecure'], $refreshToken['cookiePath'], $refreshToken['sameSite']);
-        CookieAndHeader::attachIdRefreshTokenToCookieAndHeader($response, $idRefreshToken['token'], $idRefreshToken['expiry'], $idRefreshToken['domain'], $idRefreshToken['cookieSecure'], $idRefreshToken['cookiePath'], $idRefreshToken['sameSite']);
-        if (isset($session['antiCsrfToken'])) {
-            CookieAndHeader::attachAntiCsrfHeader($response, $session['antiCsrfToken']);
-        }
-    }
 }

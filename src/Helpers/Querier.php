@@ -117,7 +117,7 @@ class Querier
             if (is_null($apiVersion)) {
                 throw SuperTokensException::generateGeneralException(Constants::DRIVER_NOT_COMPATIBLE_MESSAGE);
             }
-            Utils::storeInCache(Constants::API_VERSION_CACHE_KEY, $apiVersion, Constants::API_VERSION_CACHE_TTL);
+            Utils::storeInCache(Constants::API_VERSION_CACHE_KEY, $apiVersion, Constants::API_VERSION_CACHE_TTL_SECONDS);
             // TODO: No need to do tryHello thing. Just see if the error is from request and is 404, then set it to 1.0
         }
         return $apiVersion;

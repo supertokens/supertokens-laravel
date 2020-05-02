@@ -108,11 +108,10 @@ class HandshakeInfo
     }
 
     /**
-     * @param bool $hardReset
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
-    public static function reset($hardReset = true)
+    public static function reset()
     {
         if (App::environment("testing")) {
             self::$instance = null;
@@ -133,7 +132,7 @@ class HandshakeInfo
             $response = Utils::getFromCache(Constants::HANDSHAKE_INFO_CACHE_KEY.Querier::getInstance()->getApiVersion());
             if (is_null($response)) {
                 $response = Querier::getInstance()->sendPostRequest(Constants::HANDSHAKE, []);
-                Utils::storeInCache(Constants::HANDSHAKE_INFO_CACHE_KEY.Querier::getInstance()->getApiVersion(), json_encode($response), Constants::HANDSHAKE_INFO_CACHE_TTL);
+                Utils::storeInCache(Constants::HANDSHAKE_INFO_CACHE_KEY.Querier::getInstance()->getApiVersion(), json_encode($response), Constants::HANDSHAKE_INFO_CACHE_TTL_SECONDS);
                 self::$TEST_READ_FROM_CACHE = false;
             } else {
                 $response = json_decode($response, true);
@@ -175,10 +174,15 @@ class HandshakeInfo
      */
     private static function updateInCache(array $keyValuePairs)
     {
-        $response = Querier::getInstance()->sendPostRequest(Constants::HANDSHAKE, []);
-        foreach ($keyValuePairs as $key => $value) {
-            $response[$key] = $value;
+        try {
+            $response = Querier::getInstance()->sendPostRequest(Constants::HANDSHAKE, []);
+            if (App::environment("testing")) {
+                foreach ($keyValuePairs as $key => $value) {
+                    $response[$key] = $value;
+                }
+            }
+            Utils::storeInCache(Constants::HANDSHAKE_INFO_CACHE_KEY.Querier::getInstance()->getApiVersion(), json_encode($response), Constants::HANDSHAKE_INFO_CACHE_TTL_SECONDS);
+        } catch (\Exception $ignored) {
         }
-        Utils::storeInCache(Constants::HANDSHAKE_INFO_CACHE_KEY.Querier::getInstance()->getApiVersion(), json_encode($response), Constants::HANDSHAKE_INFO_CACHE_TTL);
     }
 }

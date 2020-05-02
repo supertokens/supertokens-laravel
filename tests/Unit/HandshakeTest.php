@@ -68,9 +68,6 @@ class HandshakeTest extends TestCase
      */
     public function testSuccessfulHandshakeAndUpdateJwt(): void
     {
-        Utils::reset();
-        Utils::cleanST();
-        Utils::setupST();
         Utils::startST();
         $info = HandshakeInfo::getInstance();
         $this->assertEquals("/", $info->accessTokenPath);
@@ -83,7 +80,7 @@ class HandshakeTest extends TestCase
         $this->assertIsNumeric($info->jwtSigningPublicKeyExpiryTime);
         $this->assertFalse(HandshakeInfo::$TEST_READ_FROM_CACHE);
         $info->updateJwtSigningPublicKeyInfo("hello", 100);
-        HandshakeInfo::reset(false);
+        HandshakeInfo::reset();
         $updatedInfo = HandshakeInfo::getInstance();
         $this->assertTrue(HandshakeInfo::$TEST_READ_FROM_CACHE);
         $this->assertEquals("hello", $updatedInfo->jwtSigningPublicKey);
