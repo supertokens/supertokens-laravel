@@ -48,6 +48,11 @@ class Querier
     private $hostAliveForTesting;
 
     /**
+     * @var string
+     */
+    private $apiVersion = null;
+
+    /**
      * Querier constructor.
      */
     private function __construct()
@@ -102,21 +107,22 @@ class Querier
 
     public function getApiVersion()
     {
-        $apiVersion = Utils::getFromCache(Constants::API_VERSION_CACHE_KEY);
-        if (is_null($apiVersion)) {
-            $coreVersionsResponse = $this->sendRequest(Constants::API_VERSION, "GET", [], function ($url, $data) {
-                return Http::get($url);
-            });
-            $coreVersions = $coreVersionsResponse['versions'];
-            $supportedAPIVersions = Constants::SUPPORTED_CDI_VERSIONS;
-            $apiVersion = Utils::findMaxVersion($supportedAPIVersions, $coreVersions);
+        if (!isset($this->apiVersion)) {
+            $apiVersion = Utils::getFromCache(Constants::API_VERSION_CACHE_KEY);
             if (is_null($apiVersion)) {
-                throw SuperTokensException::generateGeneralException(Constants::DRIVER_NOT_COMPATIBLE_MESSAGE);
+                $coreVersionsResponse = $this->sendRequest(Constants::API_VERSION, "GET", [], function ($url, $data) {
+                    return Http::get($url);
+                });
+                $coreVersions = $coreVersionsResponse['versions'];
+                $apiVersion = Utils::findMaxVersion(Constants::SUPPORTED_CDI_VERSIONS, $coreVersions);
+                if (is_null($apiVersion)) {
+                    throw SuperTokensException::generateGeneralException(Constants::DRIVER_NOT_COMPATIBLE_MESSAGE);
+                }
+                Utils::storeInCache(Constants::API_VERSION_CACHE_KEY, $apiVersion, Constants::API_VERSION_CACHE_TTL_SECONDS);
             }
-            Utils::storeInCache(Constants::API_VERSION_CACHE_KEY, $apiVersion, Constants::API_VERSION_CACHE_TTL_SECONDS);
-            // TODO: No need to do tryHello thing. Just see if the error is from request and is 404, then set it to 1.0
+            $this->apiVersion = $apiVersion;
         }
-        return $apiVersion;
+        return $this->apiVersion;
     }
 
     /**
@@ -205,9 +211,9 @@ class Querier
      * @return mixed
      * @throws SuperTokensGeneralException
      */
-    private function sendRequest($path, $method, $data, $httpFunction, $numberOfRetries = -1)
+    private function sendRequest($path, $method, $data, $httpFunction, $numberOfRetries = null)
     {
-        if ($numberOfRetries == -1) {
+        if (!isset($numberOfRetries)) {
             $numberOfRetries = count($this->hosts);
         }
         if ($numberOfRetries == 0) {
@@ -218,30 +224,29 @@ class Querier
         $this->lastTriedIndex = $this->lastTriedIndex % count($this->hosts);
         try {
             $response = $httpFunction($currentHost['hostname'] . ":" . $currentHost["port"] . $path, $data);
+
             if ($response->serverError()) {
                 return $this->sendRequest($path, $method, $data, $httpFunction, $numberOfRetries - 1);
             }
+
             if (App::environment("testing")) {
                 array_push($this->hostAliveForTesting, $currentHost['hostname'].':'.$currentHost['port']);
                 $this->hostAliveForTesting = array_unique($this->hostAliveForTesting);
             }
+
             if ($response->clientError()) {
                 if ($path === Constants::API_VERSION && $response->status() === 404) {
                     return ["versions" =>["1.0"]];
                 }
                 throw SuperTokensException::generateGeneralException("SuperTokens core threw an error for a " . $method . " request to path: '" . $path . "' with status code: " . $response->status() . " and message: " . $response->body());
             }
+
             $responseData = $response->json();
             if (is_null($responseData)) {
                 return $response->body();
             }
             return $responseData;
-        } catch (ConnectionException $e) { //phpstorm might say to remove this catch clause, but don't!!
-            if (App::environment("testing") && $numberOfRetries === 1) {
-                throw SuperTokensException::generateGeneralException($e);
-            }
-            return $this->sendRequest($path, $method, $data, $httpFunction, $numberOfRetries - 1);
-        } catch (RequestException $e) {
+        } catch (ConnectionException | RequestException $e) { //phpstorm might say to remove this catch clause, but don't!!
             if (App::environment("testing") && $numberOfRetries === 1) {
                 throw SuperTokensException::generateGeneralException($e);
             }

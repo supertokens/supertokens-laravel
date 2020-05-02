@@ -33,6 +33,7 @@ class AccessToken
     {
         try {
             $payload = Jwt::verifyJWTAndGetPayload($token, $jwtSigningPublicKey);
+
             $sessionHandle = Utils::sanitizeStringInput($payload['sessionHandle']);
             $userId = Utils::sanitizeStringInput($payload['userId']);
             $refreshTokenHash1 = Utils::sanitizeStringInput($payload['refreshTokenHash1']);

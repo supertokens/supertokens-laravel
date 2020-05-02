@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\App;
 use SuperTokens\Exceptions\SuperTokensException;
 use SuperTokens\Exceptions\SuperTokensGeneralException;
 
+// TODO: Do we also need to use caching for this?
 class DeviceInfo
 {
     /**

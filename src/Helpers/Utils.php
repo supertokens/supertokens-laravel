@@ -137,14 +137,14 @@ class Utils
         }
     }
 
-    /**
-     * @param string $key
-     */
-    public static function removeFromCache(string $key)
-    {
-        try {
-            Cache::store("file")->forget($key);
-        } catch (\Exception $e) {
-        }
-    }
+//    /**
+//     * @param string $key
+//     */
+//    public static function removeFromCache(string $key)
+//    {
+//        try {
+//            Cache::store("file")->forget($key);
+//        } catch (\Exception $e) {
+//        }
+//    }
 }

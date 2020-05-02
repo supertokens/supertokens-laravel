@@ -96,14 +96,8 @@ class HandshakeInfo
         $this->jwtSigningPublicKey = $info['jwtSigningPublicKey'];
         $this->jwtSigningPublicKeyExpiryTime = $info['jwtSigningPublicKeyExpiryTime'];
         $this->refreshTokenPath = $info['refreshTokenPath'];
-        $this->sameSite = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
-        if (Querier::getInstance()->getApiVersion() !== "1.0") {
-            $this->sameSite = $info['cookieSameSite'];
-        }
-        $this->sessionExpiredStatusCode = Constants::SESSION_EXPIRED_STATUS_CODE;
-        if (Querier::getInstance()->getApiVersion() !== "1.0") {
-            $this->sessionExpiredStatusCode = $info['sessionExpiredStatusCode'];
-        }
+        $this->sameSite = $info['cookieSameSite'];
+        $this->sessionExpiredStatusCode = $info['sessionExpiredStatusCode'];
     }
 
     /**
@@ -126,16 +120,15 @@ class HandshakeInfo
     public static function getInstance()
     {
         if (!isset(self::$instance)) {
-            $response = Utils::getFromCache(Constants::HANDSHAKE_INFO_CACHE_KEY.Querier::getInstance()->getApiVersion());
+            $response = Utils::getFromCache(Constants::HANDSHAKE_INFO_CACHE_KEY.'-'.Querier::getInstance()->getApiVersion());
             if (is_null($response)) {
-                $response = Querier::getInstance()->sendPostRequest(Constants::HANDSHAKE, []);
-                Utils::storeInCache(Constants::HANDSHAKE_INFO_CACHE_KEY.Querier::getInstance()->getApiVersion(), json_encode($response), Constants::HANDSHAKE_INFO_CACHE_TTL_SECONDS);
+                self::fetchInfoFromCore([]);
                 self::$TEST_READ_FROM_CACHE = false;
             } else {
                 $response = json_decode($response, true);
+                self::$instance = new HandshakeInfo($response);
                 self::$TEST_READ_FROM_CACHE = true;
             }
-            self::$instance = new HandshakeInfo($response);
         }
         return self::$instance;
     }
@@ -149,10 +142,13 @@ class HandshakeInfo
     {
         $this->jwtSigningPublicKey = $newKey;
         $this->jwtSigningPublicKeyExpiryTime = $newExpiry;
-        self::updateInCache([
-            "jwtSigningPublicKey" => $newKey,
-            "jwtSigningPublicKeyExpiryTime" => $newExpiry
-        ]);
+        try {
+            self::fetchInfoFromCore([
+                "jwtSigningPublicKey" => $newKey,
+                "jwtSigningPublicKeyExpiryTime" => $newExpiry
+            ]);
+        } catch (\Exception $ignored) {
+        }
     }
 
     /**
@@ -167,17 +163,22 @@ class HandshakeInfo
      * @param array $keyValuePairs
      * @throws SuperTokensGeneralException
      */
-    private static function updateInCache(array $keyValuePairs)
+    private static function fetchInfoFromCore($keyValuePairs = null)
     {
-        try {
-            $response = Querier::getInstance()->sendPostRequest(Constants::HANDSHAKE, []);
-            if (App::environment("testing")) {
-                foreach ($keyValuePairs as $key => $value) {
-                    $response[$key] = $value;
-                }
-            }
-            Utils::storeInCache(Constants::HANDSHAKE_INFO_CACHE_KEY.Querier::getInstance()->getApiVersion(), json_encode($response), Constants::HANDSHAKE_INFO_CACHE_TTL_SECONDS);
-        } catch (\Exception $ignored) {
+        $response = Querier::getInstance()->sendPostRequest(Constants::HANDSHAKE, []);
+
+        if (Querier::getInstance()->getApiVersion() === "1.0") {
+            $response["cookieSameSite"] = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
+            $response["sessionExpiredStatusCode"] = Constants::SESSION_EXPIRED_STATUS_CODE;
         }
+
+        if (App::environment("testing") && isset($keyValuePairs)) {
+            foreach ($keyValuePairs as $key => $value) {
+                $response[$key] = $value;
+            }
+        }
+
+        Utils::storeInCache(Constants::HANDSHAKE_INFO_CACHE_KEY.'-'.Querier::getInstance()->getApiVersion(), json_encode($response), Constants::HANDSHAKE_INFO_CACHE_TTL_SECONDS);
+        self::$instance = new HandshakeInfo($response);
     }
 }
