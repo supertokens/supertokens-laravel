@@ -23,6 +23,7 @@ use SuperTokens\Helpers\Constants;
 use SuperTokens\Helpers\HandshakeInfo;
 use SuperTokens\SuperTokens;
 use SuperTokens\Helpers\Querier;
+use SuperTokens\Helpers\Utils as SuperTokensUtils;
 
 class HandshakeTest extends TestCase
 {
@@ -67,6 +68,9 @@ class HandshakeTest extends TestCase
      */
     public function testSuccessfulHandshakeAndUpdateJwt(): void
     {
+        Utils::reset();
+        Utils::cleanST();
+        Utils::setupST();
         Utils::startST();
         $info = HandshakeInfo::getInstance();
         $this->assertEquals("/", $info->accessTokenPath);
@@ -77,8 +81,11 @@ class HandshakeTest extends TestCase
         $this->assertTrue($info->enableAntiCsrf);
         $this->assertFalse($info->accessTokenBlacklistingEnabled);
         $this->assertIsNumeric($info->jwtSigningPublicKeyExpiryTime);
+        $this->assertFalse(HandshakeInfo::$TEST_READ_FROM_CACHE);
         $info->updateJwtSigningPublicKeyInfo("hello", 100);
+        HandshakeInfo::reset(false);
         $updatedInfo = HandshakeInfo::getInstance();
+        $this->assertTrue(HandshakeInfo::$TEST_READ_FROM_CACHE);
         $this->assertEquals("hello", $updatedInfo->jwtSigningPublicKey);
         $this->assertEquals(100, $updatedInfo->jwtSigningPublicKeyExpiryTime);
     }

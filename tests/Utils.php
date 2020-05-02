@@ -17,6 +17,7 @@ namespace SuperTokens\Tests;
 
 use Exception;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 use SuperTokens\Exceptions\SuperTokensException;
 use SuperTokens\Exceptions\SuperTokensGeneralException;
 use SuperTokens\Helpers\DeviceInfo;
@@ -205,6 +206,7 @@ class Utils
         DeviceInfo::reset();
         Querier::reset();
         SessionHandlingFunctions::reset();
+        Cache::store('file')->flush();
     }
 
     /**

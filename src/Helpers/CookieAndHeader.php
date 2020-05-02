@@ -205,7 +205,7 @@ class CookieAndHeader
     private static function getMinutes($expiresAt)
     {
         $currentTimestamp = Utils::getCurrentTimestampMS();
-        $minutes = floor(($expiresAt - $currentTimestamp) / 60000);
+        $minutes = ceil(($expiresAt - $currentTimestamp) / 60000);
         $minutes = max(0, $minutes);
         return (int)$minutes;
     }
@@ -213,31 +213,15 @@ class CookieAndHeader
     /**
      * @param Response $response
      * @param $session
-     * @throws SuperTokensException
-     * @throws SuperTokensGeneralException
      */
     public static function attachSessionToResponse(Response $response, $session)
     {
         $accessToken = $session['accessToken'];
         $refreshToken = $session['refreshToken'];
         $idRefreshToken = $session['idRefreshToken'];
-        $accessTokenSameSite = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
-        $refreshTokenSameSite = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
-        $idRefreshTokenSameSite = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
-        $idRefreshTokenDomain = $accessToken['domain'];
-        $idRefreshCookieSecure = $accessToken['cookieSecure'];
-        $idRefreshCookiePath = $accessToken['cookiePath'];
-        if (Querier::getInstance()->getApiVersion() !== "1.0") {
-            $accessTokenSameSite = $accessToken['sameSite'];
-            $refreshTokenSameSite = $refreshToken['sameSite'];
-            $idRefreshTokenSameSite = $idRefreshToken['sameSite'];
-            $idRefreshTokenDomain = $idRefreshToken['domain'];
-            $idRefreshCookieSecure = $idRefreshToken['cookieSecure'];
-            $idRefreshCookiePath = $idRefreshToken['cookiePath'];
-        }
-        CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessTokenSameSite);
-        CookieAndHeader::attachRefreshTokenToCookie($response, $refreshToken['token'], $refreshToken['expiry'], $refreshToken['domain'], $refreshToken['cookieSecure'], $refreshToken['cookiePath'], $refreshTokenSameSite);
-        CookieAndHeader::attachIdRefreshTokenToCookieAndHeader($response, $idRefreshToken['token'], $idRefreshToken['expiry'], $idRefreshTokenDomain, $idRefreshCookieSecure, $idRefreshCookiePath, $idRefreshTokenSameSite);
+        CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessToken['sameSite']);
+        CookieAndHeader::attachRefreshTokenToCookie($response, $refreshToken['token'], $refreshToken['expiry'], $refreshToken['domain'], $refreshToken['cookieSecure'], $refreshToken['cookiePath'], $refreshToken['sameSite']);
+        CookieAndHeader::attachIdRefreshTokenToCookieAndHeader($response, $idRefreshToken['token'], $idRefreshToken['expiry'], $idRefreshToken['domain'], $idRefreshToken['cookieSecure'], $idRefreshToken['cookiePath'], $idRefreshToken['sameSite']);
         if (isset($session['antiCsrfToken'])) {
             CookieAndHeader::attachAntiCsrfHeader($response, $session['antiCsrfToken']);
         }

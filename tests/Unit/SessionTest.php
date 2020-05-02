@@ -201,7 +201,7 @@ class SessionTest extends TestCase
     public function testManipulatingSessionData(): void
     {
         Utils::startST();
-        $session = SessionHandlingFunctions::createNewSession("userId", null, null);
+        $session = SessionHandlingFunctions::createNewSession("userId", [], []);
 
         $sessionData0 = SessionHandlingFunctions::getSessionData($session['session']['handle']);
         $this->assertTrue(count($sessionData0) === 0);

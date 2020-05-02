@@ -75,6 +75,12 @@ class HandshakeInfo
      * @var integer;
      */
     public $sessionExpiredStatusCode;
+
+    /**
+     * @var bool;
+     */
+    public static $TEST_READ_FROM_CACHE = false;
+
     /**
      * HandshakeInfo constructor.
      * @param $info
@@ -102,13 +108,15 @@ class HandshakeInfo
     }
 
     /**
+     * @param bool $hardReset
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
-    public static function reset()
+    public static function reset($hardReset = true)
     {
         if (App::environment("testing")) {
             self::$instance = null;
+            self::$TEST_READ_FROM_CACHE = false;
         } else {
             throw SuperTokensException::generateGeneralException("calling testing function in non testing env");
         }
@@ -122,7 +130,15 @@ class HandshakeInfo
     public static function getInstance()
     {
         if (!isset(self::$instance)) {
-            $response = Querier::getInstance()->sendPostRequest(Constants::HANDSHAKE, []);
+            $response = Utils::getFromCache(Constants::HANDSHAKE_INFO_CACHE_KEY.Querier::getInstance()->getApiVersion());
+            if (is_null($response)) {
+                $response = Querier::getInstance()->sendPostRequest(Constants::HANDSHAKE, []);
+                Utils::storeInCache(Constants::HANDSHAKE_INFO_CACHE_KEY.Querier::getInstance()->getApiVersion(), json_encode($response), Constants::HANDSHAKE_INFO_CACHE_TTL);
+                self::$TEST_READ_FROM_CACHE = false;
+            } else {
+                $response = json_decode($response, true);
+                self::$TEST_READ_FROM_CACHE = true;
+            }
             self::$instance = new HandshakeInfo($response);
         }
         return self::$instance;
@@ -131,11 +147,17 @@ class HandshakeInfo
     /**
      * @param string $newKey
      * @param integer $newExpiry
+     * @throws SuperTokensException
+     * @throws SuperTokensGeneralException
      */
     public function updateJwtSigningPublicKeyInfo($newKey, $newExpiry)
     {
         $this->jwtSigningPublicKey = $newKey;
         $this->jwtSigningPublicKeyExpiryTime = $newExpiry;
+        self::updateInCache([
+            "jwtSigningPublicKey" => $newKey,
+            "jwtSigningPublicKeyExpiryTime" => $newExpiry
+        ]);
     }
 
     /**
@@ -144,5 +166,19 @@ class HandshakeInfo
     public function getSessionExpiredStatusCode()
     {
         return $this->sessionExpiredStatusCode;
+    }
+
+    /**
+     * @param array $keyValuePairs
+     * @throws SuperTokensException
+     * @throws SuperTokensGeneralException
+     */
+    private static function updateInCache(array $keyValuePairs)
+    {
+        $response = Querier::getInstance()->sendPostRequest(Constants::HANDSHAKE, []);
+        foreach ($keyValuePairs as $key => $value) {
+            $response[$key] = $value;
+        }
+        Utils::storeInCache(Constants::HANDSHAKE_INFO_CACHE_KEY.Querier::getInstance()->getApiVersion(), json_encode($response), Constants::HANDSHAKE_INFO_CACHE_TTL);
     }
 }

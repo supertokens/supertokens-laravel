@@ -37,4 +37,8 @@ class Constants
     const DRIVER_NOT_COMPATIBLE_MESSAGE = "Current driver version is not compatible with the core version on your host/s";
     const SAME_SITE_COOKIE_DEFAULT_VALUE = "none";
     const SESSION_EXPIRED_STATUS_CODE = 440;
+    const HANDSHAKE_INFO_CACHE_KEY = "IO_SUPERTOKENS_HANDSHAKE_INFO";
+    const HANDSHAKE_INFO_CACHE_TTL = 300; // 5 minutes
+    const API_VERSION_CACHE_KEY = "IO_SUPERTOKENS_API_VERSION";
+    const API_VERSION_CACHE_TTL = 300; // 5 minutes
 }

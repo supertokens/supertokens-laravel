@@ -16,6 +16,8 @@
 
 namespace App;
 
+use Illuminate\Support\Facades\Cache;
+
 class Utils
 {
     public static $instance = null;
@@ -58,19 +60,22 @@ class Utils
 
     private function writeToFile($fname, $val)
     {
-        $myfile = fopen("$fname", "w");
-        $txt = (string)$val;
-        fwrite($myfile, $txt);
-        fclose($myfile);
+        error_log("write: ".$val);
+        try {
+            Cache::put($fname, (string)$val);
+            error_log("hello");
+        } catch (\Exception $e) {
+            error_log($e);
+        }
     }
 
     private function readFromFile($fname)
     {
-        $myfile = fopen($fname, "r");
+        error_log("read: ".Cache::get($fname));
         try {
-            return (int)(fread($myfile, filesize($fname)));
-        } finally {
-            fclose($myfile);
+            return (int)Cache::get($fname);
+        } catch (\Exception $e) {
+            error_log($e);
         }
     }
 }

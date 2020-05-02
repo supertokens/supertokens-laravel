@@ -16,6 +16,8 @@
 namespace SuperTokens\Helpers;
 
 use DateTime;
+use Illuminate\Support\Facades\Cache;
+use Psr\SimpleCache\InvalidArgumentException;
 
 class Utils
 {
@@ -63,11 +65,16 @@ class Utils
     }
 
     /**
-     * @param array $versions
-     * @return mixed
+     * @param array $versions1
+     * @param array $versions2
+     * @return string | null
      */
-    public static function findMaxVersion($versions)
+    public static function findMaxVersion($versions1, $versions2)
     {
+        $versions = array_values(array_intersect($versions1, $versions2));
+        if (empty($versions)) {
+            return null;
+        }
         $maxV = $versions[0];
         for ($i = 1; $i < count($versions); $i++) {
             $version = $versions[$i];
@@ -97,5 +104,47 @@ class Utils
             return $v1;
         }
         return $v2;
+    }
+
+    /**
+     * @param string $key
+     * @return string|null
+     */
+    public static function getFromCache(string $key)
+    {
+        try {
+            if (Cache::store("file")->has($key)) {
+                return Cache::store("file")->get($key);
+            }
+            return null;
+        } catch (InvalidArgumentException $e) {
+            return null;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * @param string $key
+     * @param string $value
+     * @param int $ttl
+     */
+    public static function storeInCache(string $key, string $value, int $ttl)
+    {
+        try {
+            Cache::store("file")->put($key, $value, $ttl);
+        } catch (\Exception $e) {
+        }
+    }
+
+    /**
+     * @param string $key
+     */
+    public static function removeFromCache(string $key)
+    {
+        try {
+            Cache::store("file")->forget($key);
+        } catch (\Exception $e) {
+        }
     }
 }

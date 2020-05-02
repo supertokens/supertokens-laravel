@@ -27,18 +27,11 @@ use function PHPUnit\Framework\assertEquals;
 
 class Querier
 {
-    public static $cv = null;
-    public static $sv = null;
-
     /**
      * @var Querier
      */
     private static $instance;
 
-    /**
-     * @var string
-     */
-    private static $apiVersion;
     /**
      * @var array
      */
@@ -72,9 +65,6 @@ class Querier
     {
         if (App::environment("testing")) {
             self::$instance = null;
-            self::$apiVersion = null;
-            self::$cv = null;
-            self::$sv = null;
         } else {
             throw SuperTokensException::generateGeneralException("calling testing function in non testing env");
         }
@@ -114,42 +104,23 @@ class Querier
      * @throws SuperTokensGeneralException
      */
 
-    // TODO: Change this to be something similar to how NodeJS does it? You have a function that takes two string arrays and returns the maximum version from them, so you can test that function independently and you won't need $cv and $sv.
     public function getApiVersion()
     {
-        if (!isset(self::$apiVersion) || ((App::environment("testing")) && !is_null(self::$cv) && !is_null(self::$sv))) {
-            $getAPISuccess = false;
-            try {
-                $coreVersionsResponse = $this->sendRequest(Constants::API_VERSION, "GET", [], function ($url, $data) {
-                    return Http::get($url);
-                });
-                $getAPISuccess = true;
-                $coreVersions = $coreVersionsResponse['versions'];
-                $supportedAPIVersions = Constants::SUPPORTED_CDI_VERSIONS;
-                if ((App::environment("testing")) && !is_null(self::$cv) && !is_null(self::$sv)) {
-                    $supportedAPIVersions = self::$sv;
-                    $coreVersions = self::$cv;
-                }
-                $commonVersions = array_values(array_intersect($supportedAPIVersions, $coreVersions));
-                if (empty($commonVersions)) {
-                    throw SuperTokensException::generateGeneralException(Constants::DRIVER_NOT_COMPATIBLE_MESSAGE);
-                }
-                self::$apiVersion = Utils::findMaxVersion($commonVersions);
-            } catch (SuperTokensGeneralException $e) {
-                // TODO: No need to do tryHello thing. Just see if the error is from request and is 404, then set it to 1.0
-                if ($getAPISuccess) {
-                    throw $e;
-                }
-                $tryHello = $this->sendRequest(Constants::HELLO, "GET", [], function ($url, $data) {
-                    return Http::get($url);
-                });
-                if ($tryHello !== "Hello\n") {
-                    throw $e;
-                }
-                self::$apiVersion = "1.0";
+        $apiVersion = Utils::getFromCache(Constants::API_VERSION_CACHE_KEY);
+        if (is_null($apiVersion)) {
+            $coreVersionsResponse = $this->sendRequest(Constants::API_VERSION, "GET", [], function ($url, $data) {
+                return Http::get($url);
+            });
+            $coreVersions = $coreVersionsResponse['versions'];
+            $supportedAPIVersions = Constants::SUPPORTED_CDI_VERSIONS;
+            $apiVersion = Utils::findMaxVersion($supportedAPIVersions, $coreVersions);
+            if (is_null($apiVersion)) {
+                throw SuperTokensException::generateGeneralException(Constants::DRIVER_NOT_COMPATIBLE_MESSAGE);
             }
+            Utils::storeInCache(Constants::API_VERSION_CACHE_KEY, $apiVersion, Constants::API_VERSION_CACHE_TTL);
+            // TODO: No need to do tryHello thing. Just see if the error is from request and is 404, then set it to 1.0
         }
-        return self::$apiVersion;
+        return $apiVersion;
     }
 
     /**
@@ -264,6 +235,9 @@ class Querier
                 $this->hostAliveForTesting = array_unique($this->hostAliveForTesting);
             }
             if ($response->clientError()) {
+                if ($path === Constants::API_VERSION && $response->status() === 404) {
+                    return ["versions" =>["1.0"]];
+                }
                 throw SuperTokensException::generateGeneralException("SuperTokens core threw an error for a " . $method . " request to path: '" . $path . "' with status code: " . $response->status() . " and message: " . $response->body());
             }
             $responseData = $response->json();

@@ -49,7 +49,7 @@ class SuperTokens
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
-    public static function createNewSession(Response $response, $userId, $jwtPayload = [], $sessionData = [])
+    public static function createNewSession(Response $response, string $userId, array $jwtPayload = [], array $sessionData = [])
     {
         $newSession = SessionHandlingFunctions::createNewSession($userId, $jwtPayload, $sessionData);
         CookieAndHeader::attachSessionToResponse($response, $newSession);
@@ -68,25 +68,13 @@ class SuperTokens
      */
     public static function getSession(Request $request, Response $response, $doAntiCsrfCheck)
     {
-        CookieAndHeader::saveFrontendInfoFromRequest($request);
-        $accessToken = CookieAndHeader::getAccessTokenFromCookie($request); // TODO: you are overwriting this variable later in this function. It can EASILY cause confusion. Please do not do that.
-        if (!isset($accessToken)) {
-            throw SuperTokensException::generateTryRefreshTokenException("access token missing in cookies");
-        }
         try {
-            $idRefreshToken = CookieAndHeader::getIdRefreshTokenFromCookie($request);
-            $antiCsrfToken = CookieAndHeader::getAntiCsrfHeader($request);
-            $newSession = SessionHandlingFunctions::getSession($accessToken, $antiCsrfToken, $doAntiCsrfCheck, $idRefreshToken);
-            if (isset($newSession['accessToken'])) {
-                $accessToken = $newSession['accessToken'];
-                $accessTokenSameSite = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
-                if (Querier::getInstance()->getApiVersion() !== "1.0") {
-                    $accessTokenSameSite = $accessToken['sameSite'];
-                }
-                CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessTokenSameSite);
-                $accessToken = $accessToken['token'];
+            $session = self::getSessionForMiddleware($request, $doAntiCsrfCheck, $response);
+            if ($session->updateAccessToken && count($session->accessTokenInfo) !== 0) {
+                $accessToken = $session->accessTokenInfo;
+                CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessToken['sameSite']);
             }
-            return new Session($accessToken, $newSession['session']['handle'], $newSession['session']['userId'], $newSession['session']['userDataInJWT'], $response);
+            return $session;
         } catch (SuperTokensUnauthorisedException $e) {
             $handshakeInfo = HandshakeInfo::getInstance();
             CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
@@ -96,27 +84,36 @@ class SuperTokens
 
     /**
      * @param Request $request
+     * @param Response $response
      * @param boolean $doAntiCsrfCheck
-     * @return array
+     * @return Session
      * @throws SuperTokensGeneralException
      * @throws SuperTokensTryRefreshTokenException
      * @throws SuperTokensException
      * @throws SuperTokensUnauthorisedException
      */
-    public static function getSessionForMiddleware(Request $request, $doAntiCsrfCheck)
+    public static function getSessionForMiddleware(Request $request, $doAntiCsrfCheck, $response = null)
     {
         CookieAndHeader::saveFrontendInfoFromRequest($request);
         $accessToken = CookieAndHeader::getAccessTokenFromCookie($request);
         if (!isset($accessToken)) {
             throw SuperTokensException::generateTryRefreshTokenException("access token missing in cookies");
         }
-        try {
-            $idRefreshToken = CookieAndHeader::getIdRefreshTokenFromCookie($request);
-            $antiCsrfToken = CookieAndHeader::getAntiCsrfHeader($request);
-            return SessionHandlingFunctions::getSession($accessToken, $antiCsrfToken, $doAntiCsrfCheck, $idRefreshToken);
-        } catch (SuperTokensUnauthorisedException $e) { // TODO: What is the point of this try, catch if you are just throwing $e?
-            throw $e;
+        $idRefreshToken = CookieAndHeader::getIdRefreshTokenFromCookie($request);
+        $antiCsrfToken = CookieAndHeader::getAntiCsrfHeader($request);
+        $newSession = SessionHandlingFunctions::getSession($accessToken, $antiCsrfToken, $doAntiCsrfCheck, $idRefreshToken);
+        $updateAccessToken = false;
+        if (isset($newSession['accessToken'])) {
+            $accessToken = $newSession['accessToken']['token'];
+            $updateAccessToken = true;
         }
+        $session = new Session($accessToken, $newSession['session']['handle'], $newSession['session']['userId'], $newSession['session']['userDataInJWT'], $response);
+        $session->updateAccessToken = $updateAccessToken;
+        if ($updateAccessToken) {
+            $session->accessTokenInfo = $newSession['accessToken'];
+        }
+        return $session;
+        // TODO: What is the point of this try, catch if you are just throwing $e?
     }
 
     /**

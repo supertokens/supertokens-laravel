@@ -24,7 +24,7 @@ use SuperTokens\Helpers\Constants;
 use SuperTokens\Helpers\HandshakeInfo;
 use SuperTokens\Helpers\Querier;
 use SuperTokens\SessionHandlingFunctions;
-use SuperTokens\SuperTokens;
+use SuperTokens\Helpers\Utils as SuperTokensUtils;
 
 class QuerierTest extends TestCase
 {
@@ -66,29 +66,15 @@ class QuerierTest extends TestCase
         Utils::startST();
         if (Querier::getInstance()->getApiVersion() !== "1.0") {
             $this->assertEquals(Utils::API_VERSION_TEST_BASIC_RESULT, Querier::getInstance()->getApiVersion());
-            Querier::$cv = Utils::API_VERSION_TEST_SINGLE_SUPPORTED_CV;
-            Querier::$sv = Utils::API_VERSION_TEST_SINGLE_SUPPORTED_SV;
-            $this->assertEquals(Utils::API_VERSION_TEST_SINGLE_SUPPORTED_RESULT, Querier::getInstance()->getApiVersion());
-            Querier::$cv = Utils::API_VERSION_TEST_MULTIPLE_SUPPORTED_CV;
-            Querier::$sv = Utils::API_VERSION_TEST_MULTIPLE_SUPPORTED_SV;
-            $this->assertEquals(Utils::API_VERSION_TEST_MULTIPLE_SUPPORTED_RESULT, Querier::getInstance()->getApiVersion());
-            Querier::$cv = Utils::API_VERSION_TEST_NON_SUPPORTED_CV;
-            Querier::$sv = Utils::API_VERSION_TEST_NON_SUPPORTED_SV;
-            try {
-                Querier::getInstance()->getApiVersion();
-                $this->assertTrue(false);
-            } catch (SuperTokensGeneralException $e) {
-                $this->assertEquals(Constants::DRIVER_NOT_COMPATIBLE_MESSAGE, $e->getMessage());
-            }
-            Querier::reset();
-            Querier::$cv = Utils::API_VERSION_TEST_NON_SUPPORTED_CV;
-            Querier::$sv = Utils::API_VERSION_TEST_NON_SUPPORTED_SV;
-            try {
-                SessionHandlingFunctions::createNewSession("userId", [], []);
-                $this->assertTrue(false);
-            } catch (SuperTokensGeneralException $e) {
-                $this->assertEquals(Constants::DRIVER_NOT_COMPATIBLE_MESSAGE, $e->getMessage());
-            }
+            $cv = Utils::API_VERSION_TEST_SINGLE_SUPPORTED_CV;
+            $sv = Utils::API_VERSION_TEST_SINGLE_SUPPORTED_SV;
+            $this->assertEquals(Utils::API_VERSION_TEST_SINGLE_SUPPORTED_RESULT, SuperTokensUtils::findMaxVersion($cv, $sv));
+            $cv = Utils::API_VERSION_TEST_MULTIPLE_SUPPORTED_CV;
+            $sv = Utils::API_VERSION_TEST_MULTIPLE_SUPPORTED_SV;
+            $this->assertEquals(Utils::API_VERSION_TEST_MULTIPLE_SUPPORTED_RESULT, SuperTokensUtils::findMaxVersion($cv, $sv));
+            $cv = Utils::API_VERSION_TEST_NON_SUPPORTED_CV;
+            $sv = Utils::API_VERSION_TEST_NON_SUPPORTED_SV;
+            $this->assertNull(SuperTokensUtils::findMaxVersion($cv, $sv));
         }
     }
 

@@ -25,10 +25,15 @@ class SessionVerify
      * @param Closure $next
      * @param string $antiCsrfCheck
      * @return mixed
+     * @throws SuperTokensException
+     * @throws SuperTokensGeneralException
      */
     public function handle(Request $request, Closure $next, string $antiCsrfCheck = null)
     {
-        try {
+//        try {
+        if ($request->path() === HandshakeInfo::getInstance()->refreshTokenPath && $request->isMethod("post")) {
+            $response = $next($request);
+        } else {
             try {
                 if (!isset($antiCsrfCheck)) {
                     $antiCsrfCheckBoolean = !($request->isMethod('get'));
@@ -38,63 +43,58 @@ class SessionVerify
                 $session = SuperTokens::getSessionForMiddleware($request, $antiCsrfCheckBoolean);
             } catch (SuperTokensTryRefreshTokenException | SuperTokensUnauthorisedException $e) {
                 $response = new Response();
-                $message = "Unauthorised";
-                if ($response->exception instanceof SuperTokensTryRefreshTokenException) {
-                    $message = "Try Refresh Token";
-                }
+                $message = "Try Refresh Token";
                 $handshakeInfo = HandshakeInfo::getInstance();
-                // TODO: If try refresh token, we DO NOT clear cookies!
-                CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+                if ($response->exception instanceof SuperTokensUnauthorisedException) {
+                    $message = "Unauthorised";
+                    CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+                }
                 $response->setStatusCode($handshakeInfo->getSessionExpiredStatusCode())->setContent($message);  // TODO: PHPStorm giving in node, in session.ts, change revokeSessionUsingSessionHandle -> revokeSession and revokeMultipleSessionsUsingSessionHandles -> revokeMultipleSessions
                 return $response;
-            } catch (SuperTokensGeneralException | SuperTokensException $e) {
-                // TODO: How do you know this is the right response to send? Is there no error handler to call instead?
-                $response = new Response();
-                $response->setStatusCode(500)->setContent($e->getMessage());
-                return $response;
+                //            } catch (SuperTokensGeneralException | SuperTokensException $e) {
+    //                // TODO: How do you know this is the right response to send? Is there no error handler to call instead?
+    //                $response = new Response();
+    //                $response->setStatusCode(500)->setContent($e->getMessage());
+    //                return $response;
             }
-
-            // TODO: This class takes accessToken as the first param to the constructor! You need to add tests for this middleware.. How is your example project even working?
-            $session = new Session($session['session']['handle'], $session['session']['userId'], $session['session']['userDataInJWT']);
 
             $request->merge(['supertokenSession' => $session]);
             $response = $next($request);
 
-            // TODO: I don't undertsand this whole if else if thing.. Please explain what you are doing here.
-            if (!empty($response->exception)) {
-                if (
-                    !($response->exception instanceof SuperTokensTryRefreshTokenException)
-                    &&
-                    !($response->exception instanceof SuperTokensUnauthorisedException)
-                ) {
-                    if (isset($session['accessToken'])) {
-                        $accessToken = $session['accessToken'];
-                        $accessTokenSameSite = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
-                        if (Querier::getInstance()->getApiVersion() !== "1.0") {
-                            $accessTokenSameSite = $accessToken['sameSite'];
-                        }
-                        CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessTokenSameSite);
-                    }
-                } elseif (
-                    $response->exception instanceof SuperTokensTryRefreshTokenException
-                    ||
-                    $response->exception instanceof SuperTokensUnauthorisedException
-                ) {
-                    $message = "Unauthorised";
-                    if ($response->exception instanceof SuperTokensTryRefreshTokenException) {
-                        $message = "Try Refresh Token";
-                    }
-                    $handshakeInfo = HandshakeInfo::getInstance();
-                    CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
-                    $response->setStatusCode($handshakeInfo->getSessionExpiredStatusCode())->setContent($message);
-                }
+            if ($session->updateAccessToken && count($session->accessTokenInfo) !== 0 && !$session->removeCookies) {
+                $accessToken = $session->accessTokenInfo;
+                CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessToken['sameSite']);
             }
-            return $response;
-        } catch (SuperTokensGeneralException | SuperTokensException $e) {
-            // TODO: Why do you need this try - catch?
-            $response = new Response();
-            $response->setStatusCode(500)->setContent($e->getMessage());
-            return $response;
+
+            if ($session->removeCookies) {
+                $handshakeInfo = HandshakeInfo::getInstance();
+                CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+            }
         }
+
+        // TODO: I don't undertsand this whole if else if thing.. Please explain what you are doing here.
+        if (!empty($response->exception)) {
+            if (
+                $response->exception instanceof SuperTokensTryRefreshTokenException
+                ||
+                $response->exception instanceof SuperTokensUnauthorisedException
+            ) {
+                $message = "Try Refresh Token";
+                $handshakeInfo = HandshakeInfo::getInstance();
+                if ($response->exception instanceof SuperTokensUnauthorisedException) {
+                    $message = "Unauthorised";
+                    CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+                }
+                $response->setStatusCode($handshakeInfo->getSessionExpiredStatusCode())->setContent($message);
+            }
+        }
+        return $response;
+//        } catch (SuperTokensGeneralException | SuperTokensException $e) {
+//            // TODO: Why do you need this try - catch?
+//            // Because get handshake info can throw these exceptions. Either we make this handler throw those error or catch them here
+//            $response = new Response();
+//            $response->setStatusCode(500)->setContent($e->getMessage());
+//            return $response;
+//        }
     }
 }

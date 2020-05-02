@@ -38,6 +38,16 @@ class Session
     public $removeCookies;
 
     /**
+     * @var boolean;
+     */
+    public $updateAccessToken;
+
+    /**
+     * @var array;
+     */
+    public $accessTokenInfo;
+
+    /**
      * @var
      */
     private $accessToken;
@@ -73,6 +83,8 @@ class Session
         $this->response = $response;
         $this->accessToken = $accessToken;
         $this->removeCookies = false;
+        $this->updateAccessToken = false;
+        $this->accessTokenInfo = [];
     }
 
     /**
@@ -205,8 +217,13 @@ class Session
         if (isset($queryResponse['accessToken'])) {
             $accessToken = $queryResponse['accessToken'];
             $this->accessToken = $accessToken['token'];
-            $accessTokenSameSite = $accessToken['sameSite'];
-            CookieAndHeader::attachAccessTokenToCookie($this->response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessTokenSameSite);
+            if (isset($this->response)) {
+                // it will come here if the user is not using middleware. If the user is not using the middleware, the response variable will be set in the session object
+                CookieAndHeader::attachAccessTokenToCookie($this->response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessToken['sameSite']);
+            } else {
+                $this->updateAccessToken = true;
+                $this->accessTokenInfo = $accessToken;
+            }
         }
     }
 }

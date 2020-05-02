@@ -82,13 +82,13 @@ class SessionHandlingFunctions
      * @throws SuperTokensException
      * @throws SuperTokensGeneralException
      */
-    public static function createNewSession($userId, $jwtPayload, $sessionData)
+    public static function createNewSession(string $userId, array $jwtPayload, array $sessionData)
     {
         // TODO: Do not accept null in jwtPayload and sessionData? Also, add typings to functions?
-        if (!isset($jwtPayload) || count($jwtPayload) === 0) {
+        if (count($jwtPayload) === 0) {
             $jwtPayload = new ArrayObject();
         }
-        if (!isset($sessionData) || count($sessionData) === 0) {
+        if (count($sessionData) === 0) {
             $sessionData = new ArrayObject();
         }
         $response = Querier::getInstance()->sendPostRequest(Constants::SESSION, [
@@ -103,6 +103,14 @@ class SessionHandlingFunctions
         unset($response['jwtSigningPublicKey']);
         unset($response['jwtSigningPublicKeyExpiryTime']);
         // TODO: set sameSite to none in case of cdi 1.0 here. This is tha layer that is querying the API, so it should be the one to make the response "uniform"
+        if (Querier::getInstance()->getApiVersion() === "1.0") {
+            $response['accessToken']['sameSite'] = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
+            $response['refreshToken']['sameSite'] = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
+            $response['idRefreshToken']['sameSite'] = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
+            $response['idRefreshToken']['domain'] = $response['accessToken']['domain'];
+            $response['idRefreshToken']['cookieSecure'] = $response['accessToken']['cookieSecure'];
+            $response['idRefreshToken']['cookiePath'] = $response['accessToken']['cookiePath'];
+        }
         return $response;
     }
 
@@ -175,6 +183,9 @@ class SessionHandlingFunctions
             unset($response['jwtSigningPublicKey']);
             unset($response['jwtSigningPublicKeyExpiryTime']);
             // TODO: if cdi 1.0, add none
+            if (Querier::getInstance()->getApiVersion() === "1.0") {
+                $response['accessToken']['sameSite'] = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
+            }
             return $response;
         } elseif ($response['status'] === "UNAUTHORISED") {
             throw SuperTokensException::generateUnauthorisedException($response['message']);
@@ -198,6 +209,14 @@ class SessionHandlingFunctions
         ]);
         if ($response['status'] === "OK") {
             unset($response['status']);
+            if (Querier::getInstance()->getApiVersion() === "1.0") {
+                $response['accessToken']['sameSite'] = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
+                $response['refreshToken']['sameSite'] = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
+                $response['idRefreshToken']['sameSite'] = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
+                $response['idRefreshToken']['domain'] = $response['accessToken']['domain'];
+                $response['idRefreshToken']['cookieSecure'] = $response['accessToken']['cookieSecure'];
+                $response['idRefreshToken']['cookiePath'] = $response['accessToken']['cookiePath'];
+            }
             return $response;
         } elseif ($response['status'] === "UNAUTHORISED") {
             throw SuperTokensException::generateUnauthorisedException($response['message']);
