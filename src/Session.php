@@ -63,6 +63,21 @@ class Session
      * @var array;
      */
     public $newAccessTokenInfo;
+
+    /**
+     * @var array;
+     */
+    public $newRefreshTokenInfo;
+
+    /**
+     * @var array;
+     */
+    public $newIdRefreshTokenInfo;
+
+    /**
+     * @var array;
+     */
+    public $newAntiCsrfToken;
     // used to tell the middleware what to do.
 
     /**
@@ -82,6 +97,9 @@ class Session
         $this->accessToken = $accessToken;
         $this->removeCookies = false;
         $this->newAccessTokenInfo = [];
+        $this->newRefreshTokenInfo = [];
+        $this->newIdRefreshTokenInfo = [];
+        $this->newAntiCsrfToken = null;
     }
 
     /**
@@ -112,8 +130,6 @@ class Session
             if (isset($this->response)) {
                 $handshakeInfo = HandshakeInfo::getInstance();
                 CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
-            } else {
-                $this->removeCookies = true;
             }
             throw $e;
         }
@@ -139,8 +155,6 @@ class Session
                 // it will come here if the user is not using middleware. If the user is not using the middleware, the response variable will be set in the session object
                 $handshakeInfo = HandshakeInfo::getInstance();
                 CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
-            } else {
-                $this->removeCookies = true;
             }
             throw $e;
         }
@@ -201,8 +215,6 @@ class Session
                 // it will come here if the user is not using middleware. If the user is not using the middleware, the response variable will be set in the session object
                 $handshakeInfo = HandshakeInfo::getInstance();
                 CookieAndHeader::clearSessionFromCookie($this->response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
-            } else {
-                $this->removeCookies = true;
             }
             throw new SuperTokensUnauthorisedException($queryResponse['message']);
         }

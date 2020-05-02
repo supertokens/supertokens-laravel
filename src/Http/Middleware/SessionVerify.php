@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use SuperTokens\Exceptions\SuperTokensException;
 use SuperTokens\Exceptions\SuperTokensGeneralException;
+use SuperTokens\Exceptions\SuperTokensTokenTheftException;
 use SuperTokens\Exceptions\SuperTokensTryRefreshTokenException;
 use SuperTokens\Exceptions\SuperTokensUnauthorisedException;
 use SuperTokens\Helpers\Constants;
@@ -17,7 +18,6 @@ use SuperTokens\Helpers\Querier;
 use SuperTokens\Session;
 use SuperTokens\SuperTokens;
 
-// TODO: rename to supertokens or something.. user should know this as supertokens middleware (not just verify) - also in docs
 class SessionVerify
 {
     /**
@@ -48,13 +48,8 @@ class SessionVerify
                     $message = "Unauthorised";
                     CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
                 }
-                $response->setStatusCode($handshakeInfo->getSessionExpiredStatusCode())->setContent($message);  // TODO: PHPStorm giving in node, in session.ts, change revokeSessionUsingSessionHandle -> revokeSession and revokeMultipleSessionsUsingSessionHandles -> revokeMultipleSessions
+                $response->setStatusCode($handshakeInfo->getSessionExpiredStatusCode())->setContent($message);
                 return $response;
-                //            } catch (SuperTokensGeneralException | SuperTokensException $e) {
-    //                // TODO: How do you know this is the right response to send? Is there no error handler to call instead?
-    //                $response = new Response();
-    //                $response->setStatusCode(500)->setContent($e->getMessage());
-    //                return $response;
             }
 
             $request->merge(['supertokenSession' => $session]);
@@ -97,3 +92,65 @@ class SessionVerify
 //        }
     }
 }
+
+
+
+//class SessionVerify
+//{
+//    /**
+//     * @param Request $request
+//     * @param Closure $next
+//     * @param string $antiCsrfCheck
+//     * @return mixed
+//     * @throws SuperTokensGeneralException
+//     * @throws SuperTokensTryRefreshTokenException
+//     * @throws SuperTokensUnauthorisedException
+//     * @throws SuperTokensTokenTheftException
+//     */
+//    public function handle(Request $request, Closure $next, string $antiCsrfCheck = null)
+//    {
+//        $session = null;
+//        $response = null;
+//        if ($request->path() === HandshakeInfo::getInstance()->refreshTokenPath &&
+//            $request->isMethod("post")) {
+//
+//            $session = SuperTokens::refreshSession($request, null);
+//            $response = $next($request);
+//
+//        } else {
+//
+//            if (!isset($antiCsrfCheck)) {
+//                $antiCsrfCheckBoolean = !($request->isMethod('get'));   // TODO: and method is not trace and not options
+//            } else {
+//                $antiCsrfCheckBoolean = strtolower($antiCsrfCheck) === "true";
+//            }
+//            $session = SuperTokens::getSession($request, null, $antiCsrfCheckBoolean);
+//            $request->merge(['supertokens' => $session]);
+//            $response = $next($request);
+//
+//        }
+//
+//        if ($session->removeCookies) {
+//            $handshakeInfo = HandshakeInfo::getInstance();
+//            CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+//        } else {
+//            if (count($session->newAccessTokenInfo) !== 0) {
+//                $accessToken = $session->newAccessTokenInfo;
+//                CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessToken['sameSite']);
+//            }
+//            if (count($session->newRefreshTokenInfo) !== 0) {
+//                $refreshToken = $session->newRefreshTokenInfo;
+//                CookieAndHeader::attachRefreshTokenToCookie($response, $refreshToken['token'], $refreshToken['expiry'], $refreshToken['domain'], $refreshToken['cookieSecure'], $refreshToken['cookiePath'], $refreshToken['sameSite']);
+//            }
+//            if (count($session->newIdRefreshTokenInfo) !== 0) {
+//                $idRefreshToken = $session->newIdRefreshTokenInfo;
+//                CookieAndHeader::attachIdRefreshTokenToCookieAndHeader($response, $idRefreshToken['token'], $idRefreshToken['expiry'], $idRefreshToken['domain'], $idRefreshToken['cookieSecure'], $idRefreshToken['cookiePath'], $idRefreshToken['sameSite']);
+//            }
+//            if (isset($session->newAntiCsrfToken)) {
+//                CookieAndHeader::attachAntiCsrfHeader($response, $session->newAntiCsrfToken);
+//            }
+//        }
+//
+//        return $response;
+//    }
+//}
