@@ -137,6 +137,9 @@ Route::options("/revokeAll", function (Request $request) {
 
 Route::middleware("supertokens.middleware:true")->post("/refresh", function (Request $request) {
     $res = new \Illuminate\Http\Response();
+    \App\Utils::getInstance()->incrementRefreshCount();
+    $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
+    $res->header("Access-Control-Allow-Credentials", "true");
     return $res->setContent("refresh success");
 });
 
