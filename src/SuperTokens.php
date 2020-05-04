@@ -300,6 +300,8 @@ class SuperTokens
                 SuperTokens::revokeSession($exception->getSessionHandle());
                 return $response->setStatusCode($handshakeInfo->sessionExpiredStatusCode)->setContent("token theft detected");
             }
+        } elseif ($exception instanceof SuperTokensGeneralException) {
+            throw $exception->getPrevious();
         } else {
             throw $exception;
         }

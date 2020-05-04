@@ -27,6 +27,9 @@ class Middleware
      */
     public function handle(Request $request, Closure $next, string $antiCsrfCheck = null)
     {
+        if (($request->isMethod('options')) || ($request->isMethod('trace'))) {
+            return $next($request);
+        }
         $session = null;
         $response = null;
         if (
@@ -41,12 +44,11 @@ class Middleware
             $request->isMethod("post")
         ) {
             $session = SuperTokens::refreshSession($request, null);
+            $request->merge(['supertokens' => $session]);
             $response = $next($request);
-        } elseif (($request->isMethod('options')) || ($request->isMethod('trace'))) {
-            return $next($response);
         } else {
             if (!isset($antiCsrfCheck)) {
-                $antiCsrfCheckBoolean = !($request->isMethod('get'));   // TODO: and method is not trace and not options
+                $antiCsrfCheckBoolean = !($request->isMethod('get'));
             } else {
                 $antiCsrfCheckBoolean = strtolower($antiCsrfCheck) === "true";
             }
