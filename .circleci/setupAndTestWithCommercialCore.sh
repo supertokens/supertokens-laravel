@@ -71,4 +71,4 @@ cd ../
 echo $SUPERTOKENS_API_KEY > apiPassword
 ./utils/setupTestEnvLocal
 cd ../project/
-./vendor/bin/phpunit
+make test

@@ -71,5 +71,4 @@ cd ../
 echo $SUPERTOKENS_API_KEY > apiPassword
 ./utils/setupTestEnvLocal
 cd ../project/
-export SUPERTOKENS_PATH=../supertokens-root
-./vendor/bin/phpunit
+SUPERTOKENS_PATH=../supertokens-root make test
