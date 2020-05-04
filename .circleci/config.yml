@@ -8,6 +8,7 @@ jobs:
           fingerprints:
             - "46:31:70:29:8c:9b:ab:66:b6:7b:fe:42:9f:45:28:90"
       - checkout
+      - run: apt-get update
       - run: apt install php7.3-mbstring -y
       - run: composer install
       - run: make test
