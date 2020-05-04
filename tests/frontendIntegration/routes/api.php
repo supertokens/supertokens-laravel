@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Config;
+use SuperTokens\SuperTokens;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,7 +23,7 @@ Route::options("/login", function (Request $request) {
     $res = new \Illuminate\Http\Response();
     $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     $res->header("Access-Control-Allow-Headers", "Content-Type");
-    \SuperTokens\SuperTokens::setRelevantHeadersForOptionsAPI($res);
+    SuperTokens::setRelevantHeadersForOptionsAPI($res);
     return $res;
 });
 
@@ -30,7 +31,7 @@ Route::post("/login", function (Request $request) {
     $res = new \Illuminate\Http\Response();
     $data = $request->json()->all();
     $userId = $data["userId"];
-    \SuperTokens\SuperTokens::createNewSession($res, $userId);
+    SuperTokens::createNewSession($res, $userId);
     $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     $res->header("Access-Control-Allow-Credentials", "true");
     return $res->setContent($userId);
@@ -58,15 +59,14 @@ Route::options("/multipleInterceptors", function (Request $request) {
     $res = new \Illuminate\Http\Response();
     $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     $res->header("Access-Control-Allow-Headers", "Content-Type");
-    \SuperTokens\SuperTokens::setRelevantHeadersForOptionsAPI($res);
+    SuperTokens::setRelevantHeadersForOptionsAPI($res);
     return $res;
 });
 
-Route::get("/", function (Request $request) {
+Route::middleware("supertokens.middleware:true")->get("/", function (Request $request) {
     $res = new \Illuminate\Http\Response();
     try {
         \App\Utils::getInstance()->incrementSessionCount();
-        \SuperTokens\SuperTokens::getSession($request, $res, true);
         $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
         $res->header("Access-Control-Allow-Credentials", "true");
         $res->header("Cache-Control", "no-cache, private");
@@ -82,7 +82,7 @@ Route::options("/", function (Request $request) {
     $res = new \Illuminate\Http\Response();
     $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     $res->header("Access-Control-Allow-Headers", "Content-Type");
-    \SuperTokens\SuperTokens::setRelevantHeadersForOptionsAPI($res);
+    SuperTokens::setRelevantHeadersForOptionsAPI($res);
     return $res;
 });
 
@@ -98,73 +98,53 @@ Route::options("/testing", function (Request $request) {
     $res = new \Illuminate\Http\Response();
     $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     $res->header("Access-Control-Allow-Headers", "Content-Type");
-    \SuperTokens\SuperTokens::setRelevantHeadersForOptionsAPI($res);
+    SuperTokens::setRelevantHeadersForOptionsAPI($res);
     return $res;
 });
 
-Route::post("/logout", function (Request $request) {
+Route::middleware("supertokens.middleware:true")->post("/logout", function (Request $request) {
     $res = new \Illuminate\Http\Response();
-    try {
-        $session = \SuperTokens\SuperTokens::getSession($request, $res, true);
-        $session->revokeSession($res);
-        $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
-        $res->header("Access-Control-Allow-Credentials", "true");
-        return $res->setContent("success");
-    } catch (Exception $err) {
-        return $res->setStatusCode(440);
-    }
+    $session = $request->request->get('supertokens');
+    $session->revokeSession($res);
+    $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
+    $res->header("Access-Control-Allow-Credentials", "true");
+    return $res->setContent("success");
 });
 
 Route::options("/logout", function (Request $request) {
     $res = new \Illuminate\Http\Response();
     $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     $res->header("Access-Control-Allow-Headers", "Content-Type");
-    \SuperTokens\SuperTokens::setRelevantHeadersForOptionsAPI($res);
+    SuperTokens::setRelevantHeadersForOptionsAPI($res);
     return $res;
 });
 
-Route::post("/revokeAll", function (Request $request) {
+Route::middleware("supertokens.middleware:true")->post("/revokeAll", function (Request $request) {
     $res = new \Illuminate\Http\Response();
-    try {
-        $session = \SuperTokens\SuperTokens::getSession($request, $res, true);
-        $userId = $session->getUserId();
-        \SuperTokens\SuperTokens::revokeAllSessionsForUser($userId);
-        return $res->setContent("success");
-    } catch (Exception $err) {
-        return $res->setStatusCode(440);
-    }
+    $session = $request->request->get('supertokens');
+    $userId = $session->getUserId();
+    SuperTokens::revokeAllSessionsForUser($userId);
+    return $res->setContent("success");
 });
 
 Route::options("/revokeAll", function (Request $request) {
     $res = new \Illuminate\Http\Response();
     $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     $res->header("Access-Control-Allow-Headers", "Content-Type");
-    \SuperTokens\SuperTokens::setRelevantHeadersForOptionsAPI($res);
+    SuperTokens::setRelevantHeadersForOptionsAPI($res);
     return $res;
 });
 
-Route::post("/refresh", function (Request $request) {
-    error_log("REFRESH!");
+Route::middleware("supertokens.middleware:true")->post("/refresh", function (Request $request) {
     $res = new \Illuminate\Http\Response();
-    try {
-        \SuperTokens\SuperTokens::refreshSession($request, $res);
-        \App\Utils::getInstance()->incrementRefreshCount();
-        $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
-        $res->header("Access-Control-Allow-Credentials", "true");
-        return $res->setContent("refresh success");
-    } catch (Exception $err) {
-        error_log($err);
-        $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
-        $res->header("Access-Control-Allow-Credentials", "true");
-        return $res->setStatusCode(440);
-    }
+    return $res->setContent("refresh success");
 });
 
 Route::options("/refresh", function (Request $request) {
     $res = new \Illuminate\Http\Response();
     $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     $res->header("Access-Control-Allow-Headers", "Content-Type");
-    \SuperTokens\SuperTokens::setRelevantHeadersForOptionsAPI($res);
+    SuperTokens::setRelevantHeadersForOptionsAPI($res);
     return $res;
 });
 
@@ -178,7 +158,7 @@ Route::options("/refreshCalledTime", function (Request $request) {
     $res = new \Illuminate\Http\Response();
     $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     $res->header("Access-Control-Allow-Headers", "Content-Type");
-    \SuperTokens\SuperTokens::setRelevantHeadersForOptionsAPI($res);
+    SuperTokens::setRelevantHeadersForOptionsAPI($res);
     return $res;
 });
 
@@ -192,7 +172,7 @@ Route::options("/getSessionCalledTime", function (Request $request) {
     $res = new \Illuminate\Http\Response();
     $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     $res->header("Access-Control-Allow-Headers", "Content-Type");
-    \SuperTokens\SuperTokens::setRelevantHeadersForOptionsAPI($res);
+    SuperTokens::setRelevantHeadersForOptionsAPI($res);
     return $res;
 });
 
@@ -206,7 +186,7 @@ Route::options("/getPackageVersion", function (Request $request) {
     $res = new \Illuminate\Http\Response();
     $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     $res->header("Access-Control-Allow-Headers", "Content-Type");
-    \SuperTokens\SuperTokens::setRelevantHeadersForOptionsAPI($res);
+    SuperTokens::setRelevantHeadersForOptionsAPI($res);
     return $res;
 });
 
@@ -218,7 +198,7 @@ Route::options("/ping", function (Request $request) {
     $res = new \Illuminate\Http\Response();
     $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     $res->header("Access-Control-Allow-Headers", "Content-Type");
-    \SuperTokens\SuperTokens::setRelevantHeadersForOptionsAPI($res);
+    SuperTokens::setRelevantHeadersForOptionsAPI($res);
     return $res;
 });
 
@@ -232,7 +212,7 @@ Route::options("/testHeader", function (Request $request) {
     $res = new \Illuminate\Http\Response();
     $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     $res->header("Access-Control-Allow-Headers", "Content-Type");
-    \SuperTokens\SuperTokens::setRelevantHeadersForOptionsAPI($res);
+    SuperTokens::setRelevantHeadersForOptionsAPI($res);
     return $res;
 });
 
@@ -246,7 +226,7 @@ Route::options("/checkDeviceInfo", function (Request $request) {
     $res = new \Illuminate\Http\Response();
     $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     $res->header("Access-Control-Allow-Headers", "Content-Type");
-    \SuperTokens\SuperTokens::setRelevantHeadersForOptionsAPI($res);
+    SuperTokens::setRelevantHeadersForOptionsAPI($res);
     return $res;
 });
 
@@ -258,7 +238,7 @@ Route::options("/checkAllowCredentials", function (Request $request) {
     $res = new \Illuminate\Http\Response();
     $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     $res->header("Access-Control-Allow-Headers", "Content-Type");
-    \SuperTokens\SuperTokens::setRelevantHeadersForOptionsAPI($res);
+    SuperTokens::setRelevantHeadersForOptionsAPI($res);
     return $res;
 });
 
@@ -270,6 +250,6 @@ Route::options("/testError", function (Request $request) {
     $res = new \Illuminate\Http\Response();
     $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     $res->header("Access-Control-Allow-Headers", "Content-Type");
-    \SuperTokens\SuperTokens::setRelevantHeadersForOptionsAPI($res);
+    SuperTokens::setRelevantHeadersForOptionsAPI($res);
     return $res;
 });

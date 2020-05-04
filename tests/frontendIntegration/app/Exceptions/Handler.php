@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use \SuperTokens\SuperTokens;
 
 class Handler extends ExceptionHandler
 {
@@ -50,6 +51,22 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        try {
+            return SuperTokens::handleError($request, $exception, [
+                'onUnauthorised' => function ($exception, $request, $response) {
+                    return $response->setStatusCode(440)->setContent("Please login again");
+                },
+                'onTryRefreshToken' => function ($exception, $request, $response) {
+                    return $response->setStatusCode(440)->setContent("Call the refresh API");
+                },
+                'onTokenTheftDetected' => function ($sessionHandle, $userId, $request, $response) {
+                    SuperTokens::revokeSession($sessionHandle);
+                    return $response->setStatusCode(440)->setContent("You are being attacked");
+                }
+            ]);
+        } catch (\Exception $err) {
+            $exception = $err;
+        }
         return parent::render($request, $exception);
     }
 }

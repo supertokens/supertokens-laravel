@@ -27,6 +27,7 @@ use SuperTokens\Exceptions\SuperTokensUnauthorisedException;
 use SuperTokens\Exceptions\SuperTokensTryRefreshTokenException;
 use SuperTokens\Helpers\HandshakeInfo;
 use SuperTokens\Helpers\Querier;
+use Throwable;
 
 class SuperTokens
 {
@@ -74,7 +75,7 @@ class SuperTokens
      * @throws SuperTokensTryRefreshTokenException
      * @throws SuperTokensUnauthorisedException
      */
-    public static function getSession(Request $request, Response $response, $doAntiCsrfCheck)
+    public static function getSession(Request $request, $response, $doAntiCsrfCheck)
     {
         // $response is null if this is being called from the middleware
         CookieAndHeader::saveFrontendInfoFromRequest($request);
@@ -122,7 +123,7 @@ class SuperTokens
      * @throws SuperTokensUnauthorisedException
      * @throws SuperTokensTokenTheftException
  */
-    public static function refreshSession(Request $request, Response $response)
+    public static function refreshSession(Request $request, $response)
     {
         // $response is null if this is being called from the middleware
         CookieAndHeader::saveFrontendInfoFromRequest($request);
@@ -261,5 +262,46 @@ class SuperTokens
     public static function updateJWTPayload($sessionHandle, $newJWTPayload)
     {
         SessionHandlingFunctions::updateJWTPayload($sessionHandle, $newJWTPayload);
+    }
+
+    /**
+     * @param Request $request
+     * @param Throwable $exception
+     * @param array $callbacks
+     * @return mixed
+     * @throws Throwable
+     */
+    public static function handleError(Request $request, Throwable $exception, $callbacks = [])
+    {
+        if ($exception instanceof SuperTokensUnauthorisedException) {
+            $response = new Response();
+            $handshakeInfo = HandshakeInfo::getInstance();
+            CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+            if (array_key_exists('onUnauthorised', $callbacks)) {
+                return $callbacks['onUnauthorised']($exception, $request, $response);
+            } else {
+                return $response->setStatusCode($handshakeInfo->sessionExpiredStatusCode)->setContent("unauthorised");
+            }
+        } elseif ($exception instanceof SuperTokensTryRefreshTokenException) {
+            $response = new Response();
+            $handshakeInfo = HandshakeInfo::getInstance();
+            if (array_key_exists('onTryRefreshToken', $callbacks)) {
+                return $callbacks['onTryRefreshToken']($exception, $request, $response);
+            } else {
+                return $response->setStatusCode($handshakeInfo->sessionExpiredStatusCode)->setContent("try refresh token");
+            }
+        } elseif ($exception instanceof SuperTokensTokenTheftException) {
+            $response = new Response();
+            $handshakeInfo = HandshakeInfo::getInstance();
+            CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+            if (array_key_exists('onTokenTheftDetected', $callbacks)) {
+                return $callbacks['onTokenTheftDetected']($exception->getSessionHandle(), $exception->getUserId(), $request, $response);
+            } else {
+                SuperTokens::revokeSession($exception->getSessionHandle());
+                return $response->setStatusCode($handshakeInfo->sessionExpiredStatusCode)->setContent("token theft detected");
+            }
+        } else {
+            throw $exception;
+        }
     }
 }
