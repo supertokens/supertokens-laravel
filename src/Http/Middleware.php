@@ -34,11 +34,11 @@ class Middleware
         $response = null;
         if (
             (
-                $request->path() === HandshakeInfo::getInstance()->refreshTokenPath
+                '/'.$request->path() === HandshakeInfo::getInstance()->refreshTokenPath
                 ||
-                $request->path() === HandshakeInfo::getInstance()->refreshTokenPath.'/'
+                '/'.$request->path() === HandshakeInfo::getInstance()->refreshTokenPath.'/'
                 ||
-                $request->path().'/' === HandshakeInfo::getInstance()->refreshTokenPath
+                '/'.$request->path().'/' === HandshakeInfo::getInstance()->refreshTokenPath
             )
             &&
             $request->isMethod("post")
