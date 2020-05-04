@@ -82,7 +82,6 @@ class CookieAndHeaderTest extends TestCase
         $this->assertEquals($cookieValue, $value);
     }
 
-    /** @test */
     public function testSetOptionsHeadersApi(): void
     {
         $response = new Response();
