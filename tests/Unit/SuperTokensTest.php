@@ -96,7 +96,12 @@ class SuperTokensTest extends TestCase
         $this->assertEquals($expectedSameSite, $responseData1['accessTokenSameSite']);
         $this->assertEquals($expectedSameSite, $responseData1['refreshTokenSameSite']);
         $this->assertEquals($expectedSameSite, $responseData1['idRefreshTokenSameSite']);
-        $this->assertEquals($responseData1['idRefreshToken'].';'.$responseData1['idRefreshTokenExpiry'], substr($responseData1['idRefreshTokenFromHeader'], 0, -3)); // doing substring as expiry extracted from cookie will not include milliseconds part
+        $this->assertEquals($responseData1['idRefreshToken'].';', substr($responseData1['idRefreshTokenFromHeader'], 0, -13)); // doing substring as expiry extracted from cookie will not include milliseconds part
+        $expiryTime = (int)(substr($responseData1['idRefreshTokenFromHeader'], -13, -3));
+        $c1 = $responseData1['idRefreshTokenExpiry'] === $expiryTime;
+        $c2 = ($responseData1['idRefreshTokenExpiry'] + 1) === $expiryTime;
+        $c3 = $responseData1['idRefreshTokenExpiry'] === ($expiryTime + 1);
+        $this->assertTrue($c1 || $c2 || $c3);
         $this->assertEquals(Utils::ACCESS_CONTROL_EXPOSE_HEADER_ANTI_CSRF_ENABLE, $responseData1['accessControlExposeHeader']);
         $this->assertNotNull($responseData1['antiCsrf']);
 
@@ -281,7 +286,12 @@ class SuperTokensTest extends TestCase
         $this->assertEquals($expectedSameSite, $responseData3['accessTokenSameSite']);
         $this->assertEquals($expectedSameSite, $responseData3['refreshTokenSameSite']);
         $this->assertEquals($expectedSameSite, $responseData3['idRefreshTokenSameSite']);
-        $this->assertEquals($responseData3['idRefreshToken'].';'.$responseData3['idRefreshTokenExpiry'], substr($responseData3['idRefreshTokenFromHeader'], 0, -3)); // doing substring as expiry extracted from cookie will not include milliseconds part
+        $this->assertEquals($responseData3['idRefreshToken'].';', substr($responseData3['idRefreshTokenFromHeader'], 0, -13)); // doing substring as expiry extracted from cookie will not include milliseconds part
+        $expiryTime = (int)(substr($responseData3['idRefreshTokenFromHeader'], -13, -3));
+        $c1 = $responseData3['idRefreshTokenExpiry'] === $expiryTime;
+        $c2 = ($responseData3['idRefreshTokenExpiry'] + 1) === $expiryTime;
+        $c3 = $responseData3['idRefreshTokenExpiry'] === ($expiryTime + 1);
+        $this->assertTrue($c1 || $c2 || $c3);
         $this->assertEquals(Utils::ACCESS_CONTROL_EXPOSE_HEADER_ANTI_CSRF_DISABLE, $responseData3['accessControlExposeHeader']);
         $this->assertNull($responseData3['antiCsrf']);
 
