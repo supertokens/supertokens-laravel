@@ -50,6 +50,7 @@ class Utils
     const TEST_ACCESS_TOKEN_PATH_VALUE = "/test";
     const TEST_ACCESS_TOKEN_PATH_CONFIG_KEY = "access_token_path";
     const TEST_REFRESH_TOKEN_PATH_KEY_VALUE = "/refresh/test";
+    const TEST_REFRESH_TOKEN_PATH_KEY_VALUE_TEST_MIDDLEWARE = "refresh/test";
     const TEST_REFRESH_TOKEN_PATH_CONFIG_KEY = "refresh_api_path";
     const TEST_SESSION_EXPIRED_STATUS_CODE_VALUE = 401;
     const TEST_SESSION_EXPIRED_STATUS_CODE_CONFIG_KEY = "session_expired_status_code";

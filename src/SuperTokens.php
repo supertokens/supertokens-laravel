@@ -163,8 +163,10 @@ class SuperTokens
 
             return $session;
         } catch (SuperTokensUnauthorisedException | SuperTokensTokenTheftException $e) {
-            $handshakeInfo = HandshakeInfo::getInstance();
-            CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+            if (isset($response)) {
+                $handshakeInfo = HandshakeInfo::getInstance();
+                CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+            }
             throw $e;
         }
     }

@@ -5,6 +5,7 @@ namespace SuperTokens\Http;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use SuperTokens\Exceptions\SuperTokensGeneralException;
 use SuperTokens\Exceptions\SuperTokensTokenTheftException;
 use SuperTokens\Exceptions\SuperTokensTryRefreshTokenException;
@@ -19,7 +20,7 @@ class Middleware
      * @param Request $request
      * @param Closure $next
      * @param string $antiCsrfCheck
-     * @return mixed
+     * @return Response
      * @throws SuperTokensGeneralException
      * @throws SuperTokensTryRefreshTokenException
      * @throws SuperTokensUnauthorisedException
