@@ -60,7 +60,7 @@ class DeviceDriverInfoTest extends TestCase
         $this->assertEquals("testing", $requestBody["userId"]);
         $this->assertIsArray($requestBody["deviceDriverInfo"]);
         $this->assertEquals("laravel", $requestBody["deviceDriverInfo"]["driver"]["name"]);
-        $this->assertEquals("1.0.0", $requestBody["deviceDriverInfo"]["driver"]["version"]);
+        $this->assertEquals(Constants::VERSION, $requestBody["deviceDriverInfo"]["driver"]["version"]);
         $this->assertEmpty($requestBody["deviceDriverInfo"]["frontendSDK"]);
         $requestBody = Querier::getInstance()->sendPostRequest(Constants::HELLO, ["userId" => "testing"], true);
         $this->assertEquals("testing", $requestBody["userId"]);
@@ -101,7 +101,7 @@ class DeviceDriverInfoTest extends TestCase
         ]);
         $request1->headers->set("anti-csrf", $responseInfo['antiCsrf']);
         $request1->headers->set("supertokens-sdk-name", 'android');
-        $request1->headers->set("supertokens-sdk-version", '1.0.0');
+        $request1->headers->set("supertokens-sdk-version", Constants::VERSION);
         SuperTokens::getSession($request1, new Response(), true);
 
         $frontendSDKs = DeviceInfo::getInstance()->getFrontendSDKs();
@@ -109,7 +109,7 @@ class DeviceDriverInfoTest extends TestCase
         foreach ($frontendSDKs as $frontendSDK) {
             if ($frontendSDK['name'] === 'ios' && $frontendSDK['version'] === '0.0.0') {
                 $found++;
-            } elseif ($frontendSDK['name'] === 'android' && $frontendSDK['version'] === '1.0.0') {
+            } elseif ($frontendSDK['name'] === 'android' && $frontendSDK['version'] === Constants::VERSION) {
                 $found++;
             }
         }
