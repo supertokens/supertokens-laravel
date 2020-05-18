@@ -16,6 +16,7 @@
 namespace SuperTokens\Helpers;
 
 use Exception;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\App;
@@ -111,7 +112,9 @@ class Querier
             $apiVersion = Utils::getFromCache(Constants::API_VERSION_CACHE_KEY);
             if (is_null($apiVersion)) {
                 $coreVersionsResponse = $this->sendRequest(Constants::API_VERSION, "GET", [], function ($url, $data) {
-                    return Http::get($url);
+                    $client = new \GuzzleHttp\Client();
+                    $res = $client->get($url);
+                    return $res;
                 });
                 $coreVersions = $coreVersionsResponse['versions'];
                 $apiVersion = Utils::findMaxVersion(Constants::SUPPORTED_CDI_VERSIONS, $coreVersions);
@@ -151,9 +154,14 @@ class Querier
         }
 
         return $this->sendRequest($path, "POST", $body, function ($url, $data) {
-            return Http::withHeaders([
-                Constants::API_VERSION_HEADER => $this->getApiVersion()
-            ])->post($url, $data);
+            $client = new \GuzzleHttp\Client();
+            $res = $client->post($url, [
+                \GuzzleHttp\RequestOptions::JSON => $data,
+                'headers'  => [
+                    Constants::API_VERSION_HEADER => $this->getApiVersion()
+                ]
+            ]);
+            return $res;
         });
     }
 
@@ -166,9 +174,14 @@ class Querier
     public function sendPutRequest($path, $body)
     {
         return $this->sendRequest($path, "PUT", $body, function ($url, $data) {
-            return Http::withHeaders([
-                Constants::API_VERSION_HEADER => $this->getApiVersion()
-            ])->put($url, $data);
+            $client = new \GuzzleHttp\Client();
+            $res = $client->put($url, [
+                \GuzzleHttp\RequestOptions::JSON => $data,
+                'headers'  => [
+                    Constants::API_VERSION_HEADER => $this->getApiVersion()
+                ]
+            ]);
+            return $res;
         });
     }
 
@@ -181,9 +194,14 @@ class Querier
     public function sendDeleteRequest($path, $body)
     {
         return $this->sendRequest($path, "DELETE", $body, function ($url, $data) {
-            return Http::withHeaders([
-                Constants::API_VERSION_HEADER => $this->getApiVersion()
-            ])->delete($url, $data);
+            $client = new \GuzzleHttp\Client();
+            $res = $client->delete($url, [
+                \GuzzleHttp\RequestOptions::JSON => $data,
+                'headers'  => [
+                    Constants::API_VERSION_HEADER => $this->getApiVersion()
+                ]
+            ]);
+            return $res;
         });
     }
 
@@ -196,9 +214,14 @@ class Querier
     public function sendGetRequest($path, $query)
     {
         return $this->sendRequest($path, "GET", $query, function ($url, $data) {
-            return Http::withHeaders([
-                Constants::API_VERSION_HEADER => $this->getApiVersion()
-            ])->get($url, $data);
+            $client = new \GuzzleHttp\Client();
+            $res = $client->get($url, [
+                'query' => $data,
+                'headers'  => [
+                    Constants::API_VERSION_HEADER => $this->getApiVersion()
+                ]
+            ]);
+            return $res;
         });
     }
 
@@ -225,28 +248,20 @@ class Querier
         try {
             $response = $httpFunction($currentHost['hostname'] . ":" . $currentHost["port"] . $path, $data);
 
-            if ($response->serverError()) {
-                return $this->sendRequest($path, $method, $data, $httpFunction, $numberOfRetries - 1);
-            }
-
             if (App::environment("testing")) {
                 array_push($this->hostAliveForTesting, $currentHost['hostname'].':'.$currentHost['port']);
                 $this->hostAliveForTesting = array_unique($this->hostAliveForTesting);
             }
 
-            if ($response->clientError()) {
-                if ($path === Constants::API_VERSION && $response->status() === 404) {
-                    return ["versions" =>["1.0"]];
-                }
-                throw SuperTokensException::generateGeneralException("SuperTokens core threw an error for a " . $method . " request to path: '" . $path . "' with status code: " . $response->status() . " and message: " . $response->body());
-            }
-
-            $responseData = $response->json();
+            $responseData = json_decode($response->getBody(), true);
             if (is_null($responseData)) {
-                return $response->body();
+                return $response->getBody();
             }
             return $responseData;
         } catch (ConnectionException | RequestException $e) { //phpstorm might say to remove this catch clause, but don't!!
+            if ($path === Constants::API_VERSION && $e instanceof ClientException) {
+                return ["versions" =>["1.0"]];
+            }
             if (App::environment("testing") && $numberOfRetries === 1) {
                 throw SuperTokensException::generateGeneralException($e);
             }

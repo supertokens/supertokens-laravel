@@ -61,7 +61,7 @@ class Utils
     private function writeToFile($fname, $val)
     {
         try {
-            Cache::put($fname, (string)$val);
+            Cache::store('file')->put($fname, (string)$val, 20);
         } catch (\Exception $e) {
             error_log($e);
         }
@@ -70,7 +70,7 @@ class Utils
     private function readFromFile($fname)
     {
         try {
-            return (int)Cache::get($fname);
+            return (int)Cache::store('file')->get($fname);
         } catch (\Exception $e) {
             error_log($e);
         }

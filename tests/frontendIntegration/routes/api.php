@@ -39,7 +39,6 @@ Route::post("/login", function (Request $request) {
 
 
 Route::post("/beforeeach", function (Request $request) {
-    error_log("-------------------------");
     \App\Utils::getInstance()->reset();
     return "";
 });
