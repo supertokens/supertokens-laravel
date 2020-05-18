@@ -7,9 +7,9 @@
   "minimum-stability": "dev",
   "require": {
     "illuminate/http": ">=5",
-    "ext-json": ">=1.6",
-    "ext-openssl": ">=7.2",
-    "guzzlehttp/guzzle": ">=6"
+    "ext-json": "*",
+    "ext-openssl": "*",
+    "guzzlehttp/guzzle": "*"
   },
   "autoload": {
     "psr-4": {
