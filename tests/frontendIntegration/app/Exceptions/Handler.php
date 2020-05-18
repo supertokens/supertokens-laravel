@@ -35,7 +35,7 @@ class Handler extends ExceptionHandler
      *
      * @throws \Exception
      */
-    public function report(\Exception $exception)
+    public function report(\Throwable $exception)
     {
         parent::report($exception);
     }
@@ -49,7 +49,7 @@ class Handler extends ExceptionHandler
      *
      * @throws \Throwable
      */
-    public function render($request, \Exception $exception)
+    public function render($request, \Throwable $exception)
     {
         try {
             return SuperTokens::handleError($request, $exception, [
