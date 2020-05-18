@@ -221,7 +221,7 @@ Route::options("/testHeader", function (Request $request) {
 Route::get("/checkDeviceInfo", function (Request $request) {
     $sdkName = $request->header("supertokens-sdk-name");
     $sdkVersion = $request->header("supertokens-sdk-version");
-    return strcmp($sdkName, "website") === 0 && strcmp($sdkVersion, "4.1.3") === 0;
+    return (strcmp($sdkName, "website") === 0 && strcmp($sdkVersion, "4.1.3") === 0) ? "true" : "false";
 });
 
 Route::options("/checkDeviceInfo", function (Request $request) {
