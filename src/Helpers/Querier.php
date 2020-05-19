@@ -18,13 +18,11 @@ namespace SuperTokens\Helpers;
 use Exception;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
-use Illuminate\Http\Client\ConnectionException;
+use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Config;
 use SuperTokens\Exceptions\SuperTokensException;
 use SuperTokens\Exceptions\SuperTokensGeneralException;
-use function PHPUnit\Framework\assertEquals;
 
 class Querier
 {
@@ -258,16 +256,13 @@ class Querier
                 return $response->getBody();
             }
             return $responseData;
-        } catch (ConnectionException | RequestException $e) { //phpstorm might say to remove this catch clause, but don't!!
+        } catch (ConnectException | RequestException $e) {
             if ($path === Constants::API_VERSION && $e instanceof ClientException) {
                 if (App::environment("testing")) {
                     array_push($this->hostAliveForTesting, $currentHost['hostname'].':'.$currentHost['port']);
                     $this->hostAliveForTesting = array_unique($this->hostAliveForTesting);
                 }
                 return ["versions" =>["1.0"]];
-            }
-            if (App::environment("testing") && $numberOfRetries === 1) {
-                throw SuperTokensException::generateGeneralException($e);
             }
             return $this->sendRequest($path, $method, $data, $httpFunction, $numberOfRetries - 1);
         } catch (Exception $e) {
