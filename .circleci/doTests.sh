@@ -84,6 +84,8 @@ while [ $i -lt $coreDriverLength ]; do
     rm -rf ../../com-root
 done
 
+exit 1
+
 if [[ $someTestsRan = "true" ]]
 then
     echo "calling /driver PATCH to make testing passed"
