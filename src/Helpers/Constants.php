@@ -17,7 +17,7 @@ namespace SuperTokens\Helpers;
 
 class Constants
 {
-    const VERSION = '1.0.2';
+    const VERSION = '1.0.3';
     const API_VERSION = "/apiversion";
     const SESSION = "/session";
     const SESSION_REMOVE = "/session/remove";

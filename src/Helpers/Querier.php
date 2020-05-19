@@ -260,6 +260,10 @@ class Querier
             return $responseData;
         } catch (ConnectionException | RequestException $e) { //phpstorm might say to remove this catch clause, but don't!!
             if ($path === Constants::API_VERSION && $e instanceof ClientException) {
+                if (App::environment("testing")) {
+                    array_push($this->hostAliveForTesting, $currentHost['hostname'].':'.$currentHost['port']);
+                    $this->hostAliveForTesting = array_unique($this->hostAliveForTesting);
+                }
                 return ["versions" =>["1.0"]];
             }
             if (App::environment("testing") && $numberOfRetries === 1) {
