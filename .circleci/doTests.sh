@@ -84,8 +84,6 @@ while [ $i -lt $coreDriverLength ]; do
     rm -rf ../../supertokens-root
 done
 
-exit 1
-
 if [[ $someTestsRan = "true" ]]
 then
     echo "calling /driver PATCH to make testing passed"
