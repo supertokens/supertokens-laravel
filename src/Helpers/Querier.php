@@ -267,7 +267,6 @@ class Querier
                 return ["versions" =>["1.0"]];
             }
             if (App::environment("testing") && $numberOfRetries === 1) {
-                error_log($e);
                 throw SuperTokensException::generateGeneralException($e);
             }
             return $this->sendRequest($path, $method, $data, $httpFunction, $numberOfRetries - 1);

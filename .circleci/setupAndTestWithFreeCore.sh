@@ -55,6 +55,7 @@ pluginVersion=$(echo $pluginInfo | jq .version | tr -d '"')
 echo "Testing with FREE core: $coreVersion, plugin-interface: $pluginInterfaceVersion, mysql plugin: $pluginVersion"
 
 (cd / && ./runMySQL.sh)
+mysql -u root --password=root -e "DROP DATABASE auth_session;"
 mysql -u root --password=root -e "CREATE DATABASE auth_session;"
 cd ../../
 git clone git@github.com:supertokens/supertokens-root.git
