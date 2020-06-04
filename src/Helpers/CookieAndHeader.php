@@ -97,7 +97,7 @@ class CookieAndHeader
      */
     public static function setCookie(Response $response, $key, $value, $minutes, $path, $domain, $secure, $httpOnly, $sameSite)
     {
-        $response->withCookie(cookie($key, $value, $minutes, $path, $domain, $secure, $httpOnly, false, $sameSite));
+        $response->withCookie(cookie($key, urlencode($value), $minutes, $path, $domain, $secure, $httpOnly, false, $sameSite));
     }
 
     /**
@@ -107,7 +107,11 @@ class CookieAndHeader
      */
     public static function getCookie(Request $request, $key)
     {
-        return $request->cookie($key);
+        $val =  $request->cookie($key);
+        if (!is_null($val)) {
+            return urldecode($val);
+        }
+        return null;
     }
 
     /**
