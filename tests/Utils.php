@@ -127,6 +127,7 @@ class Utils
             usleep(250 * 1000);
             self::stopST($try-1);
         }
+        sleep(1);
     }
 
     /**
