@@ -19,6 +19,7 @@ use Exception;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\ServerException;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use SuperTokens\Exceptions\SuperTokensException;
@@ -256,6 +257,8 @@ class Querier
                 return $response->getBody();
             }
             return $responseData;
+        } catch (ServerException $e) {
+            throw SuperTokensException::generateGeneralException($e);
         } catch (ConnectException | RequestException $e) {
             if ($path === Constants::API_VERSION && $e instanceof ClientException) {
                 if (App::environment("testing")) {
