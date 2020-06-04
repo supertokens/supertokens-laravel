@@ -5,8 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.1.0] - 2020-06-04
-### Changes
-- session cookies are now url-encoded
+### Breaking changes
+- Session cookies are now url-encoded. This will cause older cookies to not be accepted anymore. 
 
 ## [1.0.3] - 2020-05-19
 ### Changes
