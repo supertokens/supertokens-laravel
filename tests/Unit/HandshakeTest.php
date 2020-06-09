@@ -69,7 +69,7 @@ class HandshakeTest extends TestCase
         Utils::startST();
         $info = HandshakeInfo::getInstance();
         $this->assertEquals("/", $info->accessTokenPath);
-        $this->assertEquals("supertokens.io", $info->cookieDomain);
+        $this->assertContains($info->cookieDomain, ["supertokens.io", "localhost"]);
         $this->assertIsString($info->jwtSigningPublicKey);
         $this->assertFalse($info->cookieSecure);
         $this->assertEquals("/refresh", $info->refreshTokenPath);

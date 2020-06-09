@@ -69,7 +69,7 @@ Route::middleware("supertokens.middleware:true")->get("/", function (Request $re
         $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
         $res->header("Access-Control-Allow-Credentials", "true");
         $res->header("Cache-Control", "no-cache, private");
-        return $res->setContent("success");
+        return $res->setContent($request->request->get('supertokens')->getUserId());
     } catch (Exception $err) {
         $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
         $res->header("Access-Control-Allow-Credentials", "true");
@@ -83,6 +83,32 @@ Route::options("/", function (Request $request) {
     $res->header("Access-Control-Allow-Headers", "Content-Type");
     SuperTokens::setRelevantHeadersForOptionsAPI($res);
     return $res;
+});
+
+
+Route::options("/update-jwt", function (Request $request) {
+    $res = new \Illuminate\Http\Response();
+    $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
+    $res->header("Access-Control-Allow-Headers", "Content-Type");
+    SuperTokens::setRelevantHeadersForOptionsAPI($res);
+    return $res;
+});
+
+Route::middleware("supertokens.middleware:true")->get("/update-jwt", function (Request $request) {
+    $res = new \Illuminate\Http\Response();
+    $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
+    $res->header("Access-Control-Allow-Credentials", "true");
+    $res->header("Cache-Control", "no-cache, private");
+    return $res->setContent($request->request->get('supertokens')->getJWTPayload());
+});
+
+Route::middleware("supertokens.middleware:true")->post("/update-jwt", function (Request $request) {
+    $res = new \Illuminate\Http\Response();
+    $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
+    $res->header("Access-Control-Allow-Credentials", "true");
+    $res->header("Cache-Control", "no-cache, private");
+    $request->request->get('supertokens')->updateJWTPayload($request->json()->all());
+    return $res->setContent($request->request->get('supertokens')->getJWTPayload());
 });
 
 Route::any("/testing", function (Request $request) {
@@ -221,7 +247,7 @@ Route::options("/testHeader", function (Request $request) {
 Route::get("/checkDeviceInfo", function (Request $request) {
     $sdkName = $request->header("supertokens-sdk-name");
     $sdkVersion = $request->header("supertokens-sdk-version");
-    return (strcmp($sdkName, "website") === 0 && strcmp($sdkVersion, "4.1.3") === 0) ? "true" : "false";
+    return (strcmp($sdkName, "website") === 0 && strcmp($sdkVersion, "4.1.4") === 0) ? "true" : "false";
 });
 
 Route::options("/checkDeviceInfo", function (Request $request) {
