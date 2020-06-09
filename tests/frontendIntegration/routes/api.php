@@ -204,20 +204,6 @@ Route::options("/getSessionCalledTime", function (Request $request) {
     return $res;
 });
 
-Route::get("/getPackageVersion", function (Request $request) {
-    $res = new \Illuminate\Http\Response();
-    $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
-    return $res->setContent("4.1.3");
-});
-
-Route::options("/getPackageVersion", function (Request $request) {
-    $res = new \Illuminate\Http\Response();
-    $res->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
-    $res->header("Access-Control-Allow-Headers", "Content-Type");
-    SuperTokens::setRelevantHeadersForOptionsAPI($res);
-    return $res;
-});
-
 Route::get("/ping", function (Request $request) {
     return "success";
 });
@@ -247,7 +233,7 @@ Route::options("/testHeader", function (Request $request) {
 Route::get("/checkDeviceInfo", function (Request $request) {
     $sdkName = $request->header("supertokens-sdk-name");
     $sdkVersion = $request->header("supertokens-sdk-version");
-    return (strcmp($sdkName, "website") === 0 && strcmp($sdkVersion, "4.1.4") === 0) ? "true" : "false";
+    return (strcmp($sdkName, "website") === 0 && !is_null($sdkVersion) && is_string($sdkVersion)) ? "true" : "false";
 });
 
 Route::options("/checkDeviceInfo", function (Request $request) {
