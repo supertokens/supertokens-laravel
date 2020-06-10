@@ -143,7 +143,7 @@ while [ $i -lt $frontendDriverLength ]; do
     fi
     nodeTag=$(echo $nodeInfo | jq .tag | tr -d '"')
 
-    ./setupAndTestWithFrontend.sh $coreCommercial $frontendTag $nodeTag
+    ./setupAndTestWithFrontend.sh $coreCommercial $frontendTag $nodeTag $version
 
     someFrontendTestsRan=true
     rm -rf ../../com-root

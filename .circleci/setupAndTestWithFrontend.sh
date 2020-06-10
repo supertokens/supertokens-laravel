@@ -76,6 +76,8 @@ cd supertokens-website
 git checkout $2
 cd ../project/test/frontendIntegration/
 composer install
+v=`echo $4 | rev | cut -d"." -f2-  | rev`
+composer install supertokens/supertokens-laravel:$v.x-dev
 php artisan serve --port=8080 &
 pid=$!
 cd ../../../supertokens-website/test/server
