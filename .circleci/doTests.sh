@@ -146,6 +146,11 @@ while [ $i -lt $frontendDriverLength ]; do
     ./setupAndTestWithFrontend.sh $coreCommercial $frontendTag $nodeTag $version
 
     someFrontendTestsRan=true
+    if [[ $? -ne 0 ]]
+    then
+        echo "test failed... exiting!"
+        exit 1
+    fi
     rm -rf ../../com-root
 done
 
