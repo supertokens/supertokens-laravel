@@ -57,7 +57,13 @@ class Querier
      */
     private function __construct()
     {
-        $this->hosts = Config::get('supertokens.hosts');
+        $hosts = Config::get('supertokens.hosts', 'http://localhost:3567');
+        $this->hosts = array_map(function ($x) {
+            if (substr($x, -1) === '/') {
+                return substr($x, 0, -1);
+            }
+            return $x;
+        }, explode(';', $hosts));
         $this->lastTriedIndex = 0;
         $this->hostAliveForTesting = [];
     }
@@ -245,10 +251,10 @@ class Querier
         $this->lastTriedIndex += 1;
         $this->lastTriedIndex = $this->lastTriedIndex % count($this->hosts);
         try {
-            $response = $httpFunction($currentHost['hostname'] . ":" . $currentHost["port"] . $path, $data);
+            $response = $httpFunction($currentHost . $path, $data);
 
             if (App::environment("testing")) {
-                array_push($this->hostAliveForTesting, $currentHost['hostname'].':'.$currentHost['port']);
+                array_push($this->hostAliveForTesting, $currentHost);
                 $this->hostAliveForTesting = array_unique($this->hostAliveForTesting);
             }
 

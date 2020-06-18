@@ -26,8 +26,5 @@
  */
 
 return [
-    'hosts' => [[
-        'hostname' => 'localhost',
-        'port' => 9000
-    ]]
+    'hosts' => 'http://localhost:9000'
 ];

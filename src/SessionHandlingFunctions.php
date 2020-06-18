@@ -120,11 +120,8 @@ class SessionHandlingFunctions
      * @throws SuperTokensUnauthorisedException
      * @throws SuperTokensTryRefreshTokenException
      */
-    public static function getSession($accessToken, $antiCsrfToken, $doAntiCsrfCheck, $idRefreshToken)
+    public static function getSession($accessToken, $antiCsrfToken, $doAntiCsrfCheck)
     {
-        if (!isset($idRefreshToken)) {
-            throw new SuperTokensUnauthorisedException('idRefreshToken missing');
-        }
         $handshakeInfo = HandshakeInfo::getInstance();
 
         try {

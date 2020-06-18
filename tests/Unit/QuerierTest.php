@@ -104,16 +104,7 @@ class QuerierTest extends TestCase
         Utils::startST();
         Utils::startST("localhost", 3568);
         Utils::startST("localhost", 3569);
-        Config::set('supertokens.hosts', [[
-            'hostname' => 'localhost',
-            'port' => 3567
-        ], [
-            'hostname' => 'localhost',
-            'port' => 3568
-        ], [
-            'hostname' => 'localhost',
-            'port' => 3569
-        ]]);
+        Config::set('supertokens.hosts', 'http://localhost:3567;http://localhost:3568/;http://localhost:3569');
         $querier = Querier::getInstance();
         $this->assertEquals("Hello\n", $querier->sendGetRequest(Constants::HELLO, []));
         $this->assertEquals("Hello\n", $querier->sendPostRequest(Constants::HELLO, []));
@@ -121,9 +112,9 @@ class QuerierTest extends TestCase
         $this->assertCount(3, $querier->getHostsAliveForTesting());
         $this->assertEquals("Hello\n", $querier->sendDeleteRequest(Constants::HELLO, []));
         $this->assertCount(3, $querier->getHostsAliveForTesting());
-        $this->assertTrue(in_array("localhost:3567", $querier->getHostsAliveForTesting()));
-        $this->assertTrue(in_array("localhost:3568", $querier->getHostsAliveForTesting()));
-        $this->assertTrue(in_array("localhost:3569", $querier->getHostsAliveForTesting()));
+        $this->assertTrue(in_array("http://localhost:3567", $querier->getHostsAliveForTesting()));
+        $this->assertTrue(in_array("http://localhost:3568", $querier->getHostsAliveForTesting()));
+        $this->assertTrue(in_array("http://localhost:3569", $querier->getHostsAliveForTesting()));
     }
 
     /**
@@ -133,24 +124,15 @@ class QuerierTest extends TestCase
     {
         Utils::startST();
         Utils::startST("localhost", 3568);
-        Config::set('supertokens.hosts', [[
-            'hostname' => 'localhost',
-            'port' => 3567
-        ], [
-            'hostname' => 'localhost',
-            'port' => 3568
-        ], [
-            'hostname' => 'localhost',
-            'port' => 3569
-        ]]);
+        Config::set('supertokens.hosts', 'http://localhost:3567;http://localhost:3568/;http://localhost:3569');
         $querier = Querier::getInstance();
         $this->assertEquals("Hello\n", $querier->sendGetRequest(Constants::HELLO, []));
         $this->assertEquals("Hello\n", $querier->sendPostRequest(Constants::HELLO, []));
         $this->assertCount(2, $querier->getHostsAliveForTesting());
         $this->assertEquals("Hello\n", $querier->sendDeleteRequest(Constants::HELLO, []));
         $this->assertCount(2, $querier->getHostsAliveForTesting());
-        $this->assertTrue(in_array("localhost:3567", $querier->getHostsAliveForTesting()));
-        $this->assertTrue(in_array("localhost:3568", $querier->getHostsAliveForTesting()));
-        $this->assertFalse(in_array("localhost:3569", $querier->getHostsAliveForTesting()));
+        $this->assertTrue(in_array("http://localhost:3567", $querier->getHostsAliveForTesting()));
+        $this->assertTrue(in_array("http://localhost:3568", $querier->getHostsAliveForTesting()));
+        $this->assertFalse(in_array("http://localhost:3569", $querier->getHostsAliveForTesting()));
     }
 }

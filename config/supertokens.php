@@ -16,18 +16,9 @@
 
 /**
  * e.g.
- * 'hosts' => [[
- *      'hostname' => 'localhost',
- *      'port' => 3567
- * ], [
- *      'hostname' => 'some other domain',
- *      'port' => 8888
- * ]]
+ * 'hosts' => 'http://localhost:3567;https://somedomain.com:9000'
  */
 
 return [
-    'hosts' => [[
-        'hostname' => 'localhost',
-        'port' => 3567
-    ]]
+    'hosts' => 'http://localhost:3567'
 ];

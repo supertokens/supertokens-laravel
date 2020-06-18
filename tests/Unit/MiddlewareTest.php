@@ -6,6 +6,8 @@ namespace SuperTokens\Tests;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Exception;
+use Illuminate\Support\Facades\Config;
+use SuperTokens\Exceptions\SuperTokensGeneralException;
 use SuperTokens\Helpers\Constants;
 use SuperTokens\Http\Middleware;
 use SuperTokens\SuperTokens;
@@ -35,8 +37,11 @@ class MiddlewareTest extends TestCase
 
     public function testMiddleware(): void
     {
-        Utils::setKeyValueInConfig(Utils::TEST_REFRESH_TOKEN_PATH_CONFIG_KEY, Utils::TEST_REFRESH_TOKEN_PATH_KEY_VALUE);
-        Utils::startST();
+        Config::set('supertokens.hosts', 'https://try.supertokens.io');
+        Config::set('supertokens.refreshTokenPath', Utils::TEST_REFRESH_TOKEN_PATH_KEY_VALUE);
+        Config::set('supertokens.cookieDomain', Utils::TEST_COOKIE_DOMAIN_VALUE);
+        Config::set('supertokens.cookieSecure', true);
+        Config::set('supertokens.accessTokenPath', Utils::TEST_ACCESS_TOKEN_PATH_VALUE);
         $response1 = new Response();
         SuperTokens::createNewSession($response1, "testUserId", [], []);
         $responseData1 = Utils::extractInfoFromResponse($response1);
@@ -74,21 +79,21 @@ class MiddlewareTest extends TestCase
         $this->assertNotEquals($responseData1['refreshToken'], $responseData2['refreshToken']);
         $this->assertNotEquals($responseData1['idRefreshToken'], $responseData2['idRefreshToken']);
         $this->assertNotEquals($responseData1['antiCsrf'], $responseData2['antiCsrf']);
-        $this->assertTrue($responseData2["accessTokenCookie"]->getPath() === "/");
-        $this->assertTrue($responseData2["accessTokenCookie"]->getDomain() === "supertokens.io");
+        $this->assertTrue($responseData2["accessTokenCookie"]->getPath() === Utils::TEST_ACCESS_TOKEN_PATH_VALUE);
+        $this->assertTrue($responseData2["accessTokenCookie"]->getDomain() === Utils::TEST_COOKIE_DOMAIN_VALUE);
         $this->assertTrue($responseData2["accessTokenCookie"]->getSameSite() === "none");
         $this->assertTrue($responseData2["accessTokenCookie"]->isHttpOnly());
-        $this->assertTrue(!$responseData2["accessTokenCookie"]->isSecure());
+        $this->assertTrue($responseData2["accessTokenCookie"]->isSecure());
         $this->assertTrue($responseData2["refreshTokenCookie"]->getPath() === Utils::TEST_REFRESH_TOKEN_PATH_KEY_VALUE);
-        $this->assertTrue($responseData2["refreshTokenCookie"]->getDomain() === "supertokens.io");
+        $this->assertTrue($responseData2["refreshTokenCookie"]->getDomain() === Utils::TEST_COOKIE_DOMAIN_VALUE);
         $this->assertTrue($responseData2["refreshTokenCookie"]->getSameSite() === "none");
         $this->assertTrue($responseData2["refreshTokenCookie"]->isHttpOnly());
-        $this->assertTrue(!$responseData2["refreshTokenCookie"]->isSecure());
-        $this->assertTrue($responseData2["idRefreshTokenCookie"]->getPath() === "/");
-        $this->assertTrue($responseData2["idRefreshTokenCookie"]->getDomain() === "supertokens.io");
+        $this->assertTrue($responseData2["refreshTokenCookie"]->isSecure());
+        $this->assertTrue($responseData2["idRefreshTokenCookie"]->getPath() === Utils::TEST_ACCESS_TOKEN_PATH_VALUE);
+        $this->assertTrue($responseData2["idRefreshTokenCookie"]->getDomain() === Utils::TEST_COOKIE_DOMAIN_VALUE);
         $this->assertTrue($responseData2["idRefreshTokenCookie"]->getSameSite() === "none");
         $this->assertTrue($responseData2["idRefreshTokenCookie"]->isHttpOnly());
-        $this->assertTrue(!$responseData2["idRefreshTokenCookie"]->isSecure());
+        $this->assertTrue($responseData2["idRefreshTokenCookie"]->isSecure());
 
         $request4 = new Request([], [], [], [
             'sAccessToken' => $responseData2['accessToken'],
@@ -101,11 +106,11 @@ class MiddlewareTest extends TestCase
         }, "false");
         $responseData3 = Utils::extractInfoFromResponse($response4);
         $this->assertNotNull($responseData3["accessToken"]);
-        $this->assertTrue($responseData3["accessTokenCookie"]->getPath() === "/");
-        $this->assertTrue($responseData3["accessTokenCookie"]->getDomain() === "supertokens.io");
+        $this->assertTrue($responseData3["accessTokenCookie"]->getPath() === Utils::TEST_ACCESS_TOKEN_PATH_VALUE);
+        $this->assertTrue($responseData3["accessTokenCookie"]->getDomain() === Utils::TEST_COOKIE_DOMAIN_VALUE);
         $this->assertTrue($responseData3["accessTokenCookie"]->getSameSite() === "none");
         $this->assertTrue($responseData3["accessTokenCookie"]->isHttpOnly());
-        $this->assertTrue(!$responseData3["accessTokenCookie"]->isSecure());
+        $this->assertTrue($responseData3["accessTokenCookie"]->isSecure());
         $this->assertNull($responseData3["idRefreshTokenFromHeader"]);
         $this->assertNull($responseData3["refreshToken"]);
         $this->assertNull($responseData3["idRefreshToken"]);
@@ -132,10 +137,10 @@ class MiddlewareTest extends TestCase
         } catch (Exception $e) {
             $result = SuperTokens::handleError($request6, $e, [
                 'onUnauthorised' => function ($exception, $request, $response) {
-                    return false;
+                    return true;
                 },
                 'onTryRefreshToken' => function ($exception, $request, $response) {
-                    return true;
+                    return false;
                 },
                 'onTokenTheftDetected' => function ($sessionHandle, $userId, $request, $response) {
                     return false;
@@ -189,7 +194,7 @@ class MiddlewareTest extends TestCase
         $this->assertEquals(true, $responseData4['refreshTokenHttpOnly']);
         $this->assertEquals(true, $responseData4['idRefreshTokenHttpOnly']);
         $this->assertEquals(0, $responseData4['refreshTokenExpiry']);
-        $this->assertEquals(Utils::TEST_REFRESH_TOKEN_PATH_KEY_VALUE, $responseData4['refreshTokenPath']);
+        $this->assertEquals(Utils::TEST_REFRESH_TOKEN_PATH_KEY_VALUE, $responseData4['refreshTokenCookie']->getPath());
         $this->assertEquals("remove", $responseData4['idRefreshTokenFromHeader']);
         $this->assertNull($responseData4['antiCsrf']);
 

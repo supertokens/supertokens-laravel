@@ -79,6 +79,14 @@ class SuperTokens
     {
         // $response is null if this is being called from the middleware
         CookieAndHeader::saveFrontendInfoFromRequest($request);
+        $idRefreshToken = CookieAndHeader::getIdRefreshTokenFromCookie($request);
+        if (!isset($idRefreshToken)) {
+            if (isset($response)) {
+                $handshakeInfo = HandshakeInfo::getInstance();
+                CookieAndHeader::clearSessionFromCookie($response, $handshakeInfo->cookieDomain, $handshakeInfo->cookieSecure, $handshakeInfo->accessTokenPath, $handshakeInfo->refreshTokenPath, $handshakeInfo->sameSite);
+            }
+            throw new SuperTokensUnauthorisedException('idRefreshToken missing');
+        }
         $accessToken = CookieAndHeader::getAccessTokenFromCookie($request);
         if (!isset($accessToken)) {
             throw SuperTokensException::generateTryRefreshTokenException("access token missing in cookies");
@@ -86,8 +94,7 @@ class SuperTokens
 
         try {
             $antiCsrfToken = CookieAndHeader::getAntiCsrfHeader($request);
-            $idRefreshToken = CookieAndHeader::getIdRefreshTokenFromCookie($request);
-            $newSession = SessionHandlingFunctions::getSession($accessToken, $antiCsrfToken, $doAntiCsrfCheck, $idRefreshToken);
+            $newSession = SessionHandlingFunctions::getSession($accessToken, $antiCsrfToken, $doAntiCsrfCheck);
 
             if (isset($newSession['accessToken'])) {
                 $accessToken = $newSession['accessToken']['token'];

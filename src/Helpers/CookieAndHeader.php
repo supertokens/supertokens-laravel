@@ -18,6 +18,7 @@ namespace SuperTokens\Helpers;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Config;
 use SuperTokens\Exceptions\SuperTokensException;
 use SuperTokens\Exceptions\SuperTokensGeneralException;
 
@@ -94,9 +95,18 @@ class CookieAndHeader
      * @param $secure
      * @param $httpOnly
      * @param $sameSite
+     * @param null|string $pathType
      */
-    public static function setCookie(Response $response, $key, $value, $minutes, $path, $domain, $secure, $httpOnly, $sameSite)
+    public static function setCookie(Response $response, $key, $value, $minutes, $path, $domain, $secure, $httpOnly, $sameSite, $pathType = null)
     {
+        $domain = Config::get('supertokens.cookieDomain', $domain);
+        $secure = Config::get('supertokens.cookieSecure', $secure);
+        $sameSite = Config::get('supertokens.cookieSameSite', $sameSite);
+        if ($pathType === 'accessTokenPath') {
+            $path = Config::get('supertokens.accessTokenPath', $path);
+        } elseif ($pathType === 'refreshTokenPath') {
+            $path = Config::get('supertokens.refreshTokenPath', $path);
+        }
         $response->withCookie(cookie($key, rawurlencode($value), $minutes, $path, $domain, $secure, $httpOnly, false, $sameSite));
     }
 
@@ -124,9 +134,9 @@ class CookieAndHeader
      */
     public static function clearSessionFromCookie(Response $response, $domain, $secure, $accessTokenPath, $refreshTokenPath, $sameSite)
     {
-        CookieAndHeader::setCookie($response, ACCESS_TOKEN_COOKIE_KEY, "", 0, $accessTokenPath, $domain, $secure, true, $sameSite);
-        CookieAndHeader::setCookie($response, ID_REFRESH_TOKEN_COOKIE_KEY, "", 0, $accessTokenPath, $domain, $secure, true, $sameSite);
-        CookieAndHeader::setCookie($response, REFRESH_TOKEN_COOKIE_KEY, "", 0, $refreshTokenPath, $domain, $secure, true, $sameSite);
+        CookieAndHeader::setCookie($response, ACCESS_TOKEN_COOKIE_KEY, "", 0, $accessTokenPath, $domain, $secure, true, $sameSite, 'accessTokenPath');
+        CookieAndHeader::setCookie($response, ID_REFRESH_TOKEN_COOKIE_KEY, "", 0, $accessTokenPath, $domain, $secure, true, $sameSite, 'accessTokenPath');
+        CookieAndHeader::setCookie($response, REFRESH_TOKEN_COOKIE_KEY, "", 0, $refreshTokenPath, $domain, $secure, true, $sameSite, 'refreshTokenPath');
         CookieAndHeader::setHeader($response, ID_REFRESH_TOKEN_HEADER_KEY, "remove");
         CookieAndHeader::setHeader($response, "Access-Control-Expose-Headers", ID_REFRESH_TOKEN_HEADER_KEY);
     }
@@ -142,7 +152,7 @@ class CookieAndHeader
      */
     public static function attachAccessTokenToCookie(Response $response, $token, $expiresAt, $domain, $secure, $path, $sameSite)
     {
-        CookieAndHeader::setCookie($response, ACCESS_TOKEN_COOKIE_KEY, $token, CookieAndHeader::getMinutes($expiresAt), $path, $domain, $secure, true, $sameSite);
+        CookieAndHeader::setCookie($response, ACCESS_TOKEN_COOKIE_KEY, $token, CookieAndHeader::getMinutes($expiresAt), $path, $domain, $secure, true, $sameSite, 'accessTokenPath');
     }
 
     /**
@@ -156,7 +166,7 @@ class CookieAndHeader
      */
     public static function attachRefreshTokenToCookie(Response $response, $token, $expiresAt, $domain, $secure, $path, $sameSite)
     {
-        CookieAndHeader::setCookie($response, REFRESH_TOKEN_COOKIE_KEY, $token, CookieAndHeader::getMinutes($expiresAt), $path, $domain, $secure, true, $sameSite);
+        CookieAndHeader::setCookie($response, REFRESH_TOKEN_COOKIE_KEY, $token, CookieAndHeader::getMinutes($expiresAt), $path, $domain, $secure, true, $sameSite, 'refreshTokenPath');
     }
 
     /**
@@ -172,7 +182,7 @@ class CookieAndHeader
     {
         CookieAndHeader::setHeader($response, ID_REFRESH_TOKEN_HEADER_KEY, $token.";".$expiresAt);
         CookieAndHeader::setHeader($response, "Access-Control-Expose-Headers", ID_REFRESH_TOKEN_HEADER_KEY);
-        CookieAndHeader::setCookie($response, ID_REFRESH_TOKEN_COOKIE_KEY, $token, CookieAndHeader::getMinutes($expiresAt), $path, $domain, $secure, true, $sameSite);
+        CookieAndHeader::setCookie($response, ID_REFRESH_TOKEN_COOKIE_KEY, $token, CookieAndHeader::getMinutes($expiresAt), $path, $domain, $secure, true, $sameSite, 'accessTokenPath');
     }
 
     /**

@@ -6,6 +6,7 @@ namespace SuperTokens\Http;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Config;
 use SuperTokens\Exceptions\SuperTokensGeneralException;
 use SuperTokens\Exceptions\SuperTokensTokenTheftException;
 use SuperTokens\Exceptions\SuperTokensTryRefreshTokenException;
@@ -33,13 +34,14 @@ class Middleware
         }
         $session = null;
         $response = null;
+        $refreshTokenPath = Config::get('supertokens.refreshTokenPath', HandshakeInfo::getInstance()->refreshTokenPath);
         if (
             (
-                '/'.$request->path() === HandshakeInfo::getInstance()->refreshTokenPath
+                '/'.$request->path() === $refreshTokenPath
                 ||
-                '/'.$request->path() === HandshakeInfo::getInstance()->refreshTokenPath.'/'
+                '/'.$request->path() === $refreshTokenPath.'/'
                 ||
-                '/'.$request->path().'/' === HandshakeInfo::getInstance()->refreshTokenPath
+                '/'.$request->path().'/' === $refreshTokenPath
             )
             &&
             $request->isMethod("post")
