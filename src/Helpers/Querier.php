@@ -268,7 +268,7 @@ class Querier
         } catch (ConnectException | RequestException $e) {
             if ($path === Constants::API_VERSION && $e instanceof ClientException) {
                 if (App::environment("testing")) {
-                    array_push($this->hostAliveForTesting, $currentHost['hostname'].':'.$currentHost['port']);
+                    array_push($this->hostAliveForTesting, $currentHost);
                     $this->hostAliveForTesting = array_unique($this->hostAliveForTesting);
                 }
                 return ["versions" =>["1.0"]];
