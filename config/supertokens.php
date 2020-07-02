@@ -20,5 +20,6 @@
  */
 
 return [
-    'hosts' => 'http://localhost:3567'
+    'hosts' => 'http://localhost:3567',
+    'apiKey' => ''
 ];

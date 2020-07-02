@@ -71,6 +71,39 @@ class SessionTest extends TestCase
         }
     }
 
+    public function testTokenTheftDetectionWithAPIKey(): void
+    {
+        Utils::setKeyValueInConfig("api_keys", "sakhldskaudshjvbaldiuvbasl");
+        Utils::startST();
+        Config::set('supertokens.apiKey', 'sakhldskaudshjvbaldiuvbasl');
+        $session = SessionHandlingFunctions::createNewSession("userId", [], []);
+        $refreshedSession = SessionHandlingFunctions::refreshSession($session['refreshToken']['token']);
+        SessionHandlingFunctions::getSession($refreshedSession['accessToken']['token'], $refreshedSession['antiCsrfToken'], true, $refreshedSession['idRefreshToken']['token']);
+        try {
+            SessionHandlingFunctions::refreshSession($session['refreshToken']['token']);
+            $this->assertTrue(false);
+        } catch (SuperTokensTokenTheftException $e) {
+            $this->assertTrue($e->getUserId() === "userId");
+            $this->assertTrue($e->getSessionHandle() === $session['session']['handle']);
+            $this->assertTrue(true);
+        }
+    }
+
+    public function testQueryWithoutAPIKey(): void
+    {
+        Utils::setKeyValueInConfig("api_keys", "sakhldskaudshjvbaldiuvbasl");
+        Utils::startST();
+        try {
+            $version = Querier::getInstance()->getApiVersion();
+            if ($version !== "1.0" && $version !== "2.0" && strpos(env("SUPERTOKENS_PATH"), 'com-') !== false) {
+                $this->assertTrue(false);
+            }
+        } catch (Exception $err) {
+            $msg = $err->getPrevious()->getMessage();
+            $this->assertTrue(strpos($msg, '401 Unauthorized') !== false);
+        }
+    }
+
     /**
      * @throws Exception
      */

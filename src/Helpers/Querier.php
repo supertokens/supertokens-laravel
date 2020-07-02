@@ -38,6 +38,11 @@ class Querier
     private $hosts;
 
     /**
+     * @var string
+     */
+    private $apiKey;
+
+    /**
      * @var int
      */
     private $lastTriedIndex;
@@ -66,6 +71,7 @@ class Querier
         }, explode(';', $hosts));
         $this->lastTriedIndex = 0;
         $this->hostAliveForTesting = [];
+        $this->apiKey = Config::get('supertokens.apiKey', '');
     }
 
     /**
@@ -118,7 +124,13 @@ class Querier
             if (is_null($apiVersion)) {
                 $coreVersionsResponse = $this->sendRequest(Constants::API_VERSION, "GET", [], function ($url, $data) {
                     $client = new \GuzzleHttp\Client();
-                    $res = $client->get($url);
+                    $headers = [];
+                    if ($this->apiKey !== '') {
+                        $headers[Constants::API_KEY_HEADER] = $this->apiKey;
+                    }
+                    $res = $client->get($url, [
+                        'headers'  => $headers
+                    ]);
                     return $res;
                 });
                 $coreVersions = $coreVersionsResponse['versions'];
@@ -160,11 +172,15 @@ class Querier
 
         return $this->sendRequest($path, "POST", $body, function ($url, $data) {
             $client = new \GuzzleHttp\Client();
+            $headers = [
+                Constants::API_VERSION_HEADER => $this->getApiVersion()
+            ];
+            if ($this->apiKey !== '') {
+                $headers[Constants::API_KEY_HEADER] = $this->apiKey;
+            }
             $res = $client->post($url, [
                 \GuzzleHttp\RequestOptions::JSON => $data,
-                'headers'  => [
-                    Constants::API_VERSION_HEADER => $this->getApiVersion()
-                ]
+                'headers'  => $headers
             ]);
             return $res;
         });
@@ -180,11 +196,15 @@ class Querier
     {
         return $this->sendRequest($path, "PUT", $body, function ($url, $data) {
             $client = new \GuzzleHttp\Client();
+            $headers = [
+                Constants::API_VERSION_HEADER => $this->getApiVersion()
+            ];
+            if ($this->apiKey !== '') {
+                $headers[Constants::API_KEY_HEADER] = $this->apiKey;
+            }
             $res = $client->put($url, [
                 \GuzzleHttp\RequestOptions::JSON => $data,
-                'headers'  => [
-                    Constants::API_VERSION_HEADER => $this->getApiVersion()
-                ]
+                'headers'  => $headers
             ]);
             return $res;
         });
@@ -200,11 +220,15 @@ class Querier
     {
         return $this->sendRequest($path, "DELETE", $body, function ($url, $data) {
             $client = new \GuzzleHttp\Client();
+            $headers = [
+                Constants::API_VERSION_HEADER => $this->getApiVersion()
+            ];
+            if ($this->apiKey !== '') {
+                $headers[Constants::API_KEY_HEADER] = $this->apiKey;
+            }
             $res = $client->delete($url, [
                 \GuzzleHttp\RequestOptions::JSON => $data,
-                'headers'  => [
-                    Constants::API_VERSION_HEADER => $this->getApiVersion()
-                ]
+                'headers'  => $headers
             ]);
             return $res;
         });
@@ -220,11 +244,15 @@ class Querier
     {
         return $this->sendRequest($path, "GET", $query, function ($url, $data) {
             $client = new \GuzzleHttp\Client();
+            $headers = [
+                Constants::API_VERSION_HEADER => $this->getApiVersion()
+            ];
+            if ($this->apiKey !== '') {
+                $headers[Constants::API_KEY_HEADER] = $this->apiKey;
+            }
             $res = $client->get($url, [
                 'query' => $data,
-                'headers'  => [
-                    Constants::API_VERSION_HEADER => $this->getApiVersion()
-                ]
+                'headers'  => $headers
             ]);
             return $res;
         });
@@ -271,7 +299,11 @@ class Querier
                     array_push($this->hostAliveForTesting, $currentHost);
                     $this->hostAliveForTesting = array_unique($this->hostAliveForTesting);
                 }
-                return ["versions" =>["1.0"]];
+                if ($e->getCode() === 404) {
+                    return ["versions" => ["1.0"]];
+                } elseif ($e->getCode() === 401) {
+                    throw SuperTokensException::generateGeneralException($e);
+                }
             }
             return $this->sendRequest($path, $method, $data, $httpFunction, $numberOfRetries - 1);
         } catch (Exception $e) {
