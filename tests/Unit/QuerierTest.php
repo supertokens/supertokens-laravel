@@ -63,7 +63,6 @@ class QuerierTest extends TestCase
         }
         Utils::startST();
         if (Querier::getInstance()->getApiVersion() !== "1.0") {
-            $this->assertEquals(Utils::API_VERSION_TEST_BASIC_RESULT, Querier::getInstance()->getApiVersion());
             $cv = Utils::API_VERSION_TEST_SINGLE_SUPPORTED_CV;
             $sv = Utils::API_VERSION_TEST_SINGLE_SUPPORTED_SV;
             $this->assertEquals(Utils::API_VERSION_TEST_SINGLE_SUPPORTED_RESULT, SuperTokensUtils::findMaxVersion($cv, $sv));

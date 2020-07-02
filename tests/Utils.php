@@ -45,7 +45,6 @@ class Utils
     const API_VERSION_TEST_SINGLE_SUPPORTED_SV = ["0.0", "1.0", "1.1", "2.0"];
     const API_VERSION_TEST_SINGLE_SUPPORTED_CV = ["0.1", "0.2", "1.1", "2.1", "3.0"];
     const API_VERSION_TEST_SINGLE_SUPPORTED_RESULT = "1.1";
-    const API_VERSION_TEST_BASIC_RESULT = "2.0";
     const SUPPORTED_CORE_DRIVER_INTERFACE_FILE = "./coreDriverInterfaceSupported.json";
     const TEST_ACCESS_TOKEN_PATH_VALUE = "/test";
     const TEST_ACCESS_TOKEN_PATH_CONFIG_KEY = "access_token_path";
