@@ -55,6 +55,11 @@ class CookieAndHeader
         CookieAndHeader::setHeader($response, "Access-Control-Allow-Credentials", "true");
     }
 
+    public static function getCORSAllowedHeaders()
+    {
+        return [ANTI_CSRF_HEADER_KEY, FRONTEND_SDK_NAME_HEADER_KEY, FRONTEND_SDK_VERSION_HEADER_KEY];
+    }
+
     public static function setHeader(Response $response, $key, $value)
     {
         try {

@@ -54,13 +54,9 @@ class Handler extends ExceptionHandler
         try {
             return SuperTokens::handleError($request, $exception, [
                 'onUnauthorised' => function ($exception, $request, $response) {
-                    $response->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
-                    $response->header("Access-Control-Allow-Credentials", "true");
                     return $response->setStatusCode(440)->setContent("Please login again");
                 },
                 'onTryRefreshToken' => function ($exception, $request, $response) {
-                    $response->header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
-                    $response->header("Access-Control-Allow-Credentials", "true");
                     return $response->setStatusCode(440)->setContent("Call the refresh API");
                 },
                 'onTokenTheftDetected' => function ($sessionHandle, $userId, $request, $response) {

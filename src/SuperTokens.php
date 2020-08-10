@@ -253,6 +253,14 @@ class SuperTokens
     }
 
     /**
+     * @return array
+     */
+    public static function getCORSAllowedHeaders()
+    {
+        return CookieAndHeader::getCORSAllowedHeaders();
+    }
+
+    /**
      * @param string $sessionHandle
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
