@@ -1,5 +1,7 @@
 <?php
 
+use SuperTokens\SuperTokens;
+
 return [
 
     /*
@@ -23,7 +25,7 @@ return [
 
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['Content-Type', 'supertokens-sdk-name', 'supertokens-sdk-version', 'anti-csrf'],
+    'allowed_headers' => array_merge(['Content-Type'], SuperTokens::getCORSAllowedHeaders()),
 
     'exposed_headers' => [],
 

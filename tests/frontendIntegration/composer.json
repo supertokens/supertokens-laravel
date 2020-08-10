@@ -14,7 +14,7 @@
         "guzzlehttp/guzzle": "*",
         "laravel/framework": "^7.2",
         "laravel/tinker": "*",
-        "supertokens/supertokens-laravel": "~1.3.0",
+        "supertokens/supertokens-laravel": "1.4.x-dev",
         "symfony/yaml": "*"
     },
     "require-dev": {
