@@ -53,7 +53,7 @@ Route::middleware("supertokens.middleware:true")->get("/", function (Request $re
         $res->header("Cache-Control", "no-cache, private");
         return $res->setContent($request->request->get('supertokens')->getUserId());
     } catch (Exception $err) {
-        return $res->setStatusCode(440);
+        return $res->setStatusCode(401);
     }
 });
 

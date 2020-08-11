@@ -54,14 +54,14 @@ class Handler extends ExceptionHandler
         try {
             return SuperTokens::handleError($request, $exception, [
                 'onUnauthorised' => function ($exception, $request, $response) {
-                    return $response->setStatusCode(440)->setContent("Please login again");
+                    return $response->setStatusCode(401)->setContent("Please login again");
                 },
                 'onTryRefreshToken' => function ($exception, $request, $response) {
-                    return $response->setStatusCode(440)->setContent("Call the refresh API");
+                    return $response->setStatusCode(401)->setContent("Call the refresh API");
                 },
                 'onTokenTheftDetected' => function ($sessionHandle, $userId, $request, $response) {
                     SuperTokens::revokeSession($sessionHandle);
-                    return $response->setStatusCode(440)->setContent("You are being attacked");
+                    return $response->setStatusCode(401)->setContent("You are being attacked");
                 }
             ]);
         } catch (\Exception $err) {
