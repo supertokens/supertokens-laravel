@@ -90,6 +90,7 @@ class Utils
         $originalConfigYamlFilePath = $installationPath.self::ORIGINAL_CONFIG_YAML_FILE_PATH;
         copy($originalLicenseFilePath, $licenseFilePath);
         copy($originalConfigYamlFilePath, $configYamlFilePath);
+        Utils::setKeyValueInConfig("refresh_api_path", "/refresh");
     }
 
     public static function cleanST()
