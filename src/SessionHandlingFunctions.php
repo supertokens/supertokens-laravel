@@ -107,6 +107,15 @@ class SessionHandlingFunctions
             $response['idRefreshToken']['cookieSecure'] = $response['accessToken']['cookieSecure'];
             $response['idRefreshToken']['cookiePath'] = $response['accessToken']['cookiePath'];
         }
+        if (!isset($response['accessToken']['domain'])) {
+            $response['accessToken']['domain'] = null;
+        }
+        if (!isset($response['refreshToken']['domain'])) {
+            $response['refreshToken']['domain'] = null;
+        }
+        if (!isset($response['idRefreshToken']['domain'])) {
+            $response['idRefreshToken']['domain'] = null;
+        }
         return $response;
     }
 
@@ -175,8 +184,13 @@ class SessionHandlingFunctions
             unset($response['status']);
             unset($response['jwtSigningPublicKey']);
             unset($response['jwtSigningPublicKeyExpiryTime']);
-            if (Querier::getInstance()->getApiVersion() === "1.0") {
-                $response['accessToken']['sameSite'] = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
+            if (isset($response['accessToken'])) {
+                if (Querier::getInstance()->getApiVersion() === "1.0") {
+                    $response['accessToken']['sameSite'] = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
+                }
+                if (!isset($response['accessToken']['domain'])) {
+                    $response['accessToken']['domain'] = null;
+                }
             }
             return $response;
         } elseif ($response['status'] === "UNAUTHORISED") {
@@ -207,6 +221,15 @@ class SessionHandlingFunctions
                 $response['idRefreshToken']['domain'] = $response['accessToken']['domain'];
                 $response['idRefreshToken']['cookieSecure'] = $response['accessToken']['cookieSecure'];
                 $response['idRefreshToken']['cookiePath'] = $response['accessToken']['cookiePath'];
+            }
+            if (!isset($response['accessToken']['domain'])) {
+                $response['accessToken']['domain'] = null;
+            }
+            if (!isset($response['refreshToken']['domain'])) {
+                $response['refreshToken']['domain'] = null;
+            }
+            if (!isset($response['idRefreshToken']['domain'])) {
+                $response['idRefreshToken']['domain'] = null;
             }
             return $response;
         } elseif ($response['status'] === "UNAUTHORISED") {

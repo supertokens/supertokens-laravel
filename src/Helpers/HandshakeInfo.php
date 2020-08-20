@@ -34,7 +34,7 @@ class HandshakeInfo
     /**
      * @var string;
      */
-    public $cookieDomain;
+    public $cookieDomain = null;
 
     /**
      * @var boolean;
@@ -90,7 +90,9 @@ class HandshakeInfo
     {
         $this->accessTokenBlacklistingEnabled = $info['accessTokenBlacklistingEnabled'];
         $this->accessTokenPath = $info['accessTokenPath'];
-        $this->cookieDomain = $info['cookieDomain'];
+        if (isset($info['cookieDomain'])) {
+            $this->cookieDomain = $info['cookieDomain'];
+        }
         $this->cookieSecure = $info['cookieSecure'];
         $this->enableAntiCsrf = $info['enableAntiCsrf'];
         $this->jwtSigningPublicKey = $info['jwtSigningPublicKey'];

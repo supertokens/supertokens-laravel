@@ -221,6 +221,9 @@ class Session
         $this->userDataInJWT = $queryResponse['session']['userDataInJWT'];
         if (isset($queryResponse['accessToken'])) {
             $accessToken = $queryResponse['accessToken'];
+            if (!isset($accessToken['domain'])) {
+                $accessToken['domain'] = null;
+            }
             $this->accessToken = $accessToken['token'];
             if (isset($this->response)) {
                 CookieAndHeader::attachAccessTokenToCookie($this->response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessToken['sameSite']);

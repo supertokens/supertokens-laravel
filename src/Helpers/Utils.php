@@ -88,7 +88,7 @@ class Utils
      * @param string $v2
      * @return mixed
      */
-    private static function compareVersions($v1, $v2)
+    public static function compareVersions($v1, $v2)
     {
         $v1Exploded = explode(".", $v1);
         $v2Exploded = explode(".", $v2);
