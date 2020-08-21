@@ -26,5 +26,6 @@
  */
 
 return [
-    'hosts' => 'http://localhost:9000'
+    'hosts' => 'http://localhost:9000',
+    'cookieSameSite' => 'lax'
 ];

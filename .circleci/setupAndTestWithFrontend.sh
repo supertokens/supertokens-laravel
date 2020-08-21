@@ -80,6 +80,8 @@ v=`echo $4 | rev | cut -d"." -f2-  | rev`
 composer install supertokens/supertokens-laravel:$v.x-dev
 php artisan serve --port=8080 &
 pid=$!
+php artisan serve --port=8082 &
+pid2=$!
 cd ../../../supertokens-website/test/server
 npm i -d
 npm i git+https://github.com:supertokens/supertokens-node.git#$3
@@ -94,3 +96,4 @@ fi
 rm -rf ./test/server/node_modules/supertokens-node
 git checkout HEAD -- ./test/server/package.json
 kill -15 $pid
+kill -15 $pid2

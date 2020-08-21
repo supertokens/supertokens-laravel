@@ -21,7 +21,7 @@ return [
 
     'allowed_methods' => ['GET', 'POST', 'DELETE'],
 
-    'allowed_origins' => ['http://127.0.0.1:8080'],
+    'allowed_origins' => ['http://localhost.org:8080'],
 
     'allowed_origins_patterns' => [],
 
