@@ -74,7 +74,7 @@ cd ../
 git clone git@github.com:supertokens/supertokens-website.git
 cd supertokens-website
 git checkout $2
-cd ../project/test/frontendIntegration/
+cd ../project/tests/frontendIntegration/
 composer install
 v=`echo $4 | rev | cut -d"." -f2-  | rev`
 composer install supertokens/supertokens-laravel:$v.x-dev
