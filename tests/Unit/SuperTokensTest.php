@@ -412,7 +412,8 @@ class SuperTokensTest extends TestCase
         } else {
             $this->assertContains($responseData1["accessTokenCookie"]->getDomain(), [null]);
         }
-        $this->assertTrue($responseData1["accessTokenCookie"]->getSameSite() === "none");
+        $this->assertTrue($responseData1["accessTokenCookie"]->getSameSite() === "none" ||
+            $responseData1["accessTokenCookie"]->getSameSite() === "lax");
         $this->assertTrue($responseData1["accessTokenCookie"]->isHttpOnly());
         $this->assertTrue(!$responseData1["accessTokenCookie"]->isSecure());
 
@@ -422,7 +423,8 @@ class SuperTokensTest extends TestCase
         } else {
             $this->assertContains($responseData1["refreshTokenCookie"]->getDomain(), [null]);
         }
-        $this->assertTrue($responseData1["refreshTokenCookie"]->getSameSite() === "none");
+        $this->assertTrue($responseData1["refreshTokenCookie"]->getSameSite() === "none" ||
+            $responseData1["refreshTokenCookie"]->getSameSite() === "lax");
         $this->assertTrue($responseData1["refreshTokenCookie"]->isHttpOnly());
         $this->assertTrue(!$responseData1["refreshTokenCookie"]->isSecure());
 
@@ -432,7 +434,8 @@ class SuperTokensTest extends TestCase
         } else {
             $this->assertContains($responseData1["idRefreshTokenCookie"]->getDomain(), [null]);
         }
-        $this->assertTrue($responseData1["idRefreshTokenCookie"]->getSameSite() === "none");
+        $this->assertTrue($responseData1["idRefreshTokenCookie"]->getSameSite() === "none" ||
+            $responseData1["idRefreshTokenCookie"]->getSameSite() === "lax");
         $this->assertTrue($responseData1["idRefreshTokenCookie"]->isHttpOnly());
         $this->assertTrue(!$responseData1["idRefreshTokenCookie"]->isSecure());
 
@@ -465,19 +468,22 @@ class SuperTokensTest extends TestCase
         $this->assertNotNull($responseData2["antiCsrf"]);
         $this->assertTrue($responseData2["accessTokenCookie"]->getPath() === "/");
         $this->assertContains($responseData2["accessTokenCookie"]->getDomain(), ["localhost", "supertokens.io", null]);
-        $this->assertTrue($responseData2["accessTokenCookie"]->getSameSite() === "none");
+        $this->assertTrue($responseData2["accessTokenCookie"]->getSameSite() === "none" ||
+            $responseData2["accessTokenCookie"]->getSameSite() === "lax");
         $this->assertTrue($responseData2["accessTokenCookie"]->isHttpOnly());
         $this->assertTrue(!$responseData2["accessTokenCookie"]->isSecure());
 
         $this->assertTrue($responseData2["refreshTokenCookie"]->getPath() === "/refresh");
         $this->assertContains($responseData2["refreshTokenCookie"]->getDomain(), ["localhost", "supertokens.io", null]);
-        $this->assertTrue($responseData2["refreshTokenCookie"]->getSameSite() === "none");
+        $this->assertTrue($responseData2["refreshTokenCookie"]->getSameSite() === "none" ||
+            $responseData2["refreshTokenCookie"]->getSameSite() === "lax");
         $this->assertTrue($responseData2["refreshTokenCookie"]->isHttpOnly());
         $this->assertTrue(!$responseData2["refreshTokenCookie"]->isSecure());
 
         $this->assertTrue($responseData2["idRefreshTokenCookie"]->getPath() === "/");
         $this->assertContains($responseData2["idRefreshTokenCookie"]->getDomain(), ["localhost", "supertokens.io", null]);
-        $this->assertTrue($responseData2["idRefreshTokenCookie"]->getSameSite() === "none");
+        $this->assertTrue($responseData2["idRefreshTokenCookie"]->getSameSite() === "none" ||
+            $responseData2["idRefreshTokenCookie"]->getSameSite() === "lax");
         $this->assertTrue($responseData2["idRefreshTokenCookie"]->isHttpOnly());
         $this->assertTrue(!$responseData2["idRefreshTokenCookie"]->isSecure());
 
@@ -492,7 +498,8 @@ class SuperTokensTest extends TestCase
         $this->assertNotNull($responseData3["accessToken"]);
         $this->assertTrue($responseData3["accessTokenCookie"]->getPath() === "/");
         $this->assertContains($responseData3["accessTokenCookie"]->getDomain(), ["localhost", "supertokens.io", null]);
-        $this->assertTrue($responseData3["accessTokenCookie"]->getSameSite() === "none");
+        $this->assertTrue($responseData3["accessTokenCookie"]->getSameSite() === "none" ||
+            $responseData3["accessTokenCookie"]->getSameSite() === "lax");
         $this->assertTrue($responseData3["accessTokenCookie"]->isHttpOnly());
         $this->assertTrue(!$responseData3["accessTokenCookie"]->isSecure());
 
