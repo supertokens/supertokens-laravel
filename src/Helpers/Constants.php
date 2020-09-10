@@ -17,7 +17,7 @@ namespace SuperTokens\Helpers;
 
 class Constants
 {
-    const VERSION = '1.4.0';
+    const VERSION = '1.5.0';
     const API_VERSION = "/apiversion";
     const SESSION = "/session";
     const SESSION_REMOVE = "/session/remove";
@@ -33,7 +33,7 @@ class Constants
     const SESSION_REGENERATE = "/session/regenerate";
     const API_VERSION_HEADER = "cdi-version";
     const API_KEY_HEADER = "api-key";
-    const SUPPORTED_CDI_VERSIONS = ['1.0', '2.0', '2.1', '2.2'];
+    const SUPPORTED_CDI_VERSIONS = ['1.0', '2.0', '2.1', '2.2', '2.3'];
     const EXCEPTION_UNAUTHORISED = "UNAUTHORISED";
     const DRIVER_NOT_COMPATIBLE_MESSAGE = "Current driver version is not compatible with the core version on your host/s";
     const SAME_SITE_COOKIE_DEFAULT_VALUE = "none";

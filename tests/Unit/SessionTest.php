@@ -59,10 +59,10 @@ class SessionTest extends TestCase
     {
         Utils::startST();
         $session = SessionHandlingFunctions::createNewSession("userId", [], []);
-        $refreshedSession = SessionHandlingFunctions::refreshSession($session['refreshToken']['token']);
+        $refreshedSession = SessionHandlingFunctions::refreshSession($session['refreshToken']['token'], $session['antiCsrfToken']);
         SessionHandlingFunctions::getSession($refreshedSession['accessToken']['token'], $refreshedSession['antiCsrfToken'], true, $refreshedSession['idRefreshToken']['token']);
         try {
-            SessionHandlingFunctions::refreshSession($session['refreshToken']['token']);
+            SessionHandlingFunctions::refreshSession($session['refreshToken']['token'], $session['antiCsrfToken']);
             $this->assertTrue(false);
         } catch (SuperTokensTokenTheftException $e) {
             $this->assertTrue($e->getUserId() === "userId");
@@ -77,10 +77,10 @@ class SessionTest extends TestCase
         Utils::startST();
         Config::set('supertokens.apiKey', 'sakhldskaudshjvbaldiuvbasl');
         $session = SessionHandlingFunctions::createNewSession("userId", [], []);
-        $refreshedSession = SessionHandlingFunctions::refreshSession($session['refreshToken']['token']);
+        $refreshedSession = SessionHandlingFunctions::refreshSession($session['refreshToken']['token'], $session['antiCsrfToken']);
         SessionHandlingFunctions::getSession($refreshedSession['accessToken']['token'], $refreshedSession['antiCsrfToken'], true, $refreshedSession['idRefreshToken']['token']);
         try {
-            SessionHandlingFunctions::refreshSession($session['refreshToken']['token']);
+            SessionHandlingFunctions::refreshSession($session['refreshToken']['token'], $session['antiCsrfToken']);
             $this->assertTrue(false);
         } catch (SuperTokensTokenTheftException $e) {
             $this->assertTrue($e->getUserId() === "userId");
@@ -121,7 +121,7 @@ class SessionTest extends TestCase
         SessionHandlingFunctions::getSession($session['accessToken']['token'], $session['antiCsrfToken'], true, $session['idRefreshToken']['token']);
         self::assertFalse(SessionHandlingFunctions::$TEST_SERVICE_CALLED);
 
-        $refreshedSession = SessionHandlingFunctions::refreshSession($session['refreshToken']['token']);
+        $refreshedSession = SessionHandlingFunctions::refreshSession($session['refreshToken']['token'], $session['antiCsrfToken']);
         $this->assertArrayHasKey("session", $refreshedSession);
         $this->assertArrayHasKey("accessToken", $refreshedSession);
         $this->assertArrayHasKey("refreshToken", $refreshedSession);

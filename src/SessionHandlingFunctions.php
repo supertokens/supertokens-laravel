@@ -202,16 +202,21 @@ class SessionHandlingFunctions
 
     /**
      * @param $refreshToken
+     * @param string | null $antiCsrfToken
      * @return array
      * @throws SuperTokensGeneralException
      * @throws SuperTokensUnauthorisedException
      * @throws SuperTokensTokenTheftException
       */
-    public static function refreshSession($refreshToken)
+    public static function refreshSession($refreshToken, $antiCsrfToken)
     {
-        $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REFRESH, [
+        $requestBody = [
             'refreshToken' => $refreshToken
-        ]);
+        ];
+        if (isset($antiCsrfToken)) {
+            $requestBody['antiCsrfToken'] = $antiCsrfToken;
+        }
+        $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REFRESH, $requestBody);
         if ($response['status'] === "OK") {
             unset($response['status']);
             if (Querier::getInstance()->getApiVersion() === "1.0") {

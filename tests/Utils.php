@@ -88,9 +88,13 @@ class Utils
         $configYamlFilePath = $installationPath.self::CONFIG_YAML_FILE_PATH;
         $originalLicenseFilePath = $installationPath.self::ORIGINAL_LICENSE_FILE_PATH;
         $originalConfigYamlFilePath = $installationPath.self::ORIGINAL_CONFIG_YAML_FILE_PATH;
-        copy($originalLicenseFilePath, $licenseFilePath);
+        try {
+            copy($originalLicenseFilePath, $licenseFilePath);
+        } catch (Exception $e) {
+        }
         copy($originalConfigYamlFilePath, $configYamlFilePath);
         Utils::setKeyValueInConfig("refresh_api_path", "/refresh");
+        Utils::setKeyValueInConfig("enable_anti_csrf", "true");
     }
 
     public static function cleanST()
@@ -102,6 +106,9 @@ class Utils
         $webServerTempDir = $installationPath.self::WEB_SERVER_TEMP_DIR;
         try {
             unlink($licenseFilePath);
+        } catch (Exception $e) {
+        }
+        try {
             unlink($configYamlFilePath);
             self::rmrf($processDir);
             self::rmrf($webServerTempDir);

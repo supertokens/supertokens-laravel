@@ -144,7 +144,8 @@ class SuperTokens
         }
 
         try {
-            $newSession = SessionHandlingFunctions::refreshSession($refreshToken);
+            $antiCsrfToken = CookieAndHeader::getAntiCsrfHeader($request);
+            $newSession = SessionHandlingFunctions::refreshSession($refreshToken, $antiCsrfToken);
 
             $accessToken = $newSession['accessToken'];
             $refreshToken = $newSession['refreshToken'];

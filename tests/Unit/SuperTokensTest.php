@@ -363,6 +363,7 @@ class SuperTokensTest extends TestCase
         $request2 = new Request([], [], [], [
             'sRefreshToken' => $responseData1['refreshToken']
         ]);
+        $request2->headers->set("anti-csrf", $responseData1['antiCsrf']);
         $response2 = new Response();
         SuperTokens::refreshSession($request2, $response2);
         $responseData2 = Utils::extractInfoFromResponse($response2);
@@ -458,6 +459,7 @@ class SuperTokensTest extends TestCase
         $request3 = new Request([], [], [], [
             'sRefreshToken' => $responseData1['refreshToken']
         ]);
+        $request3->headers->set("anti-csrf", $responseData1['antiCsrf']);
         $response3 = new Response();
         SuperTokens::refreshSession($request3, $response3);
         $responseData2 = Utils::extractInfoFromResponse($response3);
