@@ -82,17 +82,17 @@ class MiddlewareTest extends TestCase
         $this->assertNotEquals($responseData1['antiCsrf'], $responseData2['antiCsrf']);
         $this->assertTrue($responseData2["accessTokenCookie"]->getPath() === Utils::TEST_ACCESS_TOKEN_PATH_VALUE);
         $this->assertTrue($responseData2["accessTokenCookie"]->getDomain() === Utils::TEST_COOKIE_DOMAIN_VALUE);
-        $this->assertTrue($responseData2["accessTokenCookie"]->getSameSite() === "lax");
+        $this->assertTrue($responseData2["accessTokenCookie"]->getSameSite() === "lax" || $responseData2["accessTokenCookie"]->getSameSite() === "none");
         $this->assertTrue($responseData2["accessTokenCookie"]->isHttpOnly());
         $this->assertTrue($responseData2["accessTokenCookie"]->isSecure());
         $this->assertTrue($responseData2["refreshTokenCookie"]->getPath() === Utils::TEST_REFRESH_TOKEN_PATH_KEY_VALUE);
         $this->assertTrue($responseData2["refreshTokenCookie"]->getDomain() === Utils::TEST_COOKIE_DOMAIN_VALUE);
-        $this->assertTrue($responseData2["refreshTokenCookie"]->getSameSite() === "lax");
+        $this->assertTrue($responseData2["refreshTokenCookie"]->getSameSite() === "lax" || $responseData2["refreshTokenCookie"]->getSameSite() === "none");
         $this->assertTrue($responseData2["refreshTokenCookie"]->isHttpOnly());
         $this->assertTrue($responseData2["refreshTokenCookie"]->isSecure());
         $this->assertTrue($responseData2["idRefreshTokenCookie"]->getPath() === Utils::TEST_ACCESS_TOKEN_PATH_VALUE);
         $this->assertTrue($responseData2["idRefreshTokenCookie"]->getDomain() === Utils::TEST_COOKIE_DOMAIN_VALUE);
-        $this->assertTrue($responseData2["idRefreshTokenCookie"]->getSameSite() === "lax");
+        $this->assertTrue($responseData2["idRefreshTokenCookie"]->getSameSite() === "lax" || $responseData2["idRefreshTokenCookie"]->getSameSite() === "none");
         $this->assertTrue($responseData2["idRefreshTokenCookie"]->isHttpOnly());
         $this->assertTrue($responseData2["idRefreshTokenCookie"]->isSecure());
 
@@ -109,7 +109,7 @@ class MiddlewareTest extends TestCase
         $this->assertNotNull($responseData3["accessToken"]);
         $this->assertTrue($responseData3["accessTokenCookie"]->getPath() === Utils::TEST_ACCESS_TOKEN_PATH_VALUE);
         $this->assertTrue($responseData3["accessTokenCookie"]->getDomain() === Utils::TEST_COOKIE_DOMAIN_VALUE);
-        $this->assertTrue($responseData3["accessTokenCookie"]->getSameSite() === "lax");
+        $this->assertTrue($responseData3["accessTokenCookie"]->getSameSite() === "lax" || $responseData3["accessTokenCookie"]->getSameSite() === "none");
         $this->assertTrue($responseData3["accessTokenCookie"]->isHttpOnly());
         $this->assertTrue($responseData3["accessTokenCookie"]->isSecure());
         $this->assertNull($responseData3["idRefreshTokenFromHeader"]);
@@ -220,7 +220,7 @@ class MiddlewareTest extends TestCase
                     return true;
                 }
             ]);
-            $this->assertEquals(401, $result->getStatusCode());
+            $this->assertTrue($result->getStatusCode() == 401 || $result->getStatusCode() == 440);
             $responseData5 = Utils::extractInfoFromResponse($result);
             $this->assertEquals(0, $responseData5['accessTokenExpiry']);
             $this->assertEquals("", $responseData5['accessToken']);
