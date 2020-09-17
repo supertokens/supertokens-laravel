@@ -169,11 +169,6 @@ class HandshakeInfo
     {
         $response = Querier::getInstance()->sendPostRequest(Constants::HANDSHAKE, []);
 
-        if (Querier::getInstance()->getApiVersion() === "1.0") {
-            $response["cookieSameSite"] = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
-            $response["sessionExpiredStatusCode"] = Constants::SESSION_EXPIRED_STATUS_CODE;
-        }
-
         if (App::environment("testing") && isset($keyValuePairs)) {
             foreach ($keyValuePairs as $key => $value) {
                 $response[$key] = $value;

@@ -195,10 +195,6 @@ class Session
      */
     public function updateJWTPayload(array $newJWTPayload)
     {
-        if (Querier::getInstance()->getApiVersion() === "1.0") {
-            throw SuperTokensException::generateGeneralException("the current function is not supported for the core");
-        }
-
         if (!isset($newJWTPayload) || is_null($newJWTPayload)) {
             throw SuperTokensGeneralException::generateGeneralException("jwt data passed to the function can't be null. Please pass empty array instead.");
         }

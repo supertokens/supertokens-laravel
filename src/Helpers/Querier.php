@@ -294,16 +294,8 @@ class Querier
         } catch (ServerException $e) {
             throw SuperTokensException::generateGeneralException($e);
         } catch (ConnectException | RequestException $e) {
-            if ($path === Constants::API_VERSION && $e instanceof ClientException) {
-                if (App::environment("testing")) {
-                    array_push($this->hostAliveForTesting, $currentHost);
-                    $this->hostAliveForTesting = array_unique($this->hostAliveForTesting);
-                }
-                if ($e->getCode() === 404) {
-                    return ["versions" => ["1.0"]];
-                } elseif ($e->getCode() === 401) {
-                    throw SuperTokensException::generateGeneralException($e);
-                }
+            if ($e->getCode() == 401) {
+                throw SuperTokensException::generateGeneralException($e);
             }
             return $this->sendRequest($path, $method, $data, $httpFunction, $numberOfRetries - 1);
         } catch (Exception $e) {

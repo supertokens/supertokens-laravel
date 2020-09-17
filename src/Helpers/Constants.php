@@ -33,7 +33,7 @@ class Constants
     const SESSION_REGENERATE = "/session/regenerate";
     const API_VERSION_HEADER = "cdi-version";
     const API_KEY_HEADER = "api-key";
-    const SUPPORTED_CDI_VERSIONS = ['1.0', '2.0', '2.1', '2.2', '2.3'];
+    const SUPPORTED_CDI_VERSIONS = ['2.0', '2.1', '2.2', '2.3'];
     const EXCEPTION_UNAUTHORISED = "UNAUTHORISED";
     const DRIVER_NOT_COMPATIBLE_MESSAGE = "Current driver version is not compatible with the core version on your host/s";
     const SAME_SITE_COOKIE_DEFAULT_VALUE = "none";

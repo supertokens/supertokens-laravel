@@ -99,14 +99,6 @@ class SessionHandlingFunctions
         unset($response['status']);
         unset($response['jwtSigningPublicKey']);
         unset($response['jwtSigningPublicKeyExpiryTime']);
-        if (Querier::getInstance()->getApiVersion() === "1.0") {
-            $response['accessToken']['sameSite'] = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
-            $response['refreshToken']['sameSite'] = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
-            $response['idRefreshToken']['sameSite'] = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
-            $response['idRefreshToken']['domain'] = $response['accessToken']['domain'];
-            $response['idRefreshToken']['cookieSecure'] = $response['accessToken']['cookieSecure'];
-            $response['idRefreshToken']['cookiePath'] = $response['accessToken']['cookiePath'];
-        }
         if (!isset($response['accessToken']['domain'])) {
             $response['accessToken']['domain'] = null;
         }
@@ -185,9 +177,6 @@ class SessionHandlingFunctions
             unset($response['jwtSigningPublicKey']);
             unset($response['jwtSigningPublicKeyExpiryTime']);
             if (isset($response['accessToken'])) {
-                if (Querier::getInstance()->getApiVersion() === "1.0") {
-                    $response['accessToken']['sameSite'] = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
-                }
                 if (!isset($response['accessToken']['domain'])) {
                     $response['accessToken']['domain'] = null;
                 }
@@ -219,14 +208,6 @@ class SessionHandlingFunctions
         $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REFRESH, $requestBody);
         if ($response['status'] === "OK") {
             unset($response['status']);
-            if (Querier::getInstance()->getApiVersion() === "1.0") {
-                $response['accessToken']['sameSite'] = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
-                $response['refreshToken']['sameSite'] = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
-                $response['idRefreshToken']['sameSite'] = Constants::SAME_SITE_COOKIE_DEFAULT_VALUE;
-                $response['idRefreshToken']['domain'] = $response['accessToken']['domain'];
-                $response['idRefreshToken']['cookieSecure'] = $response['accessToken']['cookieSecure'];
-                $response['idRefreshToken']['cookiePath'] = $response['accessToken']['cookiePath'];
-            }
             if (!isset($response['accessToken']['domain'])) {
                 $response['accessToken']['domain'] = null;
             }
@@ -246,24 +227,16 @@ class SessionHandlingFunctions
 
     /**
      * @param string $userId
-     * @return array | integer
+     * @return array
      * @throws SuperTokensGeneralException
      */
     public static function revokeAllSessionsForUser($userId)
     {
-        if (Querier::getInstance()->getApiVersion() === "1.0") {
-            $response = Querier::getInstance()->sendDeleteRequest(Constants::SESSION, [
-                'userId' => $userId
-            ]);
-            self::$TEST_FUNCTION_VERSION = "1.0";
-            return $response['numberOfSessionsRevoked'];
-        } else {
-            $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
-                'userId' => $userId
-            ]);
-            self::$TEST_FUNCTION_VERSION = "2.0";
-            return $response['sessionHandlesRevoked'];
-        }
+        $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
+            'userId' => $userId
+        ]);
+        self::$TEST_FUNCTION_VERSION = "2.0";
+        return $response['sessionHandlesRevoked'];
     }
 
     /**
@@ -286,19 +259,11 @@ class SessionHandlingFunctions
      */
     public static function revokeSession($sessionHandle)
     {
-        if (Querier::getInstance()->getApiVersion() === "1.0") {
-            $response = Querier::getInstance()->sendDeleteRequest(Constants::SESSION, [
-                'sessionHandles' => [$sessionHandle]
-            ]);
-            self::$TEST_FUNCTION_VERSION = "1.0";
-            return $response['numberOfSessionsRevoked'] === 1;
-        } else {
-            $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
-                'sessionHandles' => [$sessionHandle]
-            ]);
-            self::$TEST_FUNCTION_VERSION = "2.0";
-            return count($response['sessionHandlesRevoked']) === 1;
-        }
+        $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
+            'sessionHandles' => [$sessionHandle]
+        ]);
+        self::$TEST_FUNCTION_VERSION = "2.0";
+        return count($response['sessionHandlesRevoked']) === 1;
     }
 
     /**
@@ -308,17 +273,10 @@ class SessionHandlingFunctions
      */
     public static function revokeMultipleSessions($sessionHandles)
     {
-        if (Querier::getInstance()->getApiVersion() === "1.0") {
-            $response = Querier::getInstance()->sendDeleteRequest(Constants::SESSION, [
-                'sessionHandles' => $sessionHandles
-            ]);
-            return $response['numberOfSessionsRevoked'];
-        } else {
-            $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
-                'sessionHandles' => $sessionHandles
-            ]);
-            return $response['sessionHandlesRevoked'];
-        }
+        $response = Querier::getInstance()->sendPostRequest(Constants::SESSION_REMOVE, [
+            'sessionHandles' => $sessionHandles
+        ]);
+        return $response['sessionHandlesRevoked'];
     }
 
     /**
@@ -369,9 +327,6 @@ class SessionHandlingFunctions
      */
     public static function getJWTPayload($sessionHandle)
     {
-        if (Querier::getInstance()->getApiVersion() === "1.0") {
-            throw SuperTokensException::generateGeneralException("the current function is not supported for the core. Please upgrade the supertokens service.");
-        }
         $response = Querier::getInstance()->sendGetRequest(Constants::JWT_DATA, [
             'sessionHandle' => $sessionHandle
         ]);
@@ -396,9 +351,6 @@ class SessionHandlingFunctions
             $newJWTPayload = new ArrayObject();
         }
 
-        if (Querier::getInstance()->getApiVersion() === "1.0") {
-            throw SuperTokensException::generateGeneralException("the current function is not supported for the core. Please upgrade the supertokens service.");
-        }
         $response = Querier::getInstance()->sendPutRequest(Constants::JWT_DATA, [
             'sessionHandle' => $sessionHandle,
             'userDataInJWT' => $newJWTPayload

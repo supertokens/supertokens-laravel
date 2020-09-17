@@ -91,15 +91,11 @@ class HandshakeTest extends TestCase
     public function testCustomConfig(): void
     {
         Utils::startST();
-        $statusCodeSupported = Querier::getInstance()->getApiVersion() !== "1.0";
         Utils::reset();
         Utils::cleanST();
         Utils::setupST();
-        $expectedStatusCode = Constants::SESSION_EXPIRED_STATUS_CODE;
-        if ($statusCodeSupported) {
-            Utils::setKeyValueInConfig(Utils::TEST_SESSION_EXPIRED_STATUS_CODE_CONFIG_KEY, Utils::TEST_SESSION_EXPIRED_STATUS_CODE_VALUE);
-            $expectedStatusCode = Utils::TEST_SESSION_EXPIRED_STATUS_CODE_VALUE;
-        }
+        Utils::setKeyValueInConfig(Utils::TEST_SESSION_EXPIRED_STATUS_CODE_CONFIG_KEY, Utils::TEST_SESSION_EXPIRED_STATUS_CODE_VALUE);
+        $expectedStatusCode = Utils::TEST_SESSION_EXPIRED_STATUS_CODE_VALUE;
         Utils::startST();
         $this->assertEquals($expectedStatusCode, HandshakeInfo::getInstance()->sessionExpiredStatusCode);
     }

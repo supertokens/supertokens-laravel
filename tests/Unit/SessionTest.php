@@ -95,7 +95,7 @@ class SessionTest extends TestCase
         Utils::startST();
         try {
             $version = Querier::getInstance()->getApiVersion();
-            if ($version !== "1.0" && $version !== "2.0" && strpos(env("SUPERTOKENS_PATH"), 'com-') !== false) {
+            if ($version !== "2.0" && strpos(env("SUPERTOKENS_PATH"), 'com-') !== false) {
                 $this->assertTrue(false);
             }
         } catch (Exception $err) {
@@ -191,39 +191,21 @@ class SessionTest extends TestCase
     {
         Utils::startST();
         SessionHandlingFunctions::revokeAllSessionsForUser("userId");
-        if (Querier::getInstance()->getApiVersion() === "1.0") {
-            $this->assertEquals("1.0", SessionHandlingFunctions::$TEST_FUNCTION_VERSION);
-            $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
-            $session = SessionHandlingFunctions::createNewSession("userId", [], []);
-            $this->assertCount(1, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
-            $this->assertTrue(SessionHandlingFunctions::revokeSession($session['session']['handle']));
-            $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
-            SessionHandlingFunctions::createNewSession("userId", [], []);
-            SessionHandlingFunctions::createNewSession("userId", [], []);
-            $this->assertCount(2, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
-            $this->assertEquals(2, SessionHandlingFunctions::revokeAllSessionsForUser("userId"));
-            $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
-            SessionHandlingFunctions::reset();
-            $this->assertFalse(SessionHandlingFunctions::revokeSession("random"));
-            $this->assertEquals("1.0", SessionHandlingFunctions::$TEST_FUNCTION_VERSION);
-            $this->assertEquals(0, SessionHandlingFunctions::revokeAllSessionsForUser("randomUserId"));
-        } else {
-            $this->assertEquals("2.0", SessionHandlingFunctions::$TEST_FUNCTION_VERSION);
-            $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
-            $session = SessionHandlingFunctions::createNewSession("userId", [], []);
-            $this->assertCount(1, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
-            $this->assertTrue(SessionHandlingFunctions::revokeSession($session['session']['handle']));
-            $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
-            SessionHandlingFunctions::createNewSession("userId", [], []);
-            SessionHandlingFunctions::createNewSession("userId", [], []);
-            $this->assertCount(2, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
-            $this->assertCount(2, SessionHandlingFunctions::revokeAllSessionsForUser("userId"));
-            $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
-            SessionHandlingFunctions::reset();
-            $this->assertFalse(SessionHandlingFunctions::revokeSession("random"));
-            $this->assertEquals("2.0", SessionHandlingFunctions::$TEST_FUNCTION_VERSION);
-            $this->assertCount(0, SessionHandlingFunctions::revokeAllSessionsForUser("randomUserId"));
-        }
+        $this->assertEquals("2.0", SessionHandlingFunctions::$TEST_FUNCTION_VERSION);
+        $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+        $session = SessionHandlingFunctions::createNewSession("userId", [], []);
+        $this->assertCount(1, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+        $this->assertTrue(SessionHandlingFunctions::revokeSession($session['session']['handle']));
+        $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+        SessionHandlingFunctions::createNewSession("userId", [], []);
+        SessionHandlingFunctions::createNewSession("userId", [], []);
+        $this->assertCount(2, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+        $this->assertCount(2, SessionHandlingFunctions::revokeAllSessionsForUser("userId"));
+        $this->assertCount(0, SessionHandlingFunctions::getAllSessionHandlesForUser("userId"));
+        SessionHandlingFunctions::reset();
+        $this->assertFalse(SessionHandlingFunctions::revokeSession("random"));
+        $this->assertEquals("2.0", SessionHandlingFunctions::$TEST_FUNCTION_VERSION);
+        $this->assertCount(0, SessionHandlingFunctions::revokeAllSessionsForUser("randomUserId"));
     }
 
     /**
@@ -265,50 +247,35 @@ class SessionTest extends TestCase
         Utils::startST();
         $session1 = SessionHandlingFunctions::createNewSession("userId", [], []);
         $session2 = SessionHandlingFunctions::createNewSession("userId", [], []);
-        if (Querier::getInstance()->getApiVersion() !== "1.0") {
-            $jwtData0 = SessionHandlingFunctions::getJWTPayload($session1['session']['handle']);
-            $this->assertTrue(count($jwtData0) === 0);
-            $this->assertTrue(count($session1['session']['userDataInJWT']) === 0);
-            $jwtData1 = SessionHandlingFunctions::getJWTPayload($session2['session']['handle']);
-            $this->assertTrue(count($jwtData1) === 0);
-            $this->assertTrue(count($session2['session']['userDataInJWT']) === 0);
+        $jwtData0 = SessionHandlingFunctions::getJWTPayload($session1['session']['handle']);
+        $this->assertTrue(count($jwtData0) === 0);
+        $this->assertTrue(count($session1['session']['userDataInJWT']) === 0);
+        $jwtData1 = SessionHandlingFunctions::getJWTPayload($session2['session']['handle']);
+        $this->assertTrue(count($jwtData1) === 0);
+        $this->assertTrue(count($session2['session']['userDataInJWT']) === 0);
 
-            SessionHandlingFunctions::updateJWTPayload($session1['session']['handle'], ["key" => "value"]);
-            $jwtData2 = SessionHandlingFunctions::getJWTPayload($session1['session']['handle']);
-            $this->assertArrayHasKey("key", $jwtData2);
-            $this->assertEquals("value", $jwtData2["key"]);
-            $jwtData3 = SessionHandlingFunctions::getJWTPayload($session2['session']['handle']);
-            $this->assertArrayNotHasKey("key", $jwtData3);
-            $this->assertTrue(count($jwtData3) === 0);
+        SessionHandlingFunctions::updateJWTPayload($session1['session']['handle'], ["key" => "value"]);
+        $jwtData2 = SessionHandlingFunctions::getJWTPayload($session1['session']['handle']);
+        $this->assertArrayHasKey("key", $jwtData2);
+        $this->assertEquals("value", $jwtData2["key"]);
+        $jwtData3 = SessionHandlingFunctions::getJWTPayload($session2['session']['handle']);
+        $this->assertArrayNotHasKey("key", $jwtData3);
+        $this->assertTrue(count($jwtData3) === 0);
 
-            //passing invalid session handle when updating session data
-            try {
-                SessionHandlingFunctions::updateJWTPayload("incorrect", ["key" => "value2"]);
-                $this->assertTrue(false);
-            } catch (SuperTokensUnauthorisedException $e) {
-                $this->assertTrue(true);
-            }
+        //passing invalid session handle when updating session data
+        try {
+            SessionHandlingFunctions::updateJWTPayload("incorrect", ["key" => "value2"]);
+            $this->assertTrue(false);
+        } catch (SuperTokensUnauthorisedException $e) {
+            $this->assertTrue(true);
+        }
 
-            //passing invalid jwt data when updating session data
-            try {
-                SessionHandlingFunctions::updateJWTPayload($session1['session']['handle'], null);
-                $this->assertTrue(false);
-            } catch (SuperTokensGeneralException $e) {
-                $this->assertTrue(true);
-            }
-        } else {
-            try {
-                SessionHandlingFunctions::getJWTPayload($session1['session']['handle']);
-                $this->assertTrue(false);
-            } catch (SuperTokensGeneralException $e) {
-                $this->assertTrue(true);
-            }
-            try {
-                SessionHandlingFunctions::updateJWTPayload($session1['session']['handle'], []);
-                $this->assertTrue(false);
-            } catch (SuperTokensGeneralException $e) {
-                $this->assertTrue(true);
-            }
+        //passing invalid jwt data when updating session data
+        try {
+            SessionHandlingFunctions::updateJWTPayload($session1['session']['handle'], null);
+            $this->assertTrue(false);
+        } catch (SuperTokensGeneralException $e) {
+            $this->assertTrue(true);
         }
     }
 

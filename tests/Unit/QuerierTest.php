@@ -62,17 +62,15 @@ class QuerierTest extends TestCase
             $this->assertTrue(true);
         }
         Utils::startST();
-        if (Querier::getInstance()->getApiVersion() !== "1.0") {
-            $cv = Utils::API_VERSION_TEST_SINGLE_SUPPORTED_CV;
-            $sv = Utils::API_VERSION_TEST_SINGLE_SUPPORTED_SV;
-            $this->assertEquals(Utils::API_VERSION_TEST_SINGLE_SUPPORTED_RESULT, SuperTokensUtils::findMaxVersion($cv, $sv));
-            $cv = Utils::API_VERSION_TEST_MULTIPLE_SUPPORTED_CV;
-            $sv = Utils::API_VERSION_TEST_MULTIPLE_SUPPORTED_SV;
-            $this->assertEquals(Utils::API_VERSION_TEST_MULTIPLE_SUPPORTED_RESULT, SuperTokensUtils::findMaxVersion($cv, $sv));
-            $cv = Utils::API_VERSION_TEST_NON_SUPPORTED_CV;
-            $sv = Utils::API_VERSION_TEST_NON_SUPPORTED_SV;
-            $this->assertNull(SuperTokensUtils::findMaxVersion($cv, $sv));
-        }
+        $cv = Utils::API_VERSION_TEST_SINGLE_SUPPORTED_CV;
+        $sv = Utils::API_VERSION_TEST_SINGLE_SUPPORTED_SV;
+        $this->assertEquals(Utils::API_VERSION_TEST_SINGLE_SUPPORTED_RESULT, SuperTokensUtils::findMaxVersion($cv, $sv));
+        $cv = Utils::API_VERSION_TEST_MULTIPLE_SUPPORTED_CV;
+        $sv = Utils::API_VERSION_TEST_MULTIPLE_SUPPORTED_SV;
+        $this->assertEquals(Utils::API_VERSION_TEST_MULTIPLE_SUPPORTED_RESULT, SuperTokensUtils::findMaxVersion($cv, $sv));
+        $cv = Utils::API_VERSION_TEST_NON_SUPPORTED_CV;
+        $sv = Utils::API_VERSION_TEST_NON_SUPPORTED_SV;
+        $this->assertNull(SuperTokensUtils::findMaxVersion($cv, $sv));
     }
 
     public function testCheckSupportedCoreDriverInterfaceVersions(): void
