@@ -18,6 +18,7 @@ namespace SuperTokens\Tests;
 use Exception;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
+use function PHPUnit\Framework\assertTrue;
 use SuperTokens\Exceptions\SuperTokensException;
 use SuperTokens\Exceptions\SuperTokensGeneralException;
 use SuperTokens\Helpers\DeviceInfo;
@@ -331,5 +332,10 @@ class Utils
             'idRefreshTokenHttpOnly' => $idRefreshTokenHttpOnly,
             'accessControlExposeHeader' => $accessControlExposeHeader
         ];
+    }
+
+    public static function assertApproxEqualTo($v1, $v2)
+    {
+        assertTrue($v1 > $v2 - 5 && $v1 < $v2 + 5);
     }
 }

@@ -76,7 +76,7 @@ class SuperTokensTest extends TestCase
         $response1 = new Response();
         SuperTokens::createNewSession($response1, "userId", [], []);
         $responseData1 = Utils::extractInfoFromResponse($response1);
-        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE, $responseData1['accessTokenMaxAge']);
+        Utils::assertApproxEqualTo(Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE, $responseData1['accessTokenMaxAge']);
         $this->assertEquals(Utils::TEST_ACCESS_TOKEN_PATH_VALUE, $responseData1['accessTokenPath']);
         $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData1['accessTokenDomain']);
         $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData1['refreshTokenDomain']);
@@ -87,7 +87,7 @@ class SuperTokensTest extends TestCase
         $this->assertEquals(true, $responseData1['accessTokenHttpOnly']);
         $this->assertEquals(true, $responseData1['refreshTokenHttpOnly']);
         $this->assertEquals(true, $responseData1['idRefreshTokenHttpOnly']);
-        $this->assertEquals(Utils::TEST_REFRESH_TOKEN_MAX_AGE_VALUE * 60, $responseData1['refreshTokenMaxAge']);
+        Utils::assertApproxEqualTo(Utils::TEST_REFRESH_TOKEN_MAX_AGE_VALUE * 60, $responseData1['refreshTokenMaxAge']);
         $this->assertEquals(Utils::TEST_REFRESH_TOKEN_PATH_KEY_VALUE, $responseData1['refreshTokenPath']);
         $this->assertEquals($expectedSameSite, $responseData1['accessTokenSameSite']);
         $this->assertEquals($expectedSameSite, $responseData1['refreshTokenSameSite']);
@@ -125,7 +125,7 @@ class SuperTokensTest extends TestCase
         $this->assertNotEquals($responseData2['refreshToken'], $responseData3['refreshToken']);
         $this->assertNotEquals($responseData2['idRefreshToken'], $responseData3['idRefreshToken']);
         $this->assertNotEquals($responseData2['antiCsrf'], $responseData3['antiCsrf']);
-        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE, $responseData3['accessTokenMaxAge']);
+        Utils::assertApproxEqualTo(Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE, $responseData3['accessTokenMaxAge']);
         $this->assertEquals(Utils::TEST_ACCESS_TOKEN_PATH_VALUE, $responseData3['accessTokenPath']);
         $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData3['accessTokenDomain']);
         $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData3['refreshTokenDomain']);
@@ -136,12 +136,14 @@ class SuperTokensTest extends TestCase
         $this->assertEquals(true, $responseData3['accessTokenHttpOnly']);
         $this->assertEquals(true, $responseData3['refreshTokenHttpOnly']);
         $this->assertEquals(true, $responseData3['idRefreshTokenHttpOnly']);
-        $this->assertEquals(Utils::TEST_REFRESH_TOKEN_MAX_AGE_VALUE * 60, $responseData3['refreshTokenMaxAge']);
+        Utils::assertApproxEqualTo(Utils::TEST_REFRESH_TOKEN_MAX_AGE_VALUE * 60, $responseData3['refreshTokenMaxAge']);
         $this->assertEquals(Utils::TEST_REFRESH_TOKEN_PATH_KEY_VALUE, $responseData3['refreshTokenPath']);
         $this->assertEquals($expectedSameSite, $responseData3['accessTokenSameSite']);
         $this->assertEquals($expectedSameSite, $responseData3['refreshTokenSameSite']);
         $this->assertEquals($expectedSameSite, $responseData3['idRefreshTokenSameSite']);
-        $this->assertEquals($responseData3['idRefreshToken'].';'.$responseData3['idRefreshTokenExpiry'], substr($responseData3['idRefreshTokenFromHeader'], 0, -3)); // doing substring as expiry extracted from cookie will not include milliseconds part
+        $this->assertEquals($responseData3['idRefreshToken'].';', substr($responseData3['idRefreshTokenFromHeader'], 0, -13)); // doing substring as expiry extracted from cookie will not include milliseconds part
+        $expiryTime = (int)(substr($responseData3['idRefreshTokenFromHeader'], -13, -3));
+        Utils::assertApproxEqualTo($expiryTime, $responseData3['idRefreshTokenExpiry']);
         $this->assertEquals(Utils::ACCESS_CONTROL_EXPOSE_HEADER_ANTI_CSRF_ENABLE, $responseData3['accessControlExposeHeader']);
         $this->assertNotNull($responseData3['antiCsrf']);
 
@@ -155,7 +157,7 @@ class SuperTokensTest extends TestCase
         $responseData4 = Utils::extractInfoFromResponse($response4);
         $this->assertNotEquals($responseData3['accessToken'], $responseData4['accessToken']);
         $this->assertNotEquals($responseData1['accessToken'], $responseData4['accessToken']);
-        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE, $responseData4['accessTokenMaxAge']);
+        Utils::assertApproxEqualTo(Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE, $responseData4['accessTokenMaxAge']);
         $this->assertEquals(Utils::TEST_ACCESS_TOKEN_PATH_VALUE, $responseData4['accessTokenPath']);
         $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData4['accessTokenDomain']);
         $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData4['accessTokenSecure']);
@@ -220,7 +222,7 @@ class SuperTokensTest extends TestCase
         $response1 = new Response();
         SuperTokens::createNewSession($response1, "userId", [], []);
         $responseData1 = Utils::extractInfoFromResponse($response1);
-        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE, $responseData1['accessTokenMaxAge']);
+        Utils::assertApproxEqualTo(Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE, $responseData1['accessTokenMaxAge']);
         $this->assertEquals(Utils::TEST_ACCESS_TOKEN_PATH_VALUE, $responseData1['accessTokenPath']);
         $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData1['accessTokenDomain']);
         $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData1['refreshTokenDomain']);
@@ -231,12 +233,14 @@ class SuperTokensTest extends TestCase
         $this->assertEquals(true, $responseData1['accessTokenHttpOnly']);
         $this->assertEquals(true, $responseData1['refreshTokenHttpOnly']);
         $this->assertEquals(true, $responseData1['idRefreshTokenHttpOnly']);
-        $this->assertEquals(Utils::TEST_REFRESH_TOKEN_MAX_AGE_VALUE * 60, $responseData1['refreshTokenMaxAge']);
+        Utils::assertApproxEqualTo(Utils::TEST_REFRESH_TOKEN_MAX_AGE_VALUE * 60, $responseData1['refreshTokenMaxAge']);
         $this->assertEquals(Utils::TEST_REFRESH_TOKEN_PATH_KEY_VALUE, $responseData1['refreshTokenPath']);
         $this->assertEquals($expectedSameSite, $responseData1['accessTokenSameSite']);
         $this->assertEquals($expectedSameSite, $responseData1['refreshTokenSameSite']);
         $this->assertEquals($expectedSameSite, $responseData1['idRefreshTokenSameSite']);
-        $this->assertEquals($responseData1['idRefreshToken'].';'.$responseData1['idRefreshTokenExpiry'], substr($responseData1['idRefreshTokenFromHeader'], 0, -3)); // doing substring as expiry extracted from cookie will not include milliseconds part
+        $this->assertEquals($responseData1['idRefreshToken'].';', substr($responseData1['idRefreshTokenFromHeader'], 0, -13)); // doing substring as expiry extracted from cookie will not include milliseconds part
+        $expiryTime = (int)(substr($responseData1['idRefreshTokenFromHeader'], -13, -3));
+        Utils::assertApproxEqualTo($expiryTime, $responseData1['idRefreshTokenExpiry']);
         $this->assertEquals(Utils::ACCESS_CONTROL_EXPOSE_HEADER_ANTI_CSRF_DISABLE, $responseData1['accessControlExposeHeader']);
         $this->assertNull($responseData1['antiCsrf']);
 
@@ -262,7 +266,7 @@ class SuperTokensTest extends TestCase
         $this->assertNotEquals($responseData2['refreshToken'], $responseData3['refreshToken']);
         $this->assertNotEquals($responseData2['idRefreshToken'], $responseData3['idRefreshToken']);
         $this->assertEquals($responseData2['antiCsrf'], $responseData3['antiCsrf']);
-        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE, $responseData3['accessTokenMaxAge']);
+        Utils::assertApproxEqualTo(Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE, $responseData3['accessTokenMaxAge']);
         $this->assertEquals(Utils::TEST_ACCESS_TOKEN_PATH_VALUE, $responseData3['accessTokenPath']);
         $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData3['accessTokenDomain']);
         $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData3['refreshTokenDomain']);
@@ -273,17 +277,14 @@ class SuperTokensTest extends TestCase
         $this->assertEquals(true, $responseData3['accessTokenHttpOnly']);
         $this->assertEquals(true, $responseData3['refreshTokenHttpOnly']);
         $this->assertEquals(true, $responseData3['idRefreshTokenHttpOnly']);
-        $this->assertEquals(Utils::TEST_REFRESH_TOKEN_MAX_AGE_VALUE * 60, $responseData3['refreshTokenMaxAge']);
+        Utils::assertApproxEqualTo(Utils::TEST_REFRESH_TOKEN_MAX_AGE_VALUE * 60, $responseData3['refreshTokenMaxAge']);
         $this->assertEquals(Utils::TEST_REFRESH_TOKEN_PATH_KEY_VALUE, $responseData3['refreshTokenPath']);
         $this->assertEquals($expectedSameSite, $responseData3['accessTokenSameSite']);
         $this->assertEquals($expectedSameSite, $responseData3['refreshTokenSameSite']);
         $this->assertEquals($expectedSameSite, $responseData3['idRefreshTokenSameSite']);
         $this->assertEquals($responseData3['idRefreshToken'].';', substr($responseData3['idRefreshTokenFromHeader'], 0, -13)); // doing substring as expiry extracted from cookie will not include milliseconds part
         $expiryTime = (int)(substr($responseData3['idRefreshTokenFromHeader'], -13, -3));
-        $c1 = $responseData3['idRefreshTokenExpiry'] === $expiryTime;
-        $c2 = ($responseData3['idRefreshTokenExpiry'] + 1) === $expiryTime;
-        $c3 = $responseData3['idRefreshTokenExpiry'] === ($expiryTime + 1);
-        $this->assertTrue($c1 || $c2 || $c3);
+        Utils::assertApproxEqualTo($expiryTime, $responseData3['idRefreshTokenExpiry']);
         $this->assertEquals(Utils::ACCESS_CONTROL_EXPOSE_HEADER_ANTI_CSRF_DISABLE, $responseData3['accessControlExposeHeader']);
         $this->assertNull($responseData3['antiCsrf']);
 
@@ -296,7 +297,7 @@ class SuperTokensTest extends TestCase
         $responseData4 = Utils::extractInfoFromResponse($response4);
         $this->assertNotEquals($responseData3['accessToken'], $responseData4['accessToken']);
         $this->assertNotEquals($responseData1['accessToken'], $responseData4['accessToken']);
-        $this->assertEquals(Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE, $responseData4['accessTokenMaxAge']);
+        Utils::assertApproxEqualTo(Utils::TEST_ACCESS_TOKEN_MAX_AGE_VALUE, $responseData4['accessTokenMaxAge']);
         $this->assertEquals(Utils::TEST_ACCESS_TOKEN_PATH_VALUE, $responseData4['accessTokenPath']);
         $this->assertEquals(Utils::TEST_COOKIE_DOMAIN_VALUE, $responseData4['accessTokenDomain']);
         $this->assertEquals(Utils::TEST_COOKIE_SECURE_VALUE, $responseData4['accessTokenSecure']);
