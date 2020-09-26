@@ -50,7 +50,7 @@ You will need to setup the `supertokens-core` in order to to run the `supertoken
    ```
 5. If all tests pass the output should be:
 
-![laravel tests passing](https://github.com/supertokens/supertokens-logo/blob/master/images/supertokens-laravel-tests-passing.png) 
+   <img src="https://github.com/supertokens/supertokens-logo/blob/master/images/supertokens-laravel-tests-passing.png" alt="Laravel tests passing" width="500px">
 
 
 ## Pull Request
