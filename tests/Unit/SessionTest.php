@@ -95,7 +95,8 @@ class SessionTest extends TestCase
         Utils::startST();
         try {
             $version = Querier::getInstance()->getApiVersion();
-            if ($version !== "2.0" && strpos(env("SUPERTOKENS_PATH"), 'com-') !== false) {
+            if (($version !== "2.0" && strpos(env("SUPERTOKENS_PATH"), 'com-') !== false) ||
+                (\SuperTokens\Helpers\Utils::compareVersions($version, "2.3") === $version && strpos(env("SUPERTOKENS_PATH"), 'supertokens-') !== false)) {
                 $this->assertTrue(false);
             }
         } catch (Exception $err) {
