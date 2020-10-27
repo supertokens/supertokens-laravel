@@ -43,7 +43,7 @@ class CookieAndHeaderTest extends TestCase
         parent::tearDown();
     }
 
-    public function testSetCookie()
+    public function testSetSingleCookie()
     {
         $response = new Response();
 
@@ -55,15 +55,109 @@ class CookieAndHeaderTest extends TestCase
         $path = '/';
         $minutes = 10;
         $sameSite = "none";
-
+        
         CookieAndHeader::setCookie($response, $key, $value, $minutes, $path, $domain, $secure, $httpOnly, $sameSite);
 
         $this->assertIsObject($response->headers);
         $this->assertIsArray($response->headers->getCookies());
+        $this->assertCount(1, $response->headers->getCookies());
         $this->assertIsObject($response->headers->getCookies()[0]);
         $cookie = $response->headers->getCookies()[0];
+
         $this->assertEquals($key, $cookie->getName());
         $this->assertEquals($value, $cookie->getValue());
+        $this->assertEquals($domain, $cookie->getDomain());
+        $this->assertEquals($cookie->getPath(), $path);
+        $this->assertEquals($secure, $cookie->isSecure());
+        $this->assertEquals($httpOnly, $cookie->isHttpOnly());
+        $this->assertEquals($sameSite, $cookie->getSameSite());
+    }
+
+    public function testSetMultipleCookies()
+    {
+        $response = new Response();
+
+        $key1 = 'test1';
+        $value1 = 'value1';
+        $key2 = 'test2';
+        $value2 = 'value2';
+        $value3 = 'value3';
+        $domain = 'localhost';
+        $secure = false;
+        $httpOnly = false;
+        $path = '/';
+        $minutes = 10;
+        $sameSite = "none";
+        
+        CookieAndHeader::setCookie($response, $key1, $value1, $minutes, $path, $domain, $secure, $httpOnly, $sameSite);
+        CookieAndHeader::setCookie($response, $key2, $value2, $minutes, $path, $domain, $secure, $httpOnly, $sameSite);
+
+        $this->assertIsObject($response->headers);
+        $this->assertIsArray($response->headers->getCookies());
+        $this->assertCount(2, $response->headers->getCookies());
+        $this->assertIsObject($response->headers->getCookies()[0]);
+        $this->assertIsObject($response->headers->getCookies()[1]);
+
+        //check the first cookie
+        $cookie1 = $response->headers->getCookies()[0];
+
+        $this->assertEquals($key1, $cookie1->getName());
+        $this->assertEquals($value1, $cookie1->getValue());
+        $this->assertEquals($domain, $cookie1->getDomain());
+        $this->assertEquals($cookie1->getPath(), $path);
+        $this->assertEquals($secure, $cookie1->isSecure());
+        $this->assertEquals($httpOnly, $cookie1->isHttpOnly());
+        $this->assertEquals($sameSite, $cookie1->getSameSite());
+
+        //check the second cookie
+        $cookie2 = $response->headers->getCookies()[1];
+
+        $this->assertEquals($key2, $cookie2->getName());
+        $this->assertEquals($value2, $cookie2->getValue());
+        $this->assertEquals($domain, $cookie2->getDomain());
+        $this->assertEquals($cookie2->getPath(), $path);
+        $this->assertEquals($secure, $cookie2->isSecure());
+        $this->assertEquals($httpOnly, $cookie2->isHttpOnly());
+        $this->assertEquals($sameSite, $cookie2->getSameSite());
+
+        //overwrite the second cookie and check its value has changed
+        CookieAndHeader::setCookie($response, $key2, $value3, $minutes, $path, $domain, $secure, $httpOnly, $sameSite);
+
+        $this->assertIsArray($response->headers->getCookies());
+        $this->assertCount(2, $response->headers->getCookies());
+
+        $overwritten_cookie = $response->headers->getCookies()[1];
+
+        $this->assertEquals($key2, $overwritten_cookie->getName());
+        $this->assertEquals($value3, $overwritten_cookie->getValue());
+    }
+
+    public function testSetCookiesMultipleTimes()
+    {
+        $response = new Response();
+
+        $key = 'test';
+        $value1 = 'value1';
+        $value2 = 'value2';
+        $domain = 'localhost';
+        $secure = false;
+        $httpOnly = false;
+        $path = '/';
+        $minutes = 10;
+        $sameSite = "none";
+        
+        CookieAndHeader::setCookie($response, $key, $value1, $minutes, $path, $domain, $secure, $httpOnly, $sameSite);
+        CookieAndHeader::setCookie($response, $key, $value2, $minutes, $path, $domain, $secure, $httpOnly, $sameSite);
+
+        $this->assertIsObject($response->headers);
+        $this->assertIsArray($response->headers->getCookies());
+        $this->assertCount(1, $response->headers->getCookies());
+        $this->assertIsObject($response->headers->getCookies()[0]);
+
+        $cookie = $response->headers->getCookies()[0];
+
+        $this->assertEquals($key, $cookie->getName());
+        $this->assertEquals($value2, $cookie->getValue());
         $this->assertEquals($domain, $cookie->getDomain());
         $this->assertEquals($cookie->getPath(), $path);
         $this->assertEquals($secure, $cookie->isSecure());
