@@ -230,10 +230,10 @@ class CookieAndHeader
     }
 
     /**
-     * @param Response $response
-     * @param string $userId
-     * @param int $atExpiry
-     * @param mixed $jwtPayload
+     * @param  Response  $response
+     * @param  string  $userId
+     * @param  int  $atExpiry
+     * @param  mixed  $jwtPayload
      */
     public static function attachFrontTokenToHeader(Response $response, $userId, $atExpiry, $jwtPayload)
     {
