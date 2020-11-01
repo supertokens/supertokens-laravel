@@ -57,6 +57,7 @@ class SuperTokens
         $refreshToken = $newSession['refreshToken'];
         $idRefreshToken = $newSession['idRefreshToken'];
         CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessToken['sameSite']);
+        CookieAndHeader::attachFrontTokenToHeader($response, $userId, $accessToken['expiry'], $jwtPayload);
         CookieAndHeader::attachRefreshTokenToCookie($response, $refreshToken['token'], $refreshToken['expiry'], $refreshToken['domain'], $refreshToken['cookieSecure'], $refreshToken['cookiePath'], $refreshToken['sameSite']);
         CookieAndHeader::attachIdRefreshTokenToCookieAndHeader($response, $idRefreshToken['token'], $idRefreshToken['expiry'], $idRefreshToken['domain'], $idRefreshToken['cookieSecure'], $idRefreshToken['cookiePath'], $idRefreshToken['sameSite']);
         if (isset($newSession['antiCsrfToken'])) {

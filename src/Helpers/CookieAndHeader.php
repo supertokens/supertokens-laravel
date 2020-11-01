@@ -29,7 +29,7 @@ define("ANTI_CSRF_HEADER_KEY", "anti-csrf");
 define("ID_REFRESH_TOKEN_HEADER_KEY", "id-refresh-token");
 define("FRONTEND_SDK_NAME_HEADER_KEY", "supertokens-sdk-name");
 define("FRONTEND_SDK_VERSION_HEADER_KEY", "supertokens-sdk-version");
-
+define("FRONT_TOKEN_HEADER_KEY", "front-token");
 
 class CookieAndHeader
 {
@@ -52,12 +52,13 @@ class CookieAndHeader
         CookieAndHeader::setHeader($response, "Access-Control-Allow-Headers", ANTI_CSRF_HEADER_KEY);
         CookieAndHeader::setHeader($response, "Access-Control-Allow-Headers", FRONTEND_SDK_NAME_HEADER_KEY);
         CookieAndHeader::setHeader($response, "Access-Control-Allow-Headers", FRONTEND_SDK_VERSION_HEADER_KEY);
+        CookieAndHeader::setHeader($response, "Access-Control-Allow-Headers", FRONT_TOKEN_HEADER_KEY);
         CookieAndHeader::setHeader($response, "Access-Control-Allow-Credentials", "true");
     }
 
     public static function getCORSAllowedHeaders()
     {
-        return [ANTI_CSRF_HEADER_KEY, FRONTEND_SDK_NAME_HEADER_KEY, FRONTEND_SDK_VERSION_HEADER_KEY];
+        return [ANTI_CSRF_HEADER_KEY, FRONTEND_SDK_NAME_HEADER_KEY, FRONTEND_SDK_VERSION_HEADER_KEY, FRONT_TOKEN_HEADER_KEY];
     }
 
     public static function setHeader(Response $response, $key, $value)
@@ -227,5 +228,22 @@ class CookieAndHeader
         $minutes = ceil(($expiresAt - $currentTimestamp) / 60000);
         $minutes = max(0, $minutes);
         return (int)$minutes;
+    }
+
+    /**
+     * @param  Response  $response
+     * @param  string  $userId
+     * @param  int  $atExpiry
+     * @param  mixed  $jwtPayload
+     */
+    public static function attachFrontTokenToHeader(Response $response, $userId, $atExpiry, $jwtPayload)
+    {
+        $tokenInfo = [
+            'uid' => $userId,
+            'ate' => $atExpiry,
+            'up' => $jwtPayload
+        ];
+        CookieAndHeader::setHeader($response, FRONT_TOKEN_HEADER_KEY, base64_encode(json_encode($tokenInfo)));
+        CookieAndHeader::setHeader($response, "Access-Control-Expose-Headers", FRONT_TOKEN_HEADER_KEY);
     }
 }
