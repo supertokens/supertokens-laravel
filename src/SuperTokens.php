@@ -107,6 +107,7 @@ class SuperTokens
                 if (isset($response)) {
                     $accessTokenInfo = $newSession['accessToken'];
                     CookieAndHeader::attachAccessTokenToCookie($response, $accessTokenInfo['token'], $accessTokenInfo['expiry'], $accessTokenInfo['domain'], $accessTokenInfo['cookieSecure'], $accessTokenInfo['cookiePath'], $accessTokenInfo['sameSite']);
+                    CookieAndHeader::attachFrontTokenToHeader($response, $session->getUserId(), $accessTokenInfo['expiry'], $session->getJWTPayload());
                 } else {
                     $session->newAccessTokenInfo = $newSession['accessToken'];
                 }
@@ -156,6 +157,7 @@ class SuperTokens
 
             if (isset($response)) {
                 CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessToken['sameSite']);
+                CookieAndHeader::attachFrontTokenToHeader($response, $session->getUserId(), $accessToken['expiry'], $session->getJWTPayload());
                 CookieAndHeader::attachRefreshTokenToCookie($response, $refreshToken['token'], $refreshToken['expiry'], $refreshToken['domain'], $refreshToken['cookieSecure'], $refreshToken['cookiePath'], $refreshToken['sameSite']);
                 CookieAndHeader::attachIdRefreshTokenToCookieAndHeader($response, $idRefreshToken['token'], $idRefreshToken['expiry'], $idRefreshToken['domain'], $idRefreshToken['cookieSecure'], $idRefreshToken['cookiePath'], $idRefreshToken['sameSite']);
                 if (isset($newSession['antiCsrfToken'])) {

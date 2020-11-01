@@ -65,8 +65,8 @@ class Utils
     const TEST_COOKIE_SECURE_VALUE = true;
     const TEST_COOKIE_SECURE_CONFIG_KEY = "cookie_secure";
     const ACCESS_CONTROL_EXPOSE_HEADER = 'Access-Control-Expose-Headers';
-    const ACCESS_CONTROL_EXPOSE_HEADER_ANTI_CSRF_ENABLE = "id-refresh-token, anti-csrf";
-    const ACCESS_CONTROL_EXPOSE_HEADER_ANTI_CSRF_DISABLE = "id-refresh-token";
+    const ACCESS_CONTROL_EXPOSE_HEADER_ANTI_CSRF_ENABLE = "front-token, id-refresh-token, anti-csrf";
+    const ACCESS_CONTROL_EXPOSE_HEADER_ANTI_CSRF_DISABLE = "front-token, id-refresh-token";
 
     /**
      * @param string $key

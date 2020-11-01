@@ -223,6 +223,7 @@ class Session
             $this->accessToken = $accessToken['token'];
             if (isset($this->response)) {
                 CookieAndHeader::attachAccessTokenToCookie($this->response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessToken['sameSite']);
+                CookieAndHeader::attachFrontTokenToHeader($this->response, $this->getUserId(), $accessToken['expiry'], $this->getJWTPayload());
             } else {
                 $this->newAccessTokenInfo = $accessToken;
             }

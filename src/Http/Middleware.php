@@ -67,7 +67,7 @@ class Middleware
             if (count($session->newAccessTokenInfo) !== 0) {
                 $accessToken = $session->newAccessTokenInfo;
                 CookieAndHeader::attachAccessTokenToCookie($response, $accessToken['token'], $accessToken['expiry'], $accessToken['domain'], $accessToken['cookieSecure'], $accessToken['cookiePath'], $accessToken['sameSite']);
-                CookieAndHeader::attachFrontTokenToHeader($response, $session->getUserId(), $accessToken['expiry'],  $accessToken['token']);
+                CookieAndHeader::attachFrontTokenToHeader($response, $session->getUserId(), $accessToken['expiry'], $accessToken['token']);
             }
             if (count($session->newRefreshTokenInfo) !== 0) {
                 $refreshToken = $session->newRefreshTokenInfo;
