@@ -14,6 +14,7 @@ jobs:
       - run: apt install php7.3-mbstring -y
       - run: composer install
       - run: (cd .circleci/ && ./doTests.sh)
+      - slack/status
 workflows:
   version: 2
   tagged-build:
